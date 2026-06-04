@@ -48,4 +48,4 @@ The displayed shell notation `$ drax` means run the command `drax`; the dollar s
 
 The full `conclave-cc` agent corpus remains an internal source library. This repository ships only the capability and context needed for organic growth v1.0.0. Later modules must pass their own product, security, and commercial gates before inclusion.
 
-See [Architecture](docs/ARCHITECTURE.md), [Operating Model](docs/OPERATING_MODEL.md), [Roadmap](docs/ROADMAP.md), [Release Gates](docs/RELEASE_GATES.md), [Installation](docs/INSTALLATION.md), [Video Pipeline](docs/VIDEO_PIPELINE.md), and [Publishing Safety](docs/PUBLISHING_SAFETY.md).
+See [Architecture](docs/ARCHITECTURE.md), [Operating Model](docs/OPERATING_MODEL.md), [Portfolio Roadmap](docs/PORTFOLIO_ROADMAP.md), [Release Roadmap](docs/ROADMAP.md), [Release Gates](docs/RELEASE_GATES.md), [Installation](docs/INSTALLATION.md), [Video Pipeline](docs/VIDEO_PIPELINE.md), and [Publishing Safety](docs/PUBLISHING_SAFETY.md).
