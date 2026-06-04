@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drax.co/schemas/publish-record.schema.json",
+  "title": "Drax Publish Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "attemptId",
+    "assetId",
+    "adapter",
+    "mode",
+    "targetAccount",
+    "approval",
+    "requestedAt",
+    "result"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "attemptId": { "type": "string", "minLength": 1 },
+    "assetId": { "type": "string", "minLength": 1 },
+    "adapter": { "type": "string", "minLength": 1 },
+    "adapterVersion": { "type": "string" },
+    "mode": { "enum": ["dry-run", "official-api", "playwright-experimental", "export-manual"] },
+    "targetAccount": { "type": "string", "minLength": 1 },
+    "requestedPrivacy": { "type": "string" },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approvedBy", "approvedAt"],
+      "properties": {
+        "approvedBy": { "type": "string", "minLength": 1 },
+        "approvedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "requestedAt": { "type": "string", "format": "date-time" },
+    "result": { "enum": ["pending", "succeeded", "failed", "rolled-back"] },
+    "remoteId": { "type": "string" },
+    "evidencePath": { "type": "string" },
+    "rollbackResult": { "type": "string" }
+  }
+}

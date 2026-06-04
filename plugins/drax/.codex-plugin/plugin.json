@@ -1,0 +1,32 @@
+{
+  "name": "drax",
+  "version": "1.0.0",
+  "description": "Organic growth operating runtime for founders with an existing product.",
+  "author": {
+    "name": "Drax",
+    "email": "einstenrodrigues.dev@gmail.com",
+    "url": "https://drax.co"
+  },
+  "homepage": "https://drax.co/docs",
+  "repository": "https://github.com/einstenrodriguesdev/drax-corp",
+  "license": "UNLICENSED",
+  "keywords": ["founder", "organic-growth", "editorial", "distribution", "automation"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Drax",
+    "shortDescription": "Turn founder knowledge into an organic growth system.",
+    "longDescription": "Drax interviews founders with an existing product, creates a source-backed editorial and distribution plan, prepares reusable assets, and operates a measured organic-growth loop with explicit approval gates.",
+    "developerName": "Drax",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://drax.co",
+    "privacyPolicyURL": "https://drax.co/security",
+    "termsOfServiceURL": "https://drax.co/docs",
+    "defaultPrompt": [
+      "Use Drax to design my organic growth system.",
+      "Turn my product knowledge into an editorial calendar.",
+      "Audit my content distribution readiness."
+    ],
+    "brandColor": "#FF3D00"
+  }
+}

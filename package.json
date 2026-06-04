@@ -1,0 +1,43 @@
+{
+  "name": "drax-corp",
+  "version": "1.0.0",
+  "description": "Lean Drax organic growth runtime for founders with an existing product.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "bin": {
+    "drax": "dist/cli.js",
+    "drax-corp": "dist/cli.js"
+  },
+  "files": [
+    ".agents/",
+    "compat/",
+    "dist/",
+    "docs/",
+    "plugins/",
+    "schemas/",
+    "templates/",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "validate": "node scripts/validate-package.mjs",
+    "verify": "npm run check && npm test && npm run validate",
+    "prepack": "npm run verify"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/einstenrodriguesdev/drax-corp.git"
+  },
+  "author": "einstenrodrigues.dev <einstenrodrigues.dev@gmail.com>",
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.9.0"
+  }
+}

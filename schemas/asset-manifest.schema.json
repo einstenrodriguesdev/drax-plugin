@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drax.co/schemas/asset-manifest.schema.json",
+  "title": "Drax Asset Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "assetId", "briefId", "renderer", "inputs", "outputs"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "assetId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$" },
+    "briefId": { "type": "string", "minLength": 1 },
+    "renderer": {
+      "enum": ["python-ffmpeg", "remotion", "ffmpeg-template", "svg"]
+    },
+    "rendererVersion": { "type": "string" },
+    "inputs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hashedFile" },
+      "minItems": 1
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/hashedFile" },
+      "minItems": 1
+    },
+    "channels": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "hashedFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "mediaType": { "type": "string" }
+      }
+    }
+  }
+}
