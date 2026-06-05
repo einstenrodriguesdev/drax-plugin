@@ -30,7 +30,7 @@ founder interview
 - Docs folder: `/home/conclave/drax/drax-corp/docs`
 - Remote configured: `git@github.com:einstenrodriguesdev/drax-corp.git`
 - Repository topology: [Repository Topology](REPOSITORY_TOPOLOGY.md)
-- GitHub web path, after repository creation/access is fixed: `https://github.com/einstenrodriguesdev/drax-corp/tree/main/docs`
+- GitHub docs path: `https://github.com/einstenrodriguesdev/drax-corp/tree/main/docs`
 
 ## What Is Ready
 
@@ -72,29 +72,29 @@ founder interview
 | Plugin validation | Passed | Plugin schema validation passed before this docs update. |
 | Local install | Passed | Local installer wrote Codex plugin, Claude command, launcher, and persistent runtime. |
 | `drax doctor` | Mostly passed | FFmpeg is optional-missing locally; Python is present. |
-| GitHub push | Blocked | SSH authenticates, but GitHub reports the repository is not found or inaccessible. |
+| GitHub push | Passed | `drax-corp` and `drax-site` private repos exist and are pushed. |
+| Site staging branch | Passed | `drax-site` has `staging` pushed and tracking `origin/staging`. |
 
 ## Current Blockers
 
-1. Create or grant access to the private GitHub repository at `einstenrodriguesdev/drax-corp`.
-2. Create or grant access to the private GitHub repository at `einstenrodriguesdev/drax-site`.
-3. Install FFmpeg before production video rendering.
-4. Run the first isolated founder intake in a clean product workspace.
-5. Generate and review the first 12 baseline artifacts before enabling any daily clock trigger.
-6. Keep live publishing disabled until at least one adapter passes its release gate.
+1. Install FFmpeg before production video rendering.
+2. Run the first isolated founder intake in a clean product workspace.
+3. Generate and review the first 12 baseline artifacts before enabling any daily clock trigger.
+4. Keep live publishing disabled until at least one adapter passes its release gate.
+5. Configure protected branches and GitHub environments after the first repo settings pass.
+6. Connect `drax-site` `staging` branch to a staging deploy target, preferably `drax-dev.conclave-company.com`.
 
 ## Next Operating Road
 
-1. Fix GitHub repository access and push `main` plus the current state tag.
-2. Create an isolated test workspace for a real product.
-3. Run `drax` and complete founder/product intake.
-4. Lock language strategy.
-5. Lock stack/security decision.
-6. Generate the 90-post/class plan.
-7. Schedule the first week in `EDITORIAL_CALENDAR.md`.
-8. Produce one article, one SVG/carousel, and one short-video package.
-9. Run manual export first.
-10. Enable clock trigger only after manual runs are clean and idempotent.
+1. Create an isolated test workspace for a real product.
+2. Run `drax` and complete founder/product intake.
+3. Lock language strategy.
+4. Lock stack/security decision.
+5. Generate the 90-post/class plan.
+6. Schedule the first week in `EDITORIAL_CALENDAR.md`.
+7. Produce one article, one SVG/carousel, and one short-video package.
+8. Run manual export first.
+9. Enable clock trigger only after manual runs are clean and idempotent.
 
 ## Current Git Tag Meaning
 

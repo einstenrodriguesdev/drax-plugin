@@ -10,13 +10,23 @@ This document defines which folders are repositories, which folders are only wor
 | Local path | Git repo? | Remote | Remote status | Responsibility |
 |---|---:|---|---|---|
 | `/home/conclave/drax` | No | none | workspace only | Local Drax workspace index. Do not commit product code here. |
-| `/home/conclave/drax/drax-corp` | Yes | `git@github.com:einstenrodriguesdev/drax-corp.git` | Blocked: `Repository not found` | Official private Drax plugin/runtime source, docs, templates, release gates, package validation. |
-| `/home/conclave/drax/drax-site` | Yes | `git@github.com:einstenrodriguesdev/drax-site.git` | Blocked: `Repository not found` | Public/commercial Astro site, documentation surface, pricing, knowledge base, trust pages. |
+| `/home/conclave/drax/drax-corp` | Yes | `git@github.com:einstenrodriguesdev/drax-corp.git` | Private and pushed | Official private Drax plugin/runtime source, docs, templates, release gates, package validation. |
+| `/home/conclave/drax/drax-site` | Yes | `git@github.com:einstenrodriguesdev/drax-site.git` | Private and pushed | Public/commercial Astro site, documentation surface, pricing, knowledge base, trust pages. |
 | `/home/conclave/conclave-cc` | Yes | `git@github.com:einstenrodriguesdev/conclave.git` | Reachable | Internal source library for agents, roles, and enterprise operating patterns. Reuse by review; do not ship wholesale. |
 
 ## Recommended Repository Model
 
 Drax should use two repositories now and introduce a third only when experimental adapter work becomes risky enough to justify isolation.
+
+## Naming Decision
+
+`drax-site` is acceptable and not confusing inside the Drax workspace because it clearly separates the public site from the private runtime. If the public brand later needs a cleaner repository name, the best alternatives are:
+
+- `drax-web` - clearer for frontend engineers.
+- `drax.co` - strong if the repository maps exactly to the production domain.
+- `drax-site` - current name; explicit and serviceable.
+
+Do not rename it now unless the name itself is causing operational mistakes. Renaming a repo after deployment adds remote, CI, and deployment churn without improving security.
 
 ### 1. `drax-corp` - official private plugin/runtime repository
 
@@ -58,7 +68,7 @@ Rules:
 
 ### 3. `drax-lab` - optional private development sandbox
 
-Create this only when the experiments become dangerous or noisy for `drax-corp`.
+Create this only when the experiments become dangerous or noisy for `drax-corp`. This is not the default development repo; it is a lab for unsafe work.
 
 Purpose:
 
@@ -77,6 +87,44 @@ Rules:
 - No customer artifacts.
 - Uses dedicated test accounts only.
 - Successful work is promoted into `drax-corp` through a reviewed patch, not copied blindly.
+
+## Development Repo Decision
+
+Do not create a normal `drax-dev` duplicate repository for everyday development.
+
+A duplicate dev repo feels safer, but in practice it usually creates:
+
+- drift between dev and production code
+- duplicated secrets and deploy settings
+- unclear source of truth
+- harder merges
+- accidental deployment from the wrong repo
+- weaker release discipline because tags and branches split across repositories
+
+The safer professional default is:
+
+- one official source repo
+- protected `main`
+- feature branches
+- staging branch or preview deploys
+- separate GitHub environments and secrets
+- isolated test accounts
+- no production credentials in development
+
+Use a separate repo only for work that should not be able to touch the official source tree, such as browser-posting experiments, destructive adapter prototypes, or generated media tests with account sessions. Name that repo `drax-lab` or `drax-sandbox`, not `drax-dev`, so its risk profile is obvious.
+
+## Branch Vs Repository Rule
+
+| Need | Use branch/environment | Use separate repo |
+|---|---|---|
+| Normal site development | Yes | No |
+| Site staging deploy | Yes, `staging` branch or preview deploy | No |
+| Plugin feature work | Yes, `dev/*` branch | No |
+| Release candidate | Yes, `main` plus tag | No |
+| Playwright account automation tests | Maybe | Yes, if sessions/accounts are involved |
+| API adapter spike with credentials | Maybe | Yes, if tokens or account risk exist |
+| Video rendering experiments | Yes | Only if generated artifacts become noisy |
+| Customer/project artifacts | No | Separate private customer workspace, not product repo |
 
 ## Future Repository
 
@@ -108,7 +156,7 @@ Use environments instead of duplicating repositories prematurely.
 | Environment | Repo | Branch/tag | Runtime | Purpose |
 |---|---|---|---|---|
 | local | `drax-corp`, `drax-site` | working branch | developer machine | fast development and verification |
-| dev | `drax-lab` or feature branch | `dev/*` | isolated test accounts | unsafe experiments and adapter tests |
+| dev | feature branch, or `drax-lab` for unsafe tests | `dev/*` | isolated test accounts | normal implementation or risky adapter tests |
 | staging | `drax-site` | `staging` branch | branch deploy or staging host | public-site review before production |
 | production | `drax-corp`, `drax-site` | `main` + tag | official package/site | released plugin and public site |
 
@@ -122,9 +170,29 @@ Preferred professional options:
 
 Use a subdomain or branch deploy for real staging. A path like `/drax-dev/` is acceptable for a temporary preview page, but it is easier to leak into production navigation and can create routing/base-path issues in static apps.
 
-## GitHub Fix Road
+Recommended site deployment structure:
 
-The local Git state is not the blocker. The remote repositories are missing or inaccessible.
+- production: `main` branch -> `conclave-company.com` or `drax.co`
+- staging: `staging` branch -> `drax-dev.conclave-company.com`
+- previews: pull request or branch deploy URLs
+
+This keeps the same repository as the source of truth while isolating deployments by branch, environment, and domain.
+
+## GitHub State
+
+The private Drax repositories now exist and are pushed:
+
+- <https://github.com/einstenrodriguesdev/drax-corp>
+- <https://github.com/einstenrodriguesdev/drax-site>
+
+If a new clone is needed:
+
+```bash
+git clone git@github.com:einstenrodriguesdev/drax-corp.git
+git clone git@github.com:einstenrodriguesdev/drax-site.git
+```
+
+## GitHub Creation Road
 
 Run after GitHub authentication is available:
 
