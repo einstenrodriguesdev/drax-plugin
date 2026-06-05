@@ -29,6 +29,7 @@ founder interview
 - Local repository: `/home/conclave/drax/drax-corp`
 - Docs folder: `/home/conclave/drax/drax-corp/docs`
 - Remote configured: `git@github.com:einstenrodriguesdev/drax-corp.git`
+- Repository topology: [Repository Topology](REPOSITORY_TOPOLOGY.md)
 - GitHub web path, after repository creation/access is fixed: `https://github.com/einstenrodriguesdev/drax-corp/tree/main/docs`
 
 ## What Is Ready
@@ -76,10 +77,11 @@ founder interview
 ## Current Blockers
 
 1. Create or grant access to the private GitHub repository at `einstenrodriguesdev/drax-corp`.
-2. Install FFmpeg before production video rendering.
-3. Run the first isolated founder intake in a clean product workspace.
-4. Generate and review the first 12 baseline artifacts before enabling any daily clock trigger.
-5. Keep live publishing disabled until at least one adapter passes its release gate.
+2. Create or grant access to the private GitHub repository at `einstenrodriguesdev/drax-site`.
+3. Install FFmpeg before production video rendering.
+4. Run the first isolated founder intake in a clean product workspace.
+5. Generate and review the first 12 baseline artifacts before enabling any daily clock trigger.
+6. Keep live publishing disabled until at least one adapter passes its release gate.
 
 ## Next Operating Road
 

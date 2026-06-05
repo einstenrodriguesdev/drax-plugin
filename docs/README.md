@@ -19,16 +19,17 @@ ls
 ## Reading Order
 
 1. [Current State](CURRENT_STATE.md) - exact state of the runtime, repository, gates, and blockers.
-2. [Organic Automation Runtime](ORGANIC_AUTOMATION_RUNTIME.md) - the v1 product boundary and operating loop.
-3. [Operating Model](OPERATING_MODEL.md) - canonical artifacts, decision rights, and capability flow.
-4. [Roadmap](ROADMAP.md) - phase gates from foundation to commercial v1.
-5. [Release Gates](RELEASE_GATES.md) - what must pass before each capability is claimed.
-6. [Installation](INSTALLATION.md) - install, test, isolated workspace, and rollback.
-7. [Architecture](ARCHITECTURE.md) - product boundary, runtime layers, state model, and environment reuse.
-8. [Publishing Safety](PUBLISHING_SAFETY.md) - adapter priority, publish records, kill switches, and trigger safety.
-9. [Video Pipeline](VIDEO_PIPELINE.md) - render modes, audio policy, and failure behavior.
-10. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - how `drax-corp`, `drax-site`, and `conclave-cc` relate.
-11. [ADR 0001](adr/0001-lean-capability-runtime.md) - why v1 is a lean capability runtime.
+2. [Repository Topology](REPOSITORY_TOPOLOGY.md) - which folders are repos, which are workspaces, and how Drax should split plugin, site, lab, and future API work.
+3. [Organic Automation Runtime](ORGANIC_AUTOMATION_RUNTIME.md) - the v1 product boundary and operating loop.
+4. [Operating Model](OPERATING_MODEL.md) - canonical artifacts, decision rights, and capability flow.
+5. [Roadmap](ROADMAP.md) - phase gates from foundation to commercial v1.
+6. [Release Gates](RELEASE_GATES.md) - what must pass before each capability is claimed.
+7. [Installation](INSTALLATION.md) - install, test, isolated workspace, and rollback.
+8. [Architecture](ARCHITECTURE.md) - product boundary, runtime layers, state model, and environment reuse.
+9. [Publishing Safety](PUBLISHING_SAFETY.md) - adapter priority, publish records, kill switches, and trigger safety.
+10. [Video Pipeline](VIDEO_PIPELINE.md) - render modes, audio policy, and failure behavior.
+11. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - how `drax-corp`, `drax-site`, and `conclave-cc` relate.
+12. [ADR 0001](adr/0001-lean-capability-runtime.md) - why v1 is a lean capability runtime.
 
 ## Current Semantic Tags
 
