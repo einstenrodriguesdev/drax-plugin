@@ -4,17 +4,17 @@
 
 Exit: package allowlist, tests, secret scan, documented trust boundaries, and dry-run defaults pass.
 
-## Phase 1: Founder Intake And Planning
+## Phase 1: Founder Intake, Language, And Stack Planning
 
-Exit: a founder with an existing product can run `drax`, complete qualification, and receive the seven canonical artifacts without duplicated or contradictory context.
+Exit: a founder with an existing product can run `drax`, complete qualification, and receive the baseline artifacts for product context, language strategy, stack/security decision, 90-post plan, worker routing, trigger planning, distribution, measurement, and execution state without duplicated or contradictory context.
 
 ## Phase 2: Editorial Production
 
-Exit: Drax produces source-backed article briefs, a calendar, SVG/carousel manifests, video manifests, and deterministic preview assets.
+Exit: Drax produces the 90-post/class plan, source-backed article briefs, a calendar, SVG/carousel manifests, video manifests, and deterministic preview assets.
 
 ## Phase 3: Private Dogfooding
 
-Exit: DRAX publishes its own site and prepares two weeks of assets with human approval, zero secret leakage, and reproducible output.
+Exit: DRAX prepares two weeks of assets with human approval, zero secret leakage, reproducible output, a daily clock trigger, and a manual trigger reading the same queue.
 
 ## Phase 4: Platform Integrations
 

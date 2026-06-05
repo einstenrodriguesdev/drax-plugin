@@ -4,5 +4,8 @@ Status: draft
 Owner: editorial
 Last reviewed:
 
-| Publish date | Pillar | Topic | Primary source | Main asset | Derivatives | CTA | Status |
-|---|---|---|---|---|---|---|---|
+Source plan: `NINETY_POST_PLAN.md`
+Trigger plan: `TRIGGER_PLAN.md`
+
+| Publish date | Class # | Pillar | Topic | Language | Primary source | Main asset | Derivatives | CTA | Worker | Status |
+|---|---|---|---|---|---|---|---|---|---|---|

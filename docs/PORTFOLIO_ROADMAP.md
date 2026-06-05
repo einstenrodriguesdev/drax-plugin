@@ -2,7 +2,7 @@
 
 Status: versioned operating plan  
 Current release target: `v1.0.0`  
-Primary user: a founder with an existing product who wants a measurable organic acquisition system
+Primary user: a founder with an existing product who wants a measurable organic automation system
 
 ## Product Thesis
 
@@ -54,13 +54,13 @@ Exit gate:
 - no secret material is committed
 - rollback and incident paths are documented
 
-### Phase 1: Founder Intelligence
+### Phase 1: Founder Intelligence, Language, And Stack
 
 Deliver:
 
 - one-question-at-a-time founder interview
-- product, buyer, offer, proof, voice, constraints, and conversion-path qualification
-- seven canonical operating artifacts
+- product, buyer, offer, proof, voice, constraints, current stack, language market, and conversion-path qualification
+- baseline operating artifacts including language strategy, stack/security decision, 90-post plan, trigger plan, and worker routing
 - explicit v1 fit or gap decision
 
 Exit gate:

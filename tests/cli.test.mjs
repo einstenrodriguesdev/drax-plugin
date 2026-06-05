@@ -15,6 +15,8 @@ test("prints a scoped direct-task prompt", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "prompt", "build", "my", "calendar"], { encoding: "utf8" });
   assert.equal(result.status, 0);
   assert.match(result.stdout, /build my calendar/);
+  assert.match(result.stdout, /90-post\/class planning/);
+  assert.match(result.stdout, /three-option decision pattern/);
   assert.match(result.stdout, /Do not publish live/);
 });
 
@@ -31,6 +33,7 @@ test("the bare drax command starts founder intelligence intake", () => {
     });
     assert.equal(result.status, 0, result.stderr);
     assert.match(readFileSync(output, "utf8"), /The first response must be only this question:\nDrax is activated\./);
+    assert.match(readFileSync(output, "utf8"), /language strategy, stack\/security decision, 90-post\/class plan/);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

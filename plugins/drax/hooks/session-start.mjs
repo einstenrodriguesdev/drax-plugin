@@ -6,9 +6,14 @@ import path from "node:path";
 const ARTIFACTS = [
   "FOUNDER_PROFILE.md",
   "PRODUCT_CONTEXT.md",
+  "LANGUAGE_STRATEGY.md",
+  "STACK_DECISION.md",
   "ORGANIC_GROWTH_STRATEGY.md",
+  "NINETY_POST_PLAN.md",
   "EDITORIAL_CALENDAR.md",
   "DISTRIBUTION_PLAN.md",
+  "TRIGGER_PLAN.md",
+  "WORKER_ROUTING.md",
   "MEASUREMENT_PLAN.md",
   "EXECUTION_STATE.md",
 ];
@@ -30,8 +35,9 @@ function main() {
     return content ? [`--- ${name} ---\n${content}`] : [];
   });
   const context = [
-    "Drax v1.0.0 organic growth runtime is active.",
+    "Drax v1.0.0 organic automation runtime is active.",
     "Target user: a founder with an existing product who wants a measured organic traffic system.",
+    "Required baseline: founder/product context, language strategy, stack/security decision, 90-post plan, trigger plan, worker routing, distribution, measurement, and execution state.",
     "Publishing defaults to dry-run. Live posting, paid spend, and browser automation require explicit approval.",
     artifacts.length ? artifacts.join("\n\n") : "No Drax organic-growth artifacts were found in this workspace.",
   ].join("\n\n").slice(0, 9000);

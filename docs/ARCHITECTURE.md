@@ -7,11 +7,15 @@ Drax Corp is the commercial organic-growth module. `conclave-cc` remains the int
 ## Runtime Layers
 
 1. Intake and qualification.
-2. Canonical project artifacts.
-3. Editorial and asset manifests.
-4. Renderer adapters.
-5. Publishing adapters.
-6. Measurement and decision loop.
+2. Language strategy.
+3. Stack/security decision.
+4. Canonical project artifacts.
+5. Ninety-post/class plan.
+6. Editorial and asset manifests.
+7. Worker routing and trigger planning.
+8. Renderer adapters.
+9. Publishing adapters.
+10. Measurement and decision loop.
 
 All adapters implement dry-run before live mode. A failed adapter never blocks export-manual mode.
 

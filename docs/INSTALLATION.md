@@ -18,6 +18,16 @@ npm exec --yes --package ./drax-corp-1.0.0.tgz -- drax-corp install --target all
 
 Supported targets: `codex`, `claude`, and `all`.
 
+After installation, test in an isolated workspace:
+
+```bash
+mkdir -p ~/drax-tests/example-product
+cd ~/drax-tests/example-product
+drax
+```
+
+The first real run should create the v1 baseline artifacts for founder/product context, language strategy, stack/security decision, 90-post planning, worker routing, triggers, distribution, measurement, and execution state.
+
 ## 3. Source Development
 
 ```bash

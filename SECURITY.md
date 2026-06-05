@@ -11,15 +11,20 @@
 
 ## Verification Baseline
 
-The v1 target is OWASP ASVS Level 1-aligned controls for any hosted surface and OWASP SCVS Level 1-aligned package controls:
+The v1 target is OWASP ASVS Level 1-aligned controls for any hosted surface and NIST SSDF-style software delivery discipline:
 
 - dependency inventory and lockfile
 - package allowlist
 - secret scanning
 - least-privilege tokens
+- isolated test accounts
+- dry-run and manual export defaults
 - explicit trust boundaries
 - reproducible asset hashes
+- trigger idempotency
 - incident and rollback procedures
+
+CI/CD and automation controls must treat credential hygiene, dependency chain abuse, poisoned pipeline execution, insecure configuration, and insufficient logging as first-order risks.
 
 ## Reporting
 

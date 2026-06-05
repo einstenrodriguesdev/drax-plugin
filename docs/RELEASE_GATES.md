@@ -11,6 +11,11 @@ Semantic versions describe shipped capability:
 ## v1.0.0 Gate
 
 - founder qualification and canonical artifacts work on representative cases
+- language strategy is decided before content planning
+- stack/security decision records server, database/state, secrets, logs, backups, current actions, and future actions
+- 90-post/class plan is generated before the editorial calendar is scheduled
+- clock trigger and manual trigger read the same approved queue
+- worker routing assigns one accountable owner, permissions, forbidden actions, output artifact, and approval gate per job
 - package and plugin validators pass
 - install, upgrade, doctor, and rollback behavior are tested
 - dry-run is the default

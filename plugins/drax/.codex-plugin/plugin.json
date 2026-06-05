@@ -1,7 +1,7 @@
 {
   "name": "drax",
   "version": "1.0.0",
-  "description": "Organic growth operating runtime for founders with an existing product.",
+  "description": "Organic automation runtime for founders with an existing product.",
   "author": {
     "name": "Drax",
     "email": "einstenrodrigues.dev@gmail.com",
@@ -14,8 +14,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Drax",
-    "shortDescription": "Turn founder knowledge into an organic growth system.",
-    "longDescription": "Drax interviews founders with an existing product, creates a source-backed editorial and distribution plan, prepares reusable assets, and operates a measured organic-growth loop with explicit approval gates.",
+    "shortDescription": "Turn a product into a daily organic automation system.",
+    "longDescription": "Drax interviews founders with an existing product, defines language and stack/security decisions, creates a 90-post plan, prepares article, SVG, video, and metadata assets, and operates a measured organic automation loop with clock/manual triggers and explicit approval gates.",
     "developerName": "Drax",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
