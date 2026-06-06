@@ -1,204 +1,173 @@
 # Repository Topology
 
-Date: 2026-06-05
+Date: 2026-06-06
 Owner: Drax technical operations
-Status: aligned with [System Definition](SYSTEM_DEFINITION.md)
+Status: four-surface plugin topology
 
-This document defines the repository layout for Drax. The canonical rule is now four physical repositories with path-level promotion from development to production.
+This document defines the Drax plugin operating surfaces. The product now has four surfaces that must not cross responsibilities.
 
-## Current Local Map
+## Four Surfaces
 
-| Local path | Git repo? | Remote | Current role | Notes |
-|---|---:|---|---|---|
-| `/home/conclave/drax` | No | none | Workspace only | Local Drax workspace index. Do not commit product code here. |
-| `/home/conclave/drax/drax-plugin` | Yes | `git@github.com:einstenrodriguesdev/drax-plugin.git` | Production runtime/package source | Official private runtime repository. Receives only promoted paths. |
-| `/home/conclave/drax/drax-site` | Yes | `git@github.com:einstenrodriguesdev/drax-site.git` | Production site source | Public/commercial site repository. Receives only promoted paths. |
-| `/home/conclave/conclave-cc` | Yes | `git@github.com:einstenrodriguesdev/conclave.git` | Internal source library | Reuse by review; do not ship wholesale. |
+| Surface | Local path | Git status | Responsibility | Customer-visible? |
+|---|---|---:|---|---:|
+| `drax-plugin` | `/home/conclave/drax/drax-plugin` | Git repo, remote `git@github.com:einstenrodriguesdev/drax-plugin.git` | Released, versioned plugin product. Customers install this. | Yes |
+| `drax-dev` | `/home/conclave/drax/drax-dev` | Git repo, local factory clone with push disabled | Pre-release plugin factory where the next version is built and tested before promotion. | No |
+| `drax-recursive` | `/home/conclave/drax/drax-recursive` | Operating workspace, not product source | Drax running on itself as its first customer. Holds founder artifacts and recursive validation state. | No |
+| `conclave` | `/home/conclave/conclave-cc` | Internal source library | Operator machine and HR role factory. New agent roles are created here, then vendored into the plugin only after review. | No |
 
-The dev repositories required by the final topology are not yet present locally:
+The existing public site repository is outside this plugin factory flow. The plugin must attach an editorial blog surface to a customer site without depending on the Drax public site repository.
 
-- `drax-corp-dev`
-- `drax-site-dev`
+## Non-Crossing Rule
 
-## Final Four-Repo Model
+`drax-plugin` ships frozen product code, templates, schemas, and vendored worker definitions only.
 
-| Repo | Type | Responsibility | URL |
-|---|---|---|---|
-| `drax-plugin` | Production | Installable runtime, package, templates, docs, release gates, and production tags. | No public URL. |
-| `drax-site` | Production | Public sales page, blog, install page, docs surface, pricing/trust pages, and production deployment. | `drax.seudominio.com` or final production domain. |
-| `drax-corp-dev` | Development | Runtime implementation, installer/package tests, isolated founder runs, package validation, and zero-user simulation. | No public URL. |
-| `drax-site-dev` | Development | Site implementation, blog/content tests, docs rendering, SEO/GEO checks, and dev deployment validation. | `drax-dev.seudominio.com` or final dev domain. |
+`drax-dev` may contain unfinished implementation work, failed tests, temporary branches, generated test assets, and clean-environment experiments. It must not contain customer artifacts, live sessions, `.env` files, credentials, package output, render output, or production tags.
 
-## Non-Negotiable Rule
+`drax-recursive` contains Drax's own founder workspace artifacts. It must be updated through the same customer upgrade path that an external customer uses. Product source does not get edited there.
 
-No path enters `drax-plugin` or `drax-site` unless it has already run completely in `drax-corp-dev` or `drax-site-dev`.
-
-Promotion is by validated path, not by loose commit.
-
-## Development Repositories
-
-Development repos are the only place where experiments and tests happen.
-
-Allowed in dev:
-
-- broken intermediate work;
-- branch experiments;
-- staging deploys;
-- package dry runs;
-- clean install simulations;
-- generated test assets;
-- adapter experiments with isolated test accounts;
-- full rebuilds when a path fails.
-
-Required in dev:
-
-- every path runs complete before promotion;
-- every path runs at least once from zero;
-- every failure remains contained;
-- every promotion records evidence.
-
-## Production Repositories
-
-Production repos represent what the user can install or see.
-
-Rules:
-
-- never push direct;
-- never use production as a test environment;
-- never store platform credentials, browser sessions, customer artifacts, `.env` files, logs, or generated private media;
-- receive only validated paths;
-- tag or version only production states.
+`conclave` remains internal. The HR path `/home/conclave/conclave-cc/agents/hr.md` is not part of the customer runtime and must never be required on a customer machine.
 
 ## Promotion Flow
 
 ```text
-path selected
-  -> implemented in dev repo
-  -> local verification
-  -> dev environment deploy
-  -> complete run without manual intervention
-  -> zero-user simulation
-  -> evidence recorded
-  -> promotion patch into production repo
-  -> production version update
-  -> production deploy verification
+build next version in drax-dev
+  -> run package and baseline validators
+  -> prove install and runtime in disposable clean container drax-clean
+  -> record evidence
+  -> promote reviewed patch into drax-plugin
+  -> tag and release from drax-plugin only
+  -> customer updates installed plugin through the supported upgrade path
+  -> drax-recursive updates as a customer workspace, preserving founder artifacts
 ```
 
-If the path fails at any step, it returns to the dev repo.
+No path enters `drax-plugin` until it has passed in `drax-dev` and in a disposable clean container. The clean container is the zero-user proof surface. It must start without hidden local state, without `/home/conclave/conclave-cc`, and without customer workspace artifacts.
 
-## Branch Policy
+## Why `drax-dev` Is Not A Duplicate Dev Repo
 
-Branches can exist inside dev repos for convenience, but they are not the isolation mechanism.
+Earlier topology warnings rejected loose duplicate development repositories because they create unclear promotion authority and accidental production drift.
 
-Production repos use protected release flow. The production `main` branch should be treated as deployable and should only receive reviewed promotion work.
+`drax-dev` is different. It is the plugin pre-release factory with a narrower risk profile:
 
-The previous `drax-site` `staging` branch is a legacy convenience from the earlier topology. It can be used temporarily, but the final deployment model is `drax-site-dev` to `drax-dev.seudominio.com`, then promotion into `drax-site`.
+- it builds the next installable plugin version, not a parallel production source of truth;
+- it has push disabled for this task;
+- it carries no production tags;
+- it carries no customer artifacts;
+- promotion still happens by reviewed patch into `drax-plugin`;
+- release authority remains only in `drax-plugin`.
 
-## Environment Strategy
-
-| Environment | Repo | Runtime | Purpose |
-|---|---|---|---|
-| local development | `drax-corp-dev`, `drax-site-dev` | Developer machine | Fast implementation before dev deploy. |
-| dev runtime | `drax-corp-dev` | Isolated test workspace | Package, install, doctor, rollback, founder intake, and baseline artifact tests. |
-| dev site | `drax-site-dev` | `drax-dev.seudominio.com` | Sales page, blog, docs, and deploy tests. |
-| production runtime | `drax-plugin` | Installable package/plugin | User-installable runtime. |
-| production site | `drax-site` | `drax.seudominio.com` or final production domain | Public user-facing site. |
-
-## Repository Responsibilities
+## Surface Responsibilities
 
 ### `drax-plugin`
 
 Owns:
 
-- production runtime source;
-- package installer;
-- Codex/Claude compatibility files;
-- Drax runtime docs;
-- artifact templates;
-- release gates;
+- production package metadata;
+- Codex plugin source;
+- installer and launcher code;
+- baseline templates;
+- vendored V1 marketing worker definitions;
+- package and baseline validators;
 - schemas;
+- release documentation;
 - production tags.
 
 Does not own:
 
-- website implementation;
-- customer workspace artifacts;
-- unsafe adapter experiments;
-- development-only generated media.
+- founder workspace artifacts;
+- Stripe or Pagar.me keys;
+- live browser sessions;
+- generated renders;
+- exploratory agent creation;
+- pre-release experiments.
 
-### `drax-site`
+### `drax-dev`
 
 Owns:
 
-- production public site;
-- sales page;
-- blog;
-- install page;
-- pricing/trust/security pages;
-- public documentation surface;
-- static SEO/GEO content.
+- next-version implementation work;
+- package dry runs;
+- blog automation implementation;
+- access-token gate stubs;
+- clean install tests;
+- disposable runtime experiments;
+- evidence before promotion.
 
 Does not own:
 
-- runtime source;
-- package installer;
-- customer artifacts;
-- secrets;
-- backend code before a real API contract exists.
+- production tags;
+- production release authority;
+- customer workspaces;
+- live credentials;
+- billing secrets;
+- generated private media after tests complete.
 
-### `drax-corp-dev`
-
-Owns:
-
-- runtime experiments;
-- path implementation;
-- package dry runs;
-- isolated install tests;
-- zero-user simulations;
-- adapter spikes before promotion.
-
-### `drax-site-dev`
+### `drax-recursive`
 
 Owns:
 
-- site experiments;
-- blog/content rendering tests;
-- docs organization tests;
-- dev domain deploys;
-- SEO/GEO validation before production promotion.
+- DRAX's own `FOUNDER_PROFILE.md`;
+- `PRODUCT_CONTEXT.md`;
+- language, stack, distribution, trigger, measurement, and execution artifacts;
+- recursive validation evidence;
+- customer-style upgrade testing after a release exists.
 
-## Future Backend Repo
+Does not own:
 
-Create `drax-api` only when the product layer needs a real backend.
+- product source edits;
+- vendored worker source changes;
+- release tags;
+- production package metadata.
 
-Valid triggers:
+### `conclave`
 
-- multiple users need durable server-side state;
-- publishing jobs need centralized queue or audit records;
-- metrics ingestion must run without the founder's local machine;
-- auth, billing, accounts, or workspace permissions require a server-owned trust boundary.
+Owns:
 
-Recommended future stack:
+- internal role research;
+- HR role creation;
+- full private agent library;
+- role updates before vendoring.
 
-- Go for long-running backend service or queue worker;
-- PostgreSQL for durable multi-user state;
-- Redis only when queue/cache behavior justifies it;
-- Astro/TypeScript site remains separate from backend contracts.
+Does not own:
 
-## Creation Road
+- customer runtime state;
+- released plugin install behavior;
+- customer machine dependencies.
 
-When GitHub authentication and naming are ready:
+## Secret And Artifact Discipline
 
-```bash
-gh repo create einstenrodriguesdev/drax-corp-dev --private
-gh repo create einstenrodriguesdev/drax-site-dev --private
-```
+Every product repo and factory repo must ignore:
 
-Then clone or connect them into the Drax workspace:
+- `.env` and `.env.*`, except committed examples;
+- credential material;
+- session state;
+- browser storage state;
+- package tarballs;
+- logs;
+- generated outputs;
+- render outputs;
+- runtime `run/` directories.
 
-```bash
-git clone git@github.com:einstenrodriguesdev/drax-corp-dev.git /home/conclave/drax/drax-corp-dev
-git clone git@github.com:einstenrodriguesdev/drax-site-dev.git /home/conclave/drax/drax-site-dev
-```
+Stripe and Pagar.me keys live outside repos under `/home/conclave`. They are never copied into source, packages, prompts, logs, generated docs, or artifacts.
 
-Do not push production repos directly to create the dev state. Seed the dev repos intentionally, then run the first full path in dev before any production promotion.
+## Current Local State
+
+| Local path | Expected state |
+|---|---|
+| `/home/conclave/drax/drax-plugin` | Released product source, pushed to `origin/main`. |
+| `/home/conclave/drax/drax-dev` | Local no-tags factory clone of `drax-plugin`, with push disabled. |
+| `/home/conclave/drax/drax-recursive` | Recursive customer workspace with the 12 baseline artifacts. |
+| `/home/conclave/conclave-cc` | Internal source library, read-only for customer-runtime work. |
+
+## Next Test Flow
+
+1. Finish the next plugin implementation in `drax-dev`.
+2. Run package validation, build, and workspace baseline checks.
+3. Create disposable `drax-clean`.
+4. Install the plugin as a non-root user in `drax-clean`.
+5. Confirm Codex setup requirements: PATH and Device Code login.
+6. Confirm the plugin does not require `/home/conclave/conclave-cc`.
+7. Run founder intake to baseline artifacts.
+8. Attach the generated blog surface to a test existing site identity.
+9. Promote only the reviewed passing patch into `drax-plugin`.
+10. Release from `drax-plugin`.
+11. Update `drax-recursive` through the same customer upgrade path and verify its 12 artifacts remain intact.
