@@ -24,6 +24,12 @@ Exit: YouTube and TikTok official API adapters pass private/unlisted tests, retr
 
 Exit: three external founders reach first approved content cycle, time-to-first-calendar is measured, and support limits are known.
 
-## Deferred
+## Version Sequence
 
-Paid growth, 138-agent enterprise operations, capital readiness, autonomous spend, and broad platform support are separate major-version gates.
+- `v1`: organic traffic automation — founder interview, content system, site, blog, sales page, and autonomous daily publishing on VPS
+- `v2`: paid traffic amplification — only after organic evidence and positive ROAS controls exist
+- `v3`: documentation layer — structured knowledge base and public docs generated from the system
+- `v4`: product layer — building and shipping products from within the system
+- `v5`: venture capital and institutional readiness — capital, M&A, legal, and compliance at institutional scale
+
+Paid growth, documentation, product building, capital readiness, autonomous spend, and broad platform support remain separate major-version gates.

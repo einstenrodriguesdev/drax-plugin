@@ -151,11 +151,13 @@ Exit gate:
 - false-positive and low-data behavior is understood
 - the founder can override and audit every recommendation
 
-### Deferred Major Versions
+### Version Sequence
 
-- `v2`: paid amplification only after organic evidence and positive ROAS controls exist
-- `v3`: broader enterprise operations only after institutional buyers validate the need
-- `v4`: capital and M&A readiness only with qualified legal, financial, and compliance review
+- `v1`: organic traffic automation — founder interview, content system, site, blog, sales page, and autonomous daily publishing on VPS
+- `v2`: paid traffic amplification — only after organic evidence and positive ROAS controls exist
+- `v3`: documentation layer — structured knowledge base and public docs generated from the system
+- `v4`: product layer — building and shipping products from within the system
+- `v5`: venture capital and institutional readiness — capital, M&A, legal, and compliance at institutional scale
 
 ## Business Gates
 
