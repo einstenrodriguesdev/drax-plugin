@@ -26,11 +26,13 @@ ls
 6. [Roadmap](ROADMAP.md) - phase gates from foundation to commercial v1.
 7. [Release Gates](RELEASE_GATES.md) - what must pass before each capability is claimed.
 8. [Installation](INSTALLATION.md) - install, test, isolated workspace, and rollback.
-9. [Architecture](ARCHITECTURE.md) - product boundary, runtime layers, state model, and environment reuse.
-10. [Publishing Safety](PUBLISHING_SAFETY.md) - adapter priority, publish records, kill switches, and trigger safety.
-11. [Video Pipeline](VIDEO_PIPELINE.md) - render modes, audio policy, and failure behavior.
-12. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - how `drax-plugin`, `drax-site`, and `conclave-cc` relate.
-13. [ADR 0001](adr/0001-lean-capability-runtime.md) - why v1 is a lean capability runtime.
+9. [Setup](SETUP.md) - non-root install, PATH setup, Codex Device Code login, and first workspace run.
+10. [Blog Automation](BLOG_AUTOMATION.md) - self-contained Astro blog surface generation and attachment modes.
+11. [Architecture](ARCHITECTURE.md) - product boundary, runtime layers, state model, and environment reuse.
+12. [Publishing Safety](PUBLISHING_SAFETY.md) - adapter priority, publish records, kill switches, and trigger safety.
+13. [Video Pipeline](VIDEO_PIPELINE.md) - render modes, audio policy, and failure behavior.
+14. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - how `drax-plugin`, `drax-site`, and `conclave-cc` relate.
+15. [ADR 0001](adr/0001-lean-capability-runtime.md) - why v1 is a lean capability runtime.
 
 ## Current Semantic Tags
 

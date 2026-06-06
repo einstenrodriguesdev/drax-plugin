@@ -58,6 +58,8 @@ test("installer preserves a persistent working launcher", () => {
       env: { ...process.env, HOME: home },
     });
     assert.equal(install.status, 0, install.stderr);
+    assert.match(install.stdout, /~\/.local\/bin is on PATH/);
+    assert.match(install.stdout, /Device Code login/);
     assert.equal(existsSync(path.join(home, ".local/bin/drax")), true);
     assert.equal(existsSync(path.join(home, ".local/share/drax-plugin/dist/prompts.js")), true);
 
@@ -69,5 +71,56 @@ test("installer preserves a persistent working launcher", () => {
     assert.match(doctor.stdout, /OK Persistent runtime/);
   } finally {
     rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test("init copies baseline artifacts into a workspace", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-workspace-"));
+  try {
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "init"], {
+      cwd: directory,
+      encoding: "utf8",
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Drax baseline artifacts ready/);
+    assert.equal(existsSync(path.join(directory, "FOUNDER_PROFILE.md")), true);
+    assert.equal(existsSync(path.join(directory, "EXECUTION_STATE.md")), true);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("blog init generates a self-contained Astro surface", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-blog-"));
+  const target = path.join(directory, "blog");
+  try {
+    const result = spawnSync(
+      process.execPath,
+      [
+        path.resolve("dist/cli.js"),
+        "blog",
+        "init",
+        "--target",
+        target,
+        "--site-name",
+        "Customer Editorial",
+        "--site-url",
+        "https://example.com",
+        "--description",
+        "Customer updates",
+        "--mount",
+        "subpath",
+        "--base-path",
+        "/news",
+      ],
+      { cwd: directory, encoding: "utf8" },
+    );
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(existsSync(path.join(target, "package.json")), true);
+    assert.equal(existsSync(path.join(target, "src/pages/[...slug].astro")), true);
+    assert.match(readFileSync(path.join(target, "src/site.config.ts"), "utf8"), /Customer Editorial/);
+    assert.match(readFileSync(path.join(target, "src/site.config.ts"), "utf8"), /\/news/);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
   }
 });

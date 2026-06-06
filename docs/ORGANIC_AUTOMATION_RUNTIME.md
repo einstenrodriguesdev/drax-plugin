@@ -118,6 +118,6 @@ Both read the same approved queue, verify hashes, prevent duplicate posts, write
 
 ## Phase 8: Worker Routing
 
-Every job has one accountable worker, allowed tools, forbidden actions, output artifacts, and approval gates. Existing `conclave-cc` roles can be reused as source patterns. New roles must pass the HR protocol before they become production workers.
+Every job has one accountable worker, allowed tools, forbidden actions, output artifacts, and approval gates. Customer installs use the vendored worker definitions in `templates/workers/`. Existing `conclave-cc` roles are internal source patterns only. New roles must pass the internal HR protocol before they are vendored into a later plugin release.
 
 The system is allowed to be autonomous only where the approval gate allows autonomy. Public publishing, paid spend, credential changes, and destructive actions stay human-approved in v1.0.0.

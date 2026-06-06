@@ -7,9 +7,11 @@ import {
   cpSync,
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   rmSync,
   renameSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import os from "node:os";
@@ -21,6 +23,20 @@ const VERSION = "1.0.0";
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const home = os.homedir();
+const BASELINE_ARTIFACTS = [
+  "FOUNDER_PROFILE.md",
+  "PRODUCT_CONTEXT.md",
+  "LANGUAGE_STRATEGY.md",
+  "STACK_DECISION.md",
+  "ORGANIC_GROWTH_STRATEGY.md",
+  "NINETY_POST_PLAN.md",
+  "EDITORIAL_CALENDAR.md",
+  "DISTRIBUTION_PLAN.md",
+  "TRIGGER_PLAN.md",
+  "WORKER_ROUTING.md",
+  "MEASUREMENT_PLAN.md",
+  "EXECUTION_STATE.md",
+];
 
 type Marketplace = {
   name?: string;
@@ -34,6 +50,8 @@ function help(): void {
 Usage:
   drax                         Start founder intelligence intake in Codex
   drax "task"                  Run Drax direct-task mode
+  drax init                    Copy the 12 baseline artifacts into the current workspace
+  drax blog init               Generate a self-contained Astro editorial blog surface
   drax prompt "task"           Print a portable Drax prompt
   drax install --target all    Install Codex plugin, Claude command, and shell launcher
   drax doctor                  Verify the local installation
@@ -57,6 +75,40 @@ function bundlePath(...parts: string[]): string {
     throw new Error(`Package asset is unavailable: ${target}. Run install from the source package.`);
   }
   return target;
+}
+
+function hasFlag(args: string[], flag: string): boolean {
+  return args.includes(flag);
+}
+
+function optionValue(args: string[], flag: string): string | null {
+  const index = args.indexOf(flag);
+  if (index < 0) return null;
+  const value = args[index + 1];
+  return value && !value.startsWith("--") ? value : null;
+}
+
+function copyBaselineArtifacts(cwd: string, force: boolean): { created: number; skipped: number } {
+  let created = 0;
+  let skipped = 0;
+  for (const artifact of BASELINE_ARTIFACTS) {
+    const source = bundlePath("templates", artifact);
+    const target = path.join(cwd, artifact);
+    if (existsSync(target) && !force) {
+      skipped += 1;
+      continue;
+    }
+    copyFileSync(source, target);
+    created += 1;
+  }
+  return { created, skipped };
+}
+
+function initWorkspace(args: string[]): void {
+  const force = hasFlag(args, "--force");
+  const { created, skipped } = copyBaselineArtifacts(process.cwd(), force);
+  console.log(`Drax baseline artifacts ready. Created: ${created}. Skipped: ${skipped}.`);
+  console.log("Next: run `drax` from this workspace and answer one intake question at a time.");
 }
 
 function readMarketplace(target: string): Marketplace {
@@ -140,10 +192,13 @@ function install(target: string): void {
   if (target === "all" || target === "claude") installClaude();
   installLauncher();
   console.log(`Installed Drax Plugin ${VERSION} for ${target}.`);
+  console.log("Non-root setup: ensure ~/.local/bin is on PATH before running `drax`.");
+  console.log("Codex setup: run `codex login` and complete Device Code login before the first Drax session.");
   console.log("Live publishing remains disabled until a publishing adapter passes its gate.");
 }
 
 function doctor(): void {
+  const codexBinary = process.env.DRAX_CODEX_BIN || "codex";
   const checks = [
     ["Codex plugin", path.join(home, "plugins", "drax", ".codex-plugin", "plugin.json")],
     ["Codex skill", path.join(home, "plugins", "drax", "skills", "drax", "SKILL.md")],
@@ -159,6 +214,7 @@ function doctor(): void {
     ok &&= present;
   }
   for (const [label, binary] of [
+    ["Codex CLI", codexBinary],
     ["Python renderer runtime", "python3"],
     ["FFmpeg renderer runtime", "ffmpeg"],
   ] as const) {
@@ -169,11 +225,59 @@ function doctor(): void {
   process.exitCode = ok ? 0 : 1;
 }
 
+function replacePlaceholders(content: string, values: Record<string, string>): string {
+  return Object.entries(values).reduce((text, [key, value]) => text.replaceAll(`__${key}__`, value), content);
+}
+
+function copyBlogTemplate(source: string, target: string, values: Record<string, string>, force: boolean): void {
+  const stat = statSync(source);
+  if (stat.isDirectory()) {
+    mkdirSync(target, { recursive: true });
+    for (const entry of readdirSync(source)) {
+      copyBlogTemplate(path.join(source, entry), path.join(target, entry), values, force);
+    }
+    return;
+  }
+  if (existsSync(target) && !force) return;
+  mkdirSync(path.dirname(target), { recursive: true });
+  const output = replacePlaceholders(readFileSync(source, "utf8"), values);
+  writeFileSync(target, output, "utf8");
+}
+
+function initBlog(args: string[]): void {
+  const target = path.resolve(process.cwd(), optionValue(args, "--target") || "drax-blog");
+  const force = hasFlag(args, "--force");
+  const mountMode = optionValue(args, "--mount") || "subpath";
+  const basePath = optionValue(args, "--base-path") || (mountMode === "subdomain" ? "/" : "/blog");
+  const values = {
+    SITE_NAME: optionValue(args, "--site-name") || "NEEDS_DECISION",
+    SITE_URL: optionValue(args, "--site-url") || "NEEDS_DECISION",
+    SITE_DESCRIPTION: optionValue(args, "--description") || "NEEDS_DECISION",
+    MOUNT_MODE: mountMode,
+    BASE_PATH: basePath,
+  };
+
+  copyBlogTemplate(bundlePath("templates", "blog-surface"), target, values, force);
+  console.log(`Drax blog surface generated at ${target}`);
+  console.log("Next: fill src/site.config.ts, add posts in src/content/posts, then run `npm install` and `npm run build`.");
+}
+
 function launchCodex(args: string[]): void {
+  if (!args.length && process.cwd() !== packageRoot) {
+    copyBaselineArtifacts(process.cwd(), false);
+  }
   const prompt = args.length ? directTaskPrompt(args.join(" ")) : founderIntakePrompt();
   const binary = process.env.DRAX_CODEX_BIN || "codex";
   const result = spawnSync(binary, [prompt], { cwd: process.cwd(), env: process.env, stdio: "inherit" });
-  if (result.error) throw result.error;
+  if (result.error) {
+    if ("code" in result.error && result.error.code === "ENOENT") {
+      console.error("Codex CLI was not found. Add Codex to PATH or set DRAX_CODEX_BIN to the full Codex binary path.");
+      console.error("If Codex is not authenticated, run `codex login` and complete Device Code login.");
+      process.exitCode = 1;
+      return;
+    }
+    throw result.error;
+  }
   process.exitCode = result.status ?? 1;
 }
 
@@ -183,6 +287,8 @@ function main(): void {
   if (command === "--help" || command === "-h") return help();
   if (command === "--version" || command === "-v") return console.log(VERSION);
   if (command === "doctor") return doctor();
+  if (command === "init") return initWorkspace(args.slice(1));
+  if (command === "blog" && args[1] === "init") return initBlog(args.slice(2));
   if (command === "prompt") return console.log(directTaskPrompt(args.slice(1).join(" ") || "Start Drax."));
   if (command === "install") {
     const targetIndex = args.indexOf("--target");

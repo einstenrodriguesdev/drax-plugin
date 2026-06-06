@@ -58,11 +58,19 @@ Source development:
 npm install
 npm run build
 npm link
+npx drax-plugin install --target all
 drax doctor
+drax init
 drax
 ```
 
-The displayed shell notation `$ drax` means run the command `drax`; the dollar sign is not part of the command.
+The generated launcher lives in `~/.local/bin`. Add that directory to `PATH` and run `codex login` before the first Drax session.
+
+Generate a stack-independent editorial blog surface for an existing customer site:
+
+```bash
+drax blog init --target drax-blog --site-name "Customer Editorial" --site-url "https://example.com" --description "Editorial updates from the company"
+```
 
 ## Repository Boundary
 

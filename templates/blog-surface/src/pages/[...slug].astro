@@ -1,0 +1,57 @@
+---
+import { render } from "astro:content";
+import { getPublishedPosts, postPath, postSlug, type BlogPost } from "../lib/posts";
+import { siteConfig } from "../site.config";
+import "../styles/global.css";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { slug: postSlug(post) },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: BlogPost;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const canonicalUrl = post.data.canonicalUrl ?? new URL(postPath(post), siteConfig.url).toString();
+const basePath = siteConfig.basePath === "/" ? "/" : `${siteConfig.basePath.replace(/\/$/, "")}/`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{post.data.title} | {siteConfig.name}</title>
+    <meta name="description" content={post.data.description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={post.data.title} />
+    <meta property="og:description" content={post.data.description} />
+    <meta property="article:published_time" content={post.data.publishedAt.toISOString()} />
+    {post.data.updatedAt && <meta property="article:modified_time" content={post.data.updatedAt.toISOString()} />}
+    {post.data.coverImage && <meta property="og:image" content={new URL(post.data.coverImage, siteConfig.url).toString()} />}
+  </head>
+  <body>
+    <main class="shell post-shell">
+      <a class="back-link" href={basePath}>Back to index</a>
+      <article>
+        <header class="post-header">
+          <time datetime={post.data.publishedAt.toISOString()}>
+            {post.data.publishedAt.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+          </time>
+          <h1>{post.data.title}</h1>
+          <p>{post.data.description}</p>
+        </header>
+        <div class="prose">
+          <Content />
+        </div>
+      </article>
+    </main>
+  </body>
+</html>

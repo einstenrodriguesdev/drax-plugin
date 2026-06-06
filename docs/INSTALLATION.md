@@ -18,15 +18,44 @@ npm exec --yes --package ./drax-plugin-1.0.0.tgz -- drax-plugin install --target
 
 Supported targets: `codex`, `claude`, and `all`.
 
+The installer is non-root. It writes to the current user's home directory. After installation, make sure the launcher path is available:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Codex must be authenticated before the first Drax session:
+
+```bash
+codex login
+```
+
+Complete the Device Code login flow shown by Codex. If Codex is installed outside `PATH`, set `DRAX_CODEX_BIN` to the full binary path.
+
 After installation, test in an isolated workspace:
 
 ```bash
 mkdir -p ~/drax-tests/example-product
 cd ~/drax-tests/example-product
+drax init
 drax
 ```
 
-The first real run should create the v1 baseline artifacts for founder/product context, language strategy, stack/security decision, 90-post planning, worker routing, triggers, distribution, measurement, and execution state.
+`drax init` creates the v1 baseline artifacts for founder/product context, language strategy, stack/security decision, 90-post planning, worker routing, triggers, distribution, measurement, and execution state. It does not overwrite existing files unless `--force` is used.
+
+To generate a self-contained editorial blog surface for an existing customer site:
+
+```bash
+drax blog init \
+  --target drax-blog \
+  --site-name "Customer Editorial" \
+  --site-url "https://example.com" \
+  --description "Editorial updates from the company" \
+  --mount subpath \
+  --base-path /blog
+```
+
+Replace any generated `NEEDS_DECISION` value before production deployment.
 
 ## 3. Source Development
 
