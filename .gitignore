@@ -7,3 +7,14 @@ node_modules/
 !.env.example
 coverage/
 .DS_Store
+
+# session/credential safety. live account work belongs in drax-lab.
+.auth/
+playwright/.auth/
+storageState*.json
+*.session
+cookies.json
+*.har
+output/
+renders/
+run/

@@ -3,6 +3,7 @@
 Date: 2026-06-05
 Runtime: Drax v1.0.0 organic automation
 State tag: `v1.0.0-organic-automation-docs`
+Canonical system definition: [Drax System Definition](SYSTEM_DEFINITION.md)
 
 ## Summary
 
@@ -73,7 +74,7 @@ founder interview
 | Local install | Passed | Local installer wrote Codex plugin, Claude command, launcher, and persistent runtime. |
 | `drax doctor` | Mostly passed | FFmpeg is optional-missing locally; Python is present. |
 | GitHub push | Passed | `drax-corp` and `drax-site` private repos exist and are pushed. |
-| Site staging branch | Passed | `drax-site` has `staging` pushed and tracking `origin/staging`. |
+| Four-repo deploy topology | Planned | Final topology requires `drax-corp-dev` and `drax-site-dev`; older `drax-site` `staging` branch is legacy convenience only. |
 
 ## Current Blockers
 
@@ -81,8 +82,8 @@ founder interview
 2. Run the first isolated founder intake in a clean product workspace.
 3. Generate and review the first 12 baseline artifacts before enabling any daily clock trigger.
 4. Keep live publishing disabled until at least one adapter passes its release gate.
-5. Configure protected branches and GitHub environments after the first repo settings pass.
-6. Connect `drax-site` `staging` branch to a staging deploy target, preferably `drax-dev.conclave-company.com`.
+5. Create or connect `drax-corp-dev` and `drax-site-dev`.
+6. Connect `drax-site-dev` to `drax-dev.seudominio.com` or the chosen dev domain.
 
 ## Next Operating Road
 

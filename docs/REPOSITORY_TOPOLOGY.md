@@ -2,257 +2,203 @@
 
 Date: 2026-06-05
 Owner: Drax technical operations
+Status: aligned with [System Definition](SYSTEM_DEFINITION.md)
 
-This document defines which folders are repositories, which folders are only workspaces, and how Drax should split production, development, site, and future backend work.
+This document defines the repository layout for Drax. The canonical rule is now four physical repositories with path-level promotion from development to production.
 
 ## Current Local Map
 
-| Local path | Git repo? | Remote | Remote status | Responsibility |
+| Local path | Git repo? | Remote | Current role | Notes |
 |---|---:|---|---|---|
-| `/home/conclave/drax` | No | none | workspace only | Local Drax workspace index. Do not commit product code here. |
-| `/home/conclave/drax/drax-corp` | Yes | `git@github.com:einstenrodriguesdev/drax-corp.git` | Private and pushed | Official private Drax plugin/runtime source, docs, templates, release gates, package validation. |
-| `/home/conclave/drax/drax-site` | Yes | `git@github.com:einstenrodriguesdev/drax-site.git` | Private and pushed | Public/commercial Astro site, documentation surface, pricing, knowledge base, trust pages. |
-| `/home/conclave/conclave-cc` | Yes | `git@github.com:einstenrodriguesdev/conclave.git` | Reachable | Internal source library for agents, roles, and enterprise operating patterns. Reuse by review; do not ship wholesale. |
+| `/home/conclave/drax` | No | none | Workspace only | Local Drax workspace index. Do not commit product code here. |
+| `/home/conclave/drax/drax-corp` | Yes | `git@github.com:einstenrodriguesdev/drax-corp.git` | Production runtime/package source | Official private runtime repository. Receives only promoted paths. |
+| `/home/conclave/drax/drax-site` | Yes | `git@github.com:einstenrodriguesdev/drax-site.git` | Production site source | Public/commercial site repository. Receives only promoted paths. |
+| `/home/conclave/conclave-cc` | Yes | `git@github.com:einstenrodriguesdev/conclave.git` | Internal source library | Reuse by review; do not ship wholesale. |
 
-## Recommended Repository Model
+The dev repositories required by the final topology are not yet present locally:
 
-Drax should use two repositories now and introduce a third only when experimental adapter work becomes risky enough to justify isolation.
+- `drax-corp-dev`
+- `drax-site-dev`
 
-## Naming Decision
+## Final Four-Repo Model
 
-`drax-site` is acceptable and not confusing inside the Drax workspace because it clearly separates the public site from the private runtime. If the public brand later needs a cleaner repository name, the best alternatives are:
+| Repo | Type | Responsibility | URL |
+|---|---|---|---|
+| `drax-corp` | Production | Installable runtime, package, templates, docs, release gates, and production tags. | No public URL. |
+| `drax-site` | Production | Public sales page, blog, install page, docs surface, pricing/trust pages, and production deployment. | `drax.seudominio.com` or final production domain. |
+| `drax-corp-dev` | Development | Runtime implementation, installer/package tests, isolated founder runs, package validation, and zero-user simulation. | No public URL. |
+| `drax-site-dev` | Development | Site implementation, blog/content tests, docs rendering, SEO/GEO checks, and dev deployment validation. | `drax-dev.seudominio.com` or final dev domain. |
 
-- `drax-web` - clearer for frontend engineers.
-- `drax.co` - strong if the repository maps exactly to the production domain.
-- `drax-site` - current name; explicit and serviceable.
+## Non-Negotiable Rule
 
-Do not rename it now unless the name itself is causing operational mistakes. Renaming a repo after deployment adds remote, CI, and deployment churn without improving security.
+No path enters `drax-corp` or `drax-site` unless it has already run completely in `drax-corp-dev` or `drax-site-dev`.
 
-### 1. `drax-corp` - official private plugin/runtime repository
+Promotion is by validated path, not by loose commit.
 
-Purpose:
+## Development Repositories
 
-- production plugin source
-- package installer
-- Codex/Claude compatibility files
-- Drax runtime docs
-- artifact templates
-- release gates
-- publishing and rendering adapter contracts
+Development repos are the only place where experiments and tests happen.
 
-Rules:
+Allowed in dev:
 
-- Private repository.
-- `main` is release-candidate quality.
-- Tags describe release states, for example `v1.0.0-organic-automation-docs`.
-- No platform credentials, browser session files, `.env` files, or generated customer artifacts.
-- Experimental Playwright/API adapters can be designed here, but live tests should run from an isolated workspace or a lab repo.
+- broken intermediate work;
+- branch experiments;
+- staging deploys;
+- package dry runs;
+- clean install simulations;
+- generated test assets;
+- adapter experiments with isolated test accounts;
+- full rebuilds when a path fails.
 
-### 2. `drax-site` - public site and docs surface repository
+Required in dev:
 
-Purpose:
+- every path runs complete before promotion;
+- every path runs at least once from zero;
+- every failure remains contained;
+- every promotion records evidence.
 
-- Astro + TypeScript site
-- public knowledge base
-- pricing and access pages
-- public-facing documentation
-- static content and SEO/GEO surface
+## Production Repositories
 
-Rules:
-
-- Static-first.
-- No customer secrets or founder operating artifacts.
-- Production branch deploys the public site.
-- Staging and development use branch deploys or a separate staging host.
-- Backend work does not enter this repo until there is a real API contract.
-
-### 3. `drax-lab` - optional private development sandbox
-
-Create this only when the experiments become dangerous or noisy for `drax-corp`. This is not the default development repo; it is a lab for unsafe work.
-
-Purpose:
-
-- test plugin named `drax-dev`
-- Playwright posting experiments
-- API adapter spikes
-- video-engine experiments
-- isolated account/session tests
-- destructive prototypes that should not live in the official plugin repository
+Production repos represent what the user can install or see.
 
 Rules:
 
-- Private repository.
-- No release promises.
-- No production tags.
-- No customer artifacts.
-- Uses dedicated test accounts only.
-- Successful work is promoted into `drax-corp` through a reviewed patch, not copied blindly.
+- never push direct;
+- never use production as a test environment;
+- never store platform credentials, browser sessions, customer artifacts, `.env` files, logs, or generated private media;
+- receive only validated paths;
+- tag or version only production states.
 
-## Development Repo Decision
+## Promotion Flow
 
-Do not create a normal `drax-dev` duplicate repository for everyday development.
+```text
+path selected
+  -> implemented in dev repo
+  -> local verification
+  -> dev environment deploy
+  -> complete run without manual intervention
+  -> zero-user simulation
+  -> evidence recorded
+  -> promotion patch into production repo
+  -> production version update
+  -> production deploy verification
+```
 
-A duplicate dev repo feels safer, but in practice it usually creates:
+If the path fails at any step, it returns to the dev repo.
 
-- drift between dev and production code
-- duplicated secrets and deploy settings
-- unclear source of truth
-- harder merges
-- accidental deployment from the wrong repo
-- weaker release discipline because tags and branches split across repositories
+## Branch Policy
 
-The safer professional default is:
+Branches can exist inside dev repos for convenience, but they are not the isolation mechanism.
 
-- one official source repo
-- protected `main`
-- feature branches
-- staging branch or preview deploys
-- separate GitHub environments and secrets
-- isolated test accounts
-- no production credentials in development
+Production repos use protected release flow. The production `main` branch should be treated as deployable and should only receive reviewed promotion work.
 
-Use a separate repo only for work that should not be able to touch the official source tree, such as browser-posting experiments, destructive adapter prototypes, or generated media tests with account sessions. Name that repo `drax-lab` or `drax-sandbox`, not `drax-dev`, so its risk profile is obvious.
-
-## Branch Vs Repository Rule
-
-| Need | Use branch/environment | Use separate repo |
-|---|---|---|
-| Normal site development | Yes | No |
-| Site staging deploy | Yes, `staging` branch or preview deploy | No |
-| Plugin feature work | Yes, `dev/*` branch | No |
-| Release candidate | Yes, `main` plus tag | No |
-| Playwright account automation tests | Maybe | Yes, if sessions/accounts are involved |
-| API adapter spike with credentials | Maybe | Yes, if tokens or account risk exist |
-| Video rendering experiments | Yes | Only if generated artifacts become noisy |
-| Customer/project artifacts | No | Separate private customer workspace, not product repo |
-
-## Future Repository
-
-### `drax-api` - Go backend repository
-
-Create only when v1 needs a real backend.
-
-Purpose:
-
-- API service
-- queue service
-- metrics ingestion
-- account/workspace service
-- publishing job audit records
-
-Recommended stack:
-
-- Go for the backend when a long-running service, queue worker, or API is required.
-- PostgreSQL when durable multi-user state is required.
-- Redis only when short-lived queue/cache behavior justifies it.
-- Keep TypeScript/Astro frontend separate from Go backend contracts.
-
-Do not create `drax-api` just to look complete. Create it when the plugin cannot safely remain a local/runtime package.
+The previous `drax-site` `staging` branch is a legacy convenience from the earlier topology. It can be used temporarily, but the final deployment model is `drax-site-dev` to `drax-dev.seudominio.com`, then promotion into `drax-site`.
 
 ## Environment Strategy
 
-Use environments instead of duplicating repositories prematurely.
+| Environment | Repo | Runtime | Purpose |
+|---|---|---|---|
+| local development | `drax-corp-dev`, `drax-site-dev` | Developer machine | Fast implementation before dev deploy. |
+| dev runtime | `drax-corp-dev` | Isolated test workspace | Package, install, doctor, rollback, founder intake, and baseline artifact tests. |
+| dev site | `drax-site-dev` | `drax-dev.seudominio.com` | Sales page, blog, docs, and deploy tests. |
+| production runtime | `drax-corp` | Installable package/plugin | User-installable runtime. |
+| production site | `drax-site` | `drax.seudominio.com` or final production domain | Public user-facing site. |
 
-| Environment | Repo | Branch/tag | Runtime | Purpose |
-|---|---|---|---|---|
-| local | `drax-corp`, `drax-site` | working branch | developer machine | fast development and verification |
-| dev | feature branch, or `drax-lab` for unsafe tests | `dev/*` | isolated test accounts | normal implementation or risky adapter tests |
-| staging | `drax-site` | `staging` branch | branch deploy or staging host | public-site review before production |
-| production | `drax-corp`, `drax-site` | `main` + tag | official package/site | released plugin and public site |
+## Repository Responsibilities
 
-## Site Development URL Strategy
+### `drax-corp`
 
-Preferred professional options:
+Owns:
 
-1. Branch deploy URL from Netlify or equivalent preview infrastructure.
-2. Staging subdomain, for example `drax-dev.conclave-company.com` or `staging.drax.co`.
-3. Temporary protected path, for example `conclave-company.com/drax-dev/`, only if Nginx/static routing is explicitly configured and access is restricted.
+- production runtime source;
+- package installer;
+- Codex/Claude compatibility files;
+- Drax runtime docs;
+- artifact templates;
+- release gates;
+- schemas;
+- production tags.
 
-Use a subdomain or branch deploy for real staging. A path like `/drax-dev/` is acceptable for a temporary preview page, but it is easier to leak into production navigation and can create routing/base-path issues in static apps.
+Does not own:
 
-Recommended site deployment structure:
+- website implementation;
+- customer workspace artifacts;
+- unsafe adapter experiments;
+- development-only generated media.
 
-- production: `main` branch -> `conclave-company.com` or `drax.co`
-- staging: `staging` branch -> `drax-dev.conclave-company.com`
-- previews: pull request or branch deploy URLs
+### `drax-site`
 
-This keeps the same repository as the source of truth while isolating deployments by branch, environment, and domain.
+Owns:
 
-## GitHub State
+- production public site;
+- sales page;
+- blog;
+- install page;
+- pricing/trust/security pages;
+- public documentation surface;
+- static SEO/GEO content.
 
-The private Drax repositories now exist and are pushed:
+Does not own:
 
-- <https://github.com/einstenrodriguesdev/drax-corp>
-- <https://github.com/einstenrodriguesdev/drax-site>
+- runtime source;
+- package installer;
+- customer artifacts;
+- secrets;
+- backend code before a real API contract exists.
 
-If a new clone is needed:
+### `drax-corp-dev`
+
+Owns:
+
+- runtime experiments;
+- path implementation;
+- package dry runs;
+- isolated install tests;
+- zero-user simulations;
+- adapter spikes before promotion.
+
+### `drax-site-dev`
+
+Owns:
+
+- site experiments;
+- blog/content rendering tests;
+- docs organization tests;
+- dev domain deploys;
+- SEO/GEO validation before production promotion.
+
+## Future Backend Repo
+
+Create `drax-api` only when the product layer needs a real backend.
+
+Valid triggers:
+
+- multiple users need durable server-side state;
+- publishing jobs need centralized queue or audit records;
+- metrics ingestion must run without the founder's local machine;
+- auth, billing, accounts, or workspace permissions require a server-owned trust boundary.
+
+Recommended future stack:
+
+- Go for long-running backend service or queue worker;
+- PostgreSQL for durable multi-user state;
+- Redis only when queue/cache behavior justifies it;
+- Astro/TypeScript site remains separate from backend contracts.
+
+## Creation Road
+
+When GitHub authentication and naming are ready:
 
 ```bash
-git clone git@github.com:einstenrodriguesdev/drax-corp.git
-git clone git@github.com:einstenrodriguesdev/drax-site.git
+gh repo create einstenrodriguesdev/drax-corp-dev --private
+gh repo create einstenrodriguesdev/drax-site-dev --private
 ```
 
-## GitHub Creation Road
-
-Run after GitHub authentication is available:
+Then clone or connect them into the Drax workspace:
 
 ```bash
-gh auth login
-
-gh repo create einstenrodriguesdev/drax-corp \
-  --private \
-  --source /home/conclave/drax/drax-corp \
-  --remote origin \
-  --push
-
-gh repo create einstenrodriguesdev/drax-site \
-  --private \
-  --source /home/conclave/drax/drax-site \
-  --remote origin \
-  --push
+git clone git@github.com:einstenrodriguesdev/drax-corp-dev.git /home/conclave/drax/drax-corp-dev
+git clone git@github.com:einstenrodriguesdev/drax-site-dev.git /home/conclave/drax/drax-site-dev
 ```
 
-If the repositories already exist under a different owner or name, fix the remotes instead:
-
-```bash
-git remote set-url origin git@github.com:OWNER/REPO.git
-git push origin main --tags
-```
-
-## Branch And Release Policy
-
-- `main`: release-candidate quality.
-- `dev/*`: implementation branches.
-- `lab/*`: unsafe experiments if kept inside a repo.
-- `staging`: site staging branch, only for `drax-site`.
-- Annotated tags: release or state snapshots.
-- Protected `main`: require passing tests before merge once GitHub is available.
-- GitHub environments: separate `development`, `staging`, and `production` secrets/variables.
-
-## Stack Policy
-
-Current preferred stack:
-
-- TypeScript for plugin CLI and site logic.
-- Astro for the static public site.
-- Python + FFmpeg for deterministic low-resource video rendering.
-- Go only when a real backend or worker service is required.
-
-Do not introduce a backend because the roadmap mentions one. Introduce Go when one of these gates is true:
-
-- multiple users need durable server-side state
-- publishing jobs need centralized queue/audit records
-- metrics ingestion must run without the founder's local machine
-- customer auth/billing needs a server-owned trust boundary
-
-## Research Basis
-
-This topology follows current platform guidance:
-
-- GitHub repositories are the base unit for code, files, revision history, collaborators, and private/public visibility: <https://docs.github.com/en/repositories/creating-and-managing-repositories/about-repositories>
-- GitHub environments support separated deployment targets and environment-specific controls: <https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments>
-- GitHub branch protection supports protected `main` release discipline: <https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches>
-- `gh repo create --private --source ... --push` can create and push a remote from an existing local repository: <https://cli.github.com/manual/gh_repo_create>
-- Netlify branch deploys and deploy contexts support staging/preview behavior without creating separate site repos: <https://docs.netlify.com/deploy/deploy-types/branch-deploys/> and <https://docs.netlify.com/deploy/deploy-overview/>
-- Astro documents static deployment as the normal deployment path for Astro sites: <https://docs.astro.build/en/guides/deploy/>
-- Go modules keep backend dependency boundaries explicit when a Go service becomes necessary: <https://go.dev/doc/modules/managing-dependencies>
+Do not push production repos directly to create the dev state. Seed the dev repos intentionally, then run the first full path in dev before any production promotion.
