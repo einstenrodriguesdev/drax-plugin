@@ -25,6 +25,7 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test tests/*.test.mjs",
     "validate": "node scripts/validate-package.mjs",
+    "validate:baseline": "node scripts/validate-baseline.mjs",
     "verify": "npm run check && npm test && npm run validate",
     "prepack": "npm run verify"
   },
