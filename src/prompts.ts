@@ -1,5 +1,5 @@
 export const FIRST_QUESTION =
-  "Drax is activated. Before we decide what to build, I need to understand your founder situation first. Are you here with a specific project you already want to build, an existing project you want to upgrade, or do you want Drax to discover the best enterprise opportunity for you based on your goals, skills, capital, and market research?";
+  "Drax is activated. Before we decide what to build, I need to understand your founder situation first. Are you here with a specific project you already want to build, an existing project you want to upgrade, or do you want Drax to qualify whether your current product is ready for v1 organic automation?";
 
 export function founderIntakePrompt(): string {
   return [
