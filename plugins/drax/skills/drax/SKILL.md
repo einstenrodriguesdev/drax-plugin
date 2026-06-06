@@ -110,17 +110,17 @@ Use capabilities and explicit worker routes, not a large collection of overlappi
 
 Every job must have one accountable worker, required inputs, allowed tools, forbidden actions, output artifacts, and approval gate.
 
-Reuse existing `conclave-cc` worker definitions when they fit the job:
+Use the vendored V1 worker definitions in `templates/workers/` for customer installs:
 
-- content strategy: `content-strategist`
-- conversion copy: `copywriter-performance`
-- social visual assets: `social-media-designer`
-- motion/video finishing: `video-editor` or `motion-designer`
-- SEO: `seo-manager`
-- measurement: `analytics-attribution-specialist`
-- browser workflow testing: `marketing-automation-specialist` or equivalent automation role
+- content strategy: `templates/workers/content-strategist.md`
+- conversion copy: `templates/workers/copywriter-performance.md`
+- social visual assets: `templates/workers/social-media-designer.md`
+- motion/video finishing: `templates/workers/video-editor.md` or `templates/workers/motion-designer.md`
+- SEO: `templates/workers/seo-manager.md`
+- measurement: `templates/workers/analytics-attribution-specialist.md`
+- browser workflow testing: `templates/workers/marketing-automation-specialist.md`
 
-Do not invent new workers casually. If a new role is needed, follow `/home/conclave/conclave-cc/agents/hr.md`: run the HR existence check, research protocol, role validation, and compilation checklist before promoting it into Drax.
+Do not invent new workers casually. New-role creation through `/home/conclave/conclave-cc/agents/hr.md` is DRAX-internal only and is not part of the customer V1 runtime. Customer installs must not depend on `/home/conclave/conclave-cc`.
 
 ## Rendering Modes
 
