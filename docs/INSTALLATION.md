@@ -5,15 +5,15 @@
 For private testing:
 
 ```bash
-codex plugin marketplace add /home/conclave/drax/drax-corp
-codex plugin add drax@drax-corp
+codex plugin marketplace add /home/conclave/drax/drax-plugin
+codex plugin add drax@drax-plugin
 ```
 
 ## 2. Package Installer
 
 ```bash
 npm pack
-npm exec --yes --package ./drax-corp-1.0.0.tgz -- drax-corp install --target all
+npm exec --yes --package ./drax-plugin-1.0.0.tgz -- drax-plugin install --target all
 ```
 
 Supported targets: `codex`, `claude`, and `all`.
@@ -34,13 +34,13 @@ The first real run should create the v1 baseline artifacts for founder/product c
 npm install
 npm run verify
 npm link
-npx drax-corp install --target all
+npx drax-plugin install --target all
 drax doctor
 ```
 
 ## Rollback
 
-The installer preserves unrelated personal marketplace entries and backs up user-owned files before replacement. It installs a persistent runtime under `~/.local/share/drax-corp` so the launcher remains usable after a temporary package command exits. Remove installer-owned `~/plugins/drax`, the Drax marketplace entry, the generated Claude command, `~/.local/share/drax-corp`, and `~/.local/bin/drax` to roll back.
+The installer preserves unrelated personal marketplace entries and backs up user-owned files before replacement. It installs a persistent runtime under `~/.local/share/drax-plugin` so the launcher remains usable after a temporary package command exits. Remove installer-owned `~/plugins/drax`, the Drax marketplace entry, the generated Claude command, `~/.local/share/drax-plugin`, and `~/.local/bin/drax` to roll back.
 
 ## Antigravity
 

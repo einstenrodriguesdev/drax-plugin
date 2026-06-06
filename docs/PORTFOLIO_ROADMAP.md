@@ -14,7 +14,7 @@ The long-term enterprise thesis remains valid, but the commercial product earns 
 
 ## Repository Model
 
-### `drax-corp`
+### `drax-plugin`
 
 Owns the private plugin runtime, canonical founder and product artifacts, asset manifests, renderer and publishing adapter contracts, audit records, tests, and versioned releases.
 
@@ -24,7 +24,7 @@ Owns the public knowledge base and commercial trust surface. It demonstrates the
 
 ### `conclave-cc`
 
-Remains an internal source library. A useful capability moves into `drax-corp` only after a review confirms that it is required, coherent, supportable, and safe for the current release.
+Remains an internal source library. A useful capability moves into `drax-plugin` only after a review confirms that it is required, coherent, supportable, and safe for the current release.
 
 ## Non-Negotiable Controls
 

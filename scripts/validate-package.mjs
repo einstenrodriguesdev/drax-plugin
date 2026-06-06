@@ -54,4 +54,4 @@ if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
 }
-console.log("Drax Corp package validation passed.");
+console.log("Drax Plugin package validation passed.");

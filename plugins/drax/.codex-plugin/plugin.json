@@ -8,7 +8,7 @@
     "url": "https://drax.co"
   },
   "homepage": "https://drax.co/docs",
-  "repository": "https://github.com/einstenrodriguesdev/drax-corp",
+  "repository": "https://github.com/einstenrodriguesdev/drax-plugin",
   "license": "UNLICENSED",
   "keywords": ["founder", "organic-growth", "editorial", "distribution", "automation"],
   "skills": "./skills/",

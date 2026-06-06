@@ -59,7 +59,7 @@ test("installer preserves a persistent working launcher", () => {
     });
     assert.equal(install.status, 0, install.stderr);
     assert.equal(existsSync(path.join(home, ".local/bin/drax")), true);
-    assert.equal(existsSync(path.join(home, ".local/share/drax-corp/dist/prompts.js")), true);
+    assert.equal(existsSync(path.join(home, ".local/share/drax-plugin/dist/prompts.js")), true);
 
     const doctor = spawnSync(path.join(home, ".local/bin/drax"), ["doctor"], {
       encoding: "utf8",

@@ -4,15 +4,15 @@ This folder is the documentation source of truth for the Drax v1.0.0 organic aut
 
 ## Repository
 
-- Local repository: `/home/conclave/drax/drax-corp`
-- Docs folder: `/home/conclave/drax/drax-corp/docs`
-- Git remote: `git@github.com:einstenrodriguesdev/drax-corp.git`
-- GitHub docs URL, after the private repository exists: `https://github.com/einstenrodriguesdev/drax-corp/tree/main/docs`
+- Local repository: `/home/conclave/drax/drax-plugin`
+- Docs folder: `/home/conclave/drax/drax-plugin/docs`
+- Git remote: `git@github.com:einstenrodriguesdev/drax-plugin.git`
+- GitHub docs URL, after the private repository exists: `https://github.com/einstenrodriguesdev/drax-plugin/tree/main/docs`
 
 To open the docs locally:
 
 ```bash
-cd /home/conclave/drax/drax-corp/docs
+cd /home/conclave/drax/drax-plugin/docs
 ls
 ```
 
@@ -29,7 +29,7 @@ ls
 9. [Architecture](ARCHITECTURE.md) - product boundary, runtime layers, state model, and environment reuse.
 10. [Publishing Safety](PUBLISHING_SAFETY.md) - adapter priority, publish records, kill switches, and trigger safety.
 11. [Video Pipeline](VIDEO_PIPELINE.md) - render modes, audio policy, and failure behavior.
-12. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - how `drax-corp`, `drax-site`, and `conclave-cc` relate.
+12. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - how `drax-plugin`, `drax-site`, and `conclave-cc` relate.
 13. [ADR 0001](adr/0001-lean-capability-runtime.md) - why v1 is a lean capability runtime.
 
 ## Current Semantic Tags

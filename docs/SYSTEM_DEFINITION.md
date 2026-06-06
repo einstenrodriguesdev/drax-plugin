@@ -120,7 +120,7 @@ Each path must run completely in development before it can be promoted to produc
 
 | Path | Start condition | Required output | Promotion gate |
 |---|---|---|---|
-| P0 - Repository Topology | Four-repo model accepted. | `drax-corp`, `drax-site`, `drax-corp-dev`, and `drax-site-dev` defined with responsibilities and URLs. | Dev repos exist or are explicitly scheduled; production repos are protected from direct push. |
+| P0 - Repository Topology | Four-repo model accepted. | `drax-plugin`, `drax-site`, `drax-corp-dev`, and `drax-site-dev` defined with responsibilities and URLs. | Dev repos exist or are explicitly scheduled; production repos are protected from direct push. |
 | P1 - Clean Runtime Install | Fresh workspace with no Drax artifacts. | Installer writes Drax plugin, command, launcher, persistent runtime, and rollback-safe files. | Install, doctor, and rollback behavior pass from zero. |
 | P2 - Package Verification | Runtime source is ready to package. | Build, tests, package allowlist, schema validation, and plugin validation pass. | `npm run verify` passes and no forbidden files ship. |
 | P3 - Founder/Product Qualification | Founder starts Drax with or without direct task. | Founder, product, buyer, offer, proof, constraints, and conversion path are captured or marked `NEEDS_DECISION`. | Unsupported cases are rejected or redirected clearly; no missing fact is guessed. |
@@ -140,7 +140,7 @@ Each path must run completely in development before it can be promoted to produc
 | P17 - Execution State | A path has started. | `EXECUTION_STATE.md` records completed, pending, blocked, evidence, and next action. | A new run can resume without repeating completed steps or losing blocker context. |
 | P18 - Dev Deploy | Path works locally. | `drax-corp-dev` and/or `drax-site-dev` runs the path in the real dev environment. | Path runs complete on dev without intervention and produces expected output. |
 | P19 - Zero-User Simulation | Dev deploy passed once. | Same path runs from clean state as if a new founder/user arrived. | No hidden local state, manual patch, or private assumption is required. |
-| P20 - Production Promotion | Dev path and zero-user simulation passed. | Validated path is promoted into `drax-corp` or `drax-site`; production version changes. | Production reflects validated paths only; no direct push or untested commit enters production. |
+| P20 - Production Promotion | Dev path and zero-user simulation passed. | Validated path is promoted into `drax-plugin` or `drax-site`; production version changes. | Production reflects validated paths only; no direct push or untested commit enters production. |
 
 ## Baseline v1 Artifacts
 
@@ -169,7 +169,7 @@ The four repositories:
 
 | Repo | Type | URL |
 |---|---|---|
-| `drax-corp` | Production runtime/package | No public URL. It produces the installable runtime. |
+| `drax-plugin` | Production runtime/package | No public URL. It produces the installable runtime. |
 | `drax-site` | Production site | `drax.seudominio.com` or the final production domain. |
 | `drax-corp-dev` | Development runtime/package | No public URL. It is the testable runtime source. |
 | `drax-site-dev` | Development site | `drax-dev.seudominio.com` or the final dev domain. |

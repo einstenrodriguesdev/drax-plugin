@@ -2,7 +2,7 @@
 
 ## Product Boundary
 
-Drax Corp is the commercial organic-growth module. `conclave-cc` remains the internal enterprise source library. The commercial plugin consumes selected patterns through reviewed, versioned capabilities rather than copying the full agent corpus.
+Drax Plugin is the commercial organic-growth module. `conclave-cc` remains the internal enterprise source library. The commercial plugin consumes selected patterns through reviewed, versioned capabilities rather than copying the full agent corpus.
 
 ## Runtime Layers
 

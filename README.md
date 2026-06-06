@@ -1,6 +1,6 @@
-# Drax Corp
+# Drax Plugin
 
-Drax Corp is the private testing and release repository for the lean Drax plugin.
+Drax Plugin is the private testing and release repository for the lean Drax plugin.
 
 Version `1.0.0` is intentionally narrow: it serves founders who already have a product and want to turn their expertise into a measurable organic automation system.
 
@@ -39,8 +39,8 @@ The first complete Drax run should produce or update:
 Repository marketplace:
 
 ```bash
-codex plugin marketplace add /home/conclave/drax/drax-corp
-codex plugin add drax@drax-corp
+codex plugin marketplace add /home/conclave/drax/drax-plugin
+codex plugin add drax@drax-plugin
 ```
 
 Package test:
@@ -49,7 +49,7 @@ Package test:
 npm install
 npm run verify
 npm pack
-npm exec --yes --package ./drax-corp-1.0.0.tgz -- drax-corp install --target all
+npm exec --yes --package ./drax-plugin-1.0.0.tgz -- drax-plugin install --target all
 ```
 
 Source development:
@@ -70,8 +70,8 @@ The full `conclave-cc` agent corpus remains an internal source library. This rep
 
 ## Docs Folder
 
-- Local docs path: `/home/conclave/drax/drax-corp/docs`
-- GitHub docs path, after repository access is fixed: `https://github.com/einstenrodriguesdev/drax-corp/tree/main/docs`
+- Local docs path: `/home/conclave/drax/drax-plugin/docs`
+- GitHub docs path, after repository access is fixed: `https://github.com/einstenrodriguesdev/drax-plugin/tree/main/docs`
 - Start here: [Drax Docs Index](docs/README.md)
 - Current state: [Current State](docs/CURRENT_STATE.md)
 - Repository map: [Repository Topology](docs/REPOSITORY_TOPOLOGY.md)

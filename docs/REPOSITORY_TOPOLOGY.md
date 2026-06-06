@@ -11,7 +11,7 @@ This document defines the repository layout for Drax. The canonical rule is now 
 | Local path | Git repo? | Remote | Current role | Notes |
 |---|---:|---|---|---|
 | `/home/conclave/drax` | No | none | Workspace only | Local Drax workspace index. Do not commit product code here. |
-| `/home/conclave/drax/drax-corp` | Yes | `git@github.com:einstenrodriguesdev/drax-corp.git` | Production runtime/package source | Official private runtime repository. Receives only promoted paths. |
+| `/home/conclave/drax/drax-plugin` | Yes | `git@github.com:einstenrodriguesdev/drax-plugin.git` | Production runtime/package source | Official private runtime repository. Receives only promoted paths. |
 | `/home/conclave/drax/drax-site` | Yes | `git@github.com:einstenrodriguesdev/drax-site.git` | Production site source | Public/commercial site repository. Receives only promoted paths. |
 | `/home/conclave/conclave-cc` | Yes | `git@github.com:einstenrodriguesdev/conclave.git` | Internal source library | Reuse by review; do not ship wholesale. |
 
@@ -24,14 +24,14 @@ The dev repositories required by the final topology are not yet present locally:
 
 | Repo | Type | Responsibility | URL |
 |---|---|---|---|
-| `drax-corp` | Production | Installable runtime, package, templates, docs, release gates, and production tags. | No public URL. |
+| `drax-plugin` | Production | Installable runtime, package, templates, docs, release gates, and production tags. | No public URL. |
 | `drax-site` | Production | Public sales page, blog, install page, docs surface, pricing/trust pages, and production deployment. | `drax.seudominio.com` or final production domain. |
 | `drax-corp-dev` | Development | Runtime implementation, installer/package tests, isolated founder runs, package validation, and zero-user simulation. | No public URL. |
 | `drax-site-dev` | Development | Site implementation, blog/content tests, docs rendering, SEO/GEO checks, and dev deployment validation. | `drax-dev.seudominio.com` or final dev domain. |
 
 ## Non-Negotiable Rule
 
-No path enters `drax-corp` or `drax-site` unless it has already run completely in `drax-corp-dev` or `drax-site-dev`.
+No path enters `drax-plugin` or `drax-site` unless it has already run completely in `drax-corp-dev` or `drax-site-dev`.
 
 Promotion is by validated path, not by loose commit.
 
@@ -101,12 +101,12 @@ The previous `drax-site` `staging` branch is a legacy convenience from the earli
 | local development | `drax-corp-dev`, `drax-site-dev` | Developer machine | Fast implementation before dev deploy. |
 | dev runtime | `drax-corp-dev` | Isolated test workspace | Package, install, doctor, rollback, founder intake, and baseline artifact tests. |
 | dev site | `drax-site-dev` | `drax-dev.seudominio.com` | Sales page, blog, docs, and deploy tests. |
-| production runtime | `drax-corp` | Installable package/plugin | User-installable runtime. |
+| production runtime | `drax-plugin` | Installable package/plugin | User-installable runtime. |
 | production site | `drax-site` | `drax.seudominio.com` or final production domain | Public user-facing site. |
 
 ## Repository Responsibilities
 
-### `drax-corp`
+### `drax-plugin`
 
 Owns:
 

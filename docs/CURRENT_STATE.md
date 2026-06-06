@@ -27,11 +27,11 @@ founder interview
 
 ## Repository State
 
-- Local repository: `/home/conclave/drax/drax-corp`
-- Docs folder: `/home/conclave/drax/drax-corp/docs`
-- Remote configured: `git@github.com:einstenrodriguesdev/drax-corp.git`
+- Local repository: `/home/conclave/drax/drax-plugin`
+- Docs folder: `/home/conclave/drax/drax-plugin/docs`
+- Remote configured: `git@github.com:einstenrodriguesdev/drax-plugin.git`
 - Repository topology: [Repository Topology](REPOSITORY_TOPOLOGY.md)
-- GitHub docs path: `https://github.com/einstenrodriguesdev/drax-corp/tree/main/docs`
+- GitHub docs path: `https://github.com/einstenrodriguesdev/drax-plugin/tree/main/docs`
 
 ## What Is Ready
 
@@ -73,7 +73,7 @@ founder interview
 | Plugin validation | Passed | Plugin schema validation passed before this docs update. |
 | Local install | Passed | Local installer wrote Codex plugin, Claude command, launcher, and persistent runtime. |
 | `drax doctor` | Mostly passed | FFmpeg is optional-missing locally; Python is present. |
-| GitHub push | Passed | `drax-corp` and `drax-site` private repos exist and are pushed. |
+| GitHub push | Passed | `drax-plugin` and `drax-site` private repos exist and are pushed. |
 | Four-repo deploy topology | Planned | Final topology requires `drax-corp-dev` and `drax-site-dev`; older `drax-site` `staging` branch is legacy convenience only. |
 
 ## Current Blockers

@@ -1,12 +1,12 @@
 {
-  "name": "drax-corp",
+  "name": "drax-plugin",
   "version": "1.0.0",
   "description": "Lean Drax organic automation runtime for founders with an existing product.",
   "type": "module",
   "license": "UNLICENSED",
   "bin": {
     "drax": "dist/cli.js",
-    "drax-corp": "dist/cli.js"
+    "drax-plugin": "dist/cli.js"
   },
   "files": [
     ".agents/",
@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/einstenrodriguesdev/drax-corp.git"
+    "url": "git+ssh://git@github.com/einstenrodriguesdev/drax-plugin.git"
   },
   "author": "einstenrodrigues.dev <einstenrodrigues.dev@gmail.com>",
   "devDependencies": {
