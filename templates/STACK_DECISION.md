@@ -28,7 +28,7 @@ This document records the current stack, the isolated Drax automation environmen
 | Option | Posture | Advantage | Disadvantage | Cost/complexity | Choose when | Do not choose when |
 |---|---|---|---|---|---|---|
 | A | Use current product stack plus manual/export publishing | Lowest risk; no new infrastructure dependency. | Less autonomy; founder handles more upload steps. | Low | Current product stack is fragile or credentials are not ready. | Daily autonomous posting is required immediately. |
-| B | Isolated VPS automation node | Good balance: Drax runs 24/7 on a separated Linux environment with its own env file, queue, logs, and timers. | Requires server hardening and operational maintenance. | Medium | Founder can run Hetzner/VPS and wants daily automation. | Founder cannot maintain SSH, backups, or credential rotation. |
+| B | Isolated VPS automation node | Good balance: Drax runs 24/7 on a separated Linux environment with its own env file, queue, logs, and timers. | Requires server hardening and operational maintenance. | Medium | Founder can operate a VPS and wants daily automation. | Founder cannot maintain SSH, backups, or credential rotation. |
 | C | Production API-first publishing system | Strongest long-term foundation: service account boundaries, database queue, audit logs, API adapters, and dashboard. | Too heavy before v1 evidence; more code, review, and cost. | High | Multiple customers or high-value accounts need managed automation. | The first product is still proving demand. |
 
 Custom answer:

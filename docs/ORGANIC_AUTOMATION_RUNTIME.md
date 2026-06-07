@@ -57,7 +57,7 @@ Default options:
 - Option B: isolated VPS automation node
 - Option C: production API-first publishing system
 
-Option B is the normal v1 target when the founder can operate SSH and wants 24/7 execution: a separated Linux environment with its own env reference, queue, logs, timers, and backups. It is suitable for Hetzner-style infrastructure without coupling the automation node to the product repository.
+Option B is the normal v1 target when the founder can operate SSH and wants 24/7 execution: a separated Linux environment with its own env reference, queue, logs, timers, and backups. It is suitable for a founder-managed VPS without coupling the automation node to the product repository.
 
 Security baseline:
 
