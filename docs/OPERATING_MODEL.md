@@ -46,4 +46,4 @@ Strategic choices use a three-option decision pattern: lowest-risk, balanced pro
 
 `conclave-cc` is a source library, not a customer runtime dependency. A capability is promoted into Drax only when it is necessary for the current outcome, has a clear owner, passes security review, and does not duplicate an existing capability.
 
-If a new worker role is needed, role creation happens on the internal Conclave operator surface through `/home/conclave/conclave-cc/agents/hr.md`. That HR path is internal-only and is not part of the customer V1 runtime. Customer installs use the vendored worker definitions in `templates/workers/`.
+If a new worker role is needed, role creation happens through the internal Conclave HR protocol. That HR path is internal-only and is not part of the customer V1 runtime. Customer installs use the vendored worker definitions in `templates/workers/`.

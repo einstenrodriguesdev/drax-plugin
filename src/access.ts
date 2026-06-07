@@ -6,6 +6,8 @@ export type BillingInterval = "monthly" | "annual";
 
 export type TierLimits = {
   dailyRunCadence: string;
+  maxProjects: number | "unlimited";
+  dailyBlogPostCap: number;
   maxRuntimeHoursPerDay: number;
   maxRunsPerDay?: number;
 };
@@ -59,10 +61,21 @@ function parseLimits(value: unknown): { ok: true; limits: TierLimits | null } | 
 
   const errors: string[] = [];
   const dailyRunCadence = value.dailyRunCadence;
+  const maxProjects = value.maxProjects;
+  const dailyBlogPostCap = value.dailyBlogPostCap;
   const maxRuntimeHoursPerDay = value.maxRuntimeHoursPerDay;
   const maxRunsPerDay = value.maxRunsPerDay;
 
   if (!isNonEmptyString(dailyRunCadence)) errors.push("Access token limits.dailyRunCadence is required.");
+  if (
+    maxProjects !== "unlimited" &&
+    (typeof maxProjects !== "number" || !Number.isInteger(maxProjects) || maxProjects <= 0)
+  ) {
+    errors.push("Access token limits.maxProjects must be a positive integer or unlimited.");
+  }
+  if (typeof dailyBlogPostCap !== "number" || !Number.isInteger(dailyBlogPostCap) || dailyBlogPostCap <= 0) {
+    errors.push("Access token limits.dailyBlogPostCap must be a positive integer.");
+  }
   if (typeof maxRuntimeHoursPerDay !== "number" || maxRuntimeHoursPerDay <= 0) {
     errors.push("Access token limits.maxRuntimeHoursPerDay must be a positive number.");
   }
@@ -74,6 +87,8 @@ function parseLimits(value: unknown): { ok: true; limits: TierLimits | null } | 
 
   const limits: TierLimits = {
     dailyRunCadence: dailyRunCadence as string,
+    maxProjects: maxProjects as number | "unlimited",
+    dailyBlogPostCap: dailyBlogPostCap as number,
     maxRuntimeHoursPerDay: maxRuntimeHoursPerDay as number,
   };
   if (typeof maxRunsPerDay === "number") limits.maxRunsPerDay = maxRunsPerDay;

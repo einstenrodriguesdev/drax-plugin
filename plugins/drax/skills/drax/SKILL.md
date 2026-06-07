@@ -120,7 +120,7 @@ Use the vendored V1 worker definitions in `templates/workers/` for customer inst
 - measurement: `templates/workers/analytics-attribution-specialist.md`
 - browser workflow testing: `templates/workers/marketing-automation-specialist.md`
 
-Do not invent new workers casually. New-role creation through `/home/conclave/conclave-cc/agents/hr.md` is DRAX-internal only and is not part of the customer V1 runtime. Customer installs must not depend on `/home/conclave/conclave-cc`.
+Do not invent new workers casually. New-role creation through the internal Conclave HR protocol is DRAX-internal only and is not part of the customer V1 runtime. Customer installs must not depend on the private Conclave source library.
 
 ## Rendering Modes
 

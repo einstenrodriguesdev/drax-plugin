@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drax.co/schemas/tier-limits.schema.json",
+  "title": "Drax Tier Limits",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "tiers"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "tiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Solo", "Studio", "Scale"],
+      "properties": {
+        "Solo": { "$ref": "#/$defs/tier" },
+        "Studio": { "$ref": "#/$defs/tier" },
+        "Scale": { "$ref": "#/$defs/tier" }
+      }
+    }
+  },
+  "$defs": {
+    "decisionValue": {
+      "oneOf": [
+        { "type": "integer", "minimum": 1 },
+        { "const": "unlimited" },
+        { "const": "NEEDS_DECISION" }
+      ]
+    },
+    "tier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxProjects", "dailyBlogPostCap", "maxRuntimeHoursPerDay", "maxRunsPerDay"],
+      "properties": {
+        "maxProjects": { "$ref": "#/$defs/decisionValue" },
+        "dailyBlogPostCap": { "$ref": "#/$defs/decisionValue" },
+        "maxRuntimeHoursPerDay": { "$ref": "#/$defs/decisionValue" },
+        "maxRunsPerDay": { "$ref": "#/$defs/decisionValue" },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

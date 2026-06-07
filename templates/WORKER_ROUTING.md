@@ -8,7 +8,7 @@ Every job gets one accountable worker. Workers may consult others, but the owner
 
 ## Worker Sources
 
-Use vendored V1 worker definitions from `templates/workers/` for customer installs. New-role creation through `/home/conclave/conclave-cc/agents/hr.md` is DRAX-internal only and is not part of the customer V1 runtime.
+Use vendored V1 worker definitions from `templates/workers/` for customer installs. New-role creation through the internal Conclave HR protocol is DRAX-internal only and is not part of the customer V1 runtime.
 
 ## Routing Table
 

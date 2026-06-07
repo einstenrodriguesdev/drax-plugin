@@ -18,6 +18,8 @@ function accessEnv(extra = {}) {
       signature: "test-signature",
       limits: {
         dailyRunCadence: "daily",
+        maxProjects: 1,
+        dailyBlogPostCap: 1,
         maxRuntimeHoursPerDay: 1,
         maxRunsPerDay: 1,
       },

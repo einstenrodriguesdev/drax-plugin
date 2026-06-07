@@ -17,9 +17,16 @@
     "limits": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["dailyRunCadence", "maxRuntimeHoursPerDay"],
+      "required": ["dailyRunCadence", "maxProjects", "dailyBlogPostCap", "maxRuntimeHoursPerDay"],
       "properties": {
         "dailyRunCadence": { "type": "string", "minLength": 1 },
+        "maxProjects": {
+          "oneOf": [
+            { "type": "integer", "minimum": 1 },
+            { "const": "unlimited" }
+          ]
+        },
+        "dailyBlogPostCap": { "type": "integer", "minimum": 1 },
         "maxRuntimeHoursPerDay": { "type": "number", "exclusiveMinimum": 0 },
         "maxRunsPerDay": { "type": "integer", "minimum": 1 }
       }

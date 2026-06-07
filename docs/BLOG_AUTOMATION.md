@@ -63,6 +63,8 @@ Local deploy is central to V1, but it remains gated.
 
 Before deploy, `DISTRIBUTION_PLAN.md` must define the blog target directory, static output directory, public base path, server or proxy, backup directory, approval owner, and rollback command.
 
+The deploy configuration shape is defined in `schemas/deploy-config.schema.json`. Clean testing supplies this shape with `dryRun: true`; live deploy remains stubbed and approval-gated.
+
 The approved deploy sequence is:
 
 1. Build the blog surface.

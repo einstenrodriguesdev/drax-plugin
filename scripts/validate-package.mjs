@@ -48,6 +48,8 @@ const required = [
   "schemas/publish-record.schema.json",
   "schemas/access-token.schema.json",
   "schemas/conversion-record.schema.json",
+  "schemas/tier-limits.schema.json",
+  "schemas/deploy-config.schema.json",
   "docs/SETUP.md",
   "docs/BLOG_AUTOMATION.md",
   "docs/ACCESS_GATE.md",

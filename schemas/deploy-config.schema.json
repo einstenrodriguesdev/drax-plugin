@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drax.co/schemas/deploy-config.schema.json",
+  "title": "Drax Local Blog Deploy Config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "mode", "dryRun", "approval", "paths", "server", "safety"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "mode": { "const": "local-blog-deploy" },
+    "dryRun": { "type": "boolean" },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approved", "approvedBy", "approvedAt"],
+      "properties": {
+        "approved": { "type": "boolean" },
+        "approvedBy": { "$ref": "#/$defs/decisionString" },
+        "approvedAt": {
+          "anyOf": [
+            { "type": "string", "format": "date-time" },
+            { "const": "NEEDS_DECISION" }
+          ]
+        }
+      }
+    },
+    "paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blogSurfaceDir", "staticOutputDir", "targetDir", "backupDir"],
+      "properties": {
+        "blogSurfaceDir": { "$ref": "#/$defs/decisionString" },
+        "staticOutputDir": { "$ref": "#/$defs/decisionString" },
+        "targetDir": { "$ref": "#/$defs/decisionString" },
+        "backupDir": { "$ref": "#/$defs/decisionString" }
+      }
+    },
+    "server": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "reloadCommand"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/decisionString" },
+        "reloadCommand": { "$ref": "#/$defs/decisionString" }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backupBeforeWrite", "overwritePolicy", "rollbackCommand"],
+      "properties": {
+        "backupBeforeWrite": { "const": true },
+        "overwritePolicy": { "enum": ["refuse-without-backup", "backup-then-write"] },
+        "rollbackCommand": { "$ref": "#/$defs/decisionString" }
+      }
+    }
+  },
+  "$defs": {
+    "decisionString": {
+      "anyOf": [
+        { "type": "string", "minLength": 1 },
+        { "const": "NEEDS_DECISION" }
+      ]
+    }
+  }
+}
