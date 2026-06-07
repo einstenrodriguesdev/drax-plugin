@@ -51,7 +51,8 @@ test("prints a scoped direct-task prompt", () => {
   assert.equal(result.status, 0);
   assert.match(result.stdout, /build my calendar/);
   assert.match(result.stdout, /90-post\/class planning/);
-  assert.match(result.stdout, /three-option decision pattern/);
+  assert.match(result.stdout, /Strategic Definition decision pattern/);
+  assert.match(result.stdout, /AskUserQuestion/);
   assert.match(result.stdout, /Do not publish live/);
 });
 
@@ -67,8 +68,16 @@ test("the bare drax command starts founder intelligence intake", () => {
       env: accessEnv({ DRAX_CODEX_BIN: fakeCodex, DRAX_TEST_OUTPUT: output }),
     });
     assert.equal(result.status, 0, result.stderr);
-    assert.match(readFileSync(output, "utf8"), /The first response must be only this question:\nDrax is activated\./);
-    assert.match(readFileSync(output, "utf8"), /language strategy, stack\/security decision, 90-post\/class plan/);
+    const prompt = readFileSync(output, "utf8");
+    assert.match(
+      prompt,
+      /The first response must be only this question:\nDrax is activated\. Before we decide what to build, tell me who you are and what you are building\./,
+    );
+    assert.match(prompt, /Phase 1 is Recognition: free text only, no visible choice menus/);
+    assert.match(prompt, /read repository evidence before asking for repo facts/);
+    assert.match(prompt, /AskUserQuestion/);
+    assert.match(prompt, /scope decisions to the local blog surface only/);
+    assert.doesNotMatch(prompt, /specific project you already want to build/);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

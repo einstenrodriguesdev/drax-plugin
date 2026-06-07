@@ -11,7 +11,7 @@ Daily posting requires both a clock trigger and a manual trigger. Both read the 
 | Option | Trigger posture | Advantage | Disadvantage | Cost/complexity | Choose when | Do not choose when |
 |---|---|---|---|---|---|---|
 | A | Manual trigger only | Safest first test; founder approves every run. | Does not prove autonomous daily operation. | Low | Testing the first content packages. | Daily execution must happen without founder presence. |
-| B | Clock trigger plus manual fallback | Proves daily operation while preserving operator override. | Requires idempotency, logs, and failure handling. | Medium | VPS or always-on machine is available. | Queue, credentials, or approvals are unstable. |
+| B | Clock trigger plus manual fallback | Proves daily operation while preserving operator override. | Requires idempotency, logs, and failure handling. | Medium | VPS or always-on machine is available. | Queue, connection readiness, or approvals are unstable. |
 | C | Full scheduled queue with API adapters | Best scale path for multiple channels and accounts. | Requires platform gates, app reviews, and stronger monitoring. | High | API adapters are approved and tested. | Playwright is the only available adapter. |
 
 Custom answer:
