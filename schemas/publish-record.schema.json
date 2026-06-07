@@ -21,7 +21,7 @@
     "assetId": { "type": "string", "minLength": 1 },
     "adapter": { "type": "string", "minLength": 1 },
     "adapterVersion": { "type": "string" },
-    "mode": { "enum": ["dry-run", "official-api", "playwright-experimental", "export-manual"] },
+    "mode": { "enum": ["dry-run", "local-blog-deploy", "official-api", "playwright-experimental", "export-manual"] },
     "targetAccount": { "type": "string", "minLength": 1 },
     "requestedPrivacy": { "type": "string" },
     "approval": {

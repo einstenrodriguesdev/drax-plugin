@@ -32,6 +32,8 @@ codex login
 
 Complete the Device Code login flow shown by Codex. If Codex is installed outside `PATH`, set `DRAX_CODEX_BIN` to the full binary path.
 
+Runtime commands require a Drax access token. Place it at `.drax/access-token.json` in the founder workspace or set `DRAX_ACCESS_TOKEN_FILE` to the token path. The runtime fails closed until the token can be validated by the Drax server.
+
 After installation, test in an isolated workspace:
 
 ```bash
@@ -46,16 +48,10 @@ drax
 To generate a self-contained editorial blog surface for an existing customer site:
 
 ```bash
-drax blog init \
-  --target drax-blog \
-  --site-name "Customer Editorial" \
-  --site-url "https://example.com" \
-  --description "Editorial updates from the company" \
-  --mount subpath \
-  --base-path /blog
+drax blog init --target drax-blog
 ```
 
-Replace any generated `NEEDS_DECISION` value before production deployment.
+The generator reads blog identity and base path from the founder docs. Replace any generated `NEEDS_DECISION` value in those docs before production deployment.
 
 ## 3. Source Development
 

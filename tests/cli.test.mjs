@@ -5,6 +5,36 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
+function accessEnv(extra = {}) {
+  return {
+    ...process.env,
+    DRAX_ACCESS_TOKEN_JSON: JSON.stringify({
+      schemaVersion: "1.0.0",
+      tokenId: "test-token",
+      tier: "Solo",
+      billingInterval: "monthly",
+      issuedAt: "2026-01-01T00:00:00.000Z",
+      expiresAt: "2099-01-01T00:00:00.000Z",
+      signature: "test-signature",
+      limits: {
+        dailyRunCadence: "daily",
+        maxRuntimeHoursPerDay: 1,
+        maxRunsPerDay: 1,
+      },
+    }),
+    DRAX_ACCESS_VALIDATION_STUB: "allow",
+    ...extra,
+  };
+}
+
+function withoutAccessEnv() {
+  const env = { ...process.env };
+  delete env.DRAX_ACCESS_TOKEN_JSON;
+  delete env.DRAX_ACCESS_TOKEN_FILE;
+  delete env.DRAX_ACCESS_VALIDATION_STUB;
+  return env;
+}
+
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
@@ -12,7 +42,10 @@ test("prints the package version", () => {
 });
 
 test("prints a scoped direct-task prompt", () => {
-  const result = spawnSync(process.execPath, ["dist/cli.js", "prompt", "build", "my", "calendar"], { encoding: "utf8" });
+  const result = spawnSync(process.execPath, ["dist/cli.js", "prompt", "build", "my", "calendar"], {
+    encoding: "utf8",
+    env: accessEnv(),
+  });
   assert.equal(result.status, 0);
   assert.match(result.stdout, /build my calendar/);
   assert.match(result.stdout, /90-post\/class planning/);
@@ -29,7 +62,7 @@ test("the bare drax command starts founder intelligence intake", () => {
     chmodSync(fakeCodex, 0o755);
     const result = spawnSync(process.execPath, ["dist/cli.js"], {
       encoding: "utf8",
-      env: { ...process.env, DRAX_CODEX_BIN: fakeCodex, DRAX_TEST_OUTPUT: output },
+      env: accessEnv({ DRAX_CODEX_BIN: fakeCodex, DRAX_TEST_OUTPUT: output }),
     });
     assert.equal(result.status, 0, result.stderr);
     assert.match(readFileSync(output, "utf8"), /The first response must be only this question:\nDrax is activated\./);
@@ -48,6 +81,22 @@ test("session hook reads only known artifacts", () => {
   const payload = JSON.parse(result.stdout);
   assert.match(payload.hookSpecificOutput.additionalContext, /Publishing defaults to dry-run/);
   assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /DRAX_CODEX_BIN/);
+});
+
+test("runtime commands fail closed without an access token", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-no-access-"));
+  try {
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "init"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: withoutAccessEnv(),
+    });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Drax access token validation failed/);
+    assert.equal(existsSync(path.join(directory, "FOUNDER_PROFILE.md")), false);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 test("installer preserves a persistent working launcher", () => {
@@ -80,6 +129,7 @@ test("init copies baseline artifacts into a workspace", () => {
     const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "init"], {
       cwd: directory,
       encoding: "utf8",
+      env: accessEnv(),
     });
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /Drax baseline artifacts ready/);
@@ -94,6 +144,21 @@ test("blog init generates a self-contained Astro surface", () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), "drax-blog-"));
   const target = path.join(directory, "blog");
   try {
+    writeFileSync(
+      path.join(directory, "DISTRIBUTION_PLAN.md"),
+      [
+        "# Distribution Plan",
+        "",
+        "## Local Blog Deploy",
+        "",
+        "- Blog attachment mode: subpath",
+        "- Editorial site name: Customer Editorial",
+        "- Canonical site URL: https://example.com",
+        "- Editorial description: Customer updates",
+        "- Public base path: /news",
+      ].join("\n"),
+      "utf8",
+    );
     const result = spawnSync(
       process.execPath,
       [
@@ -102,18 +167,8 @@ test("blog init generates a self-contained Astro surface", () => {
         "init",
         "--target",
         target,
-        "--site-name",
-        "Customer Editorial",
-        "--site-url",
-        "https://example.com",
-        "--description",
-        "Customer updates",
-        "--mount",
-        "subpath",
-        "--base-path",
-        "/news",
       ],
-      { cwd: directory, encoding: "utf8" },
+      { cwd: directory, encoding: "utf8", env: accessEnv() },
     );
     assert.equal(result.status, 0, result.stderr);
     assert.equal(existsSync(path.join(target, "package.json")), true);

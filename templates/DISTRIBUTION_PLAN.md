@@ -12,10 +12,25 @@ Last reviewed:
 | Option | Mode | Advantage | Disadvantage | Cost/complexity | Choose when | Do not choose when |
 |---|---|---|---|---|---|---|
 | A | export-manual | | | | | |
-| B | official-api | | | | | |
+| B | local-blog-deploy | | | | | |
 | C | playwright-experimental | | | | | |
 
 Custom answer:
+
+## Local Blog Deploy
+
+- Blog attachment mode:
+- Editorial site name:
+- Canonical site URL:
+- Editorial description:
+- Public base path:
+- Blog surface target directory:
+- Static output directory:
+- Static server/proxy:
+- Backup directory:
+- Approval owner:
+- Last approved deploy:
+- Rollback command:
 
 ## Platform Records
 

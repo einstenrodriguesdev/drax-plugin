@@ -46,8 +46,11 @@ const required = [
   "templates/blog-surface/src/styles/global.css",
   "schemas/asset-manifest.schema.json",
   "schemas/publish-record.schema.json",
+  "schemas/access-token.schema.json",
+  "schemas/conversion-record.schema.json",
   "docs/SETUP.md",
   "docs/BLOG_AUTOMATION.md",
+  "docs/ACCESS_GATE.md",
   "SECURITY.md",
 ];
 const forbidden = [/(^|\/)\.env($|\.)/, /credential/i, /(^|\/)node_modules\//, /\.pem$/, /\.key$/];

@@ -132,11 +132,12 @@ Every render must be reproducible from a versioned manifest and asset hashes.
 
 ## Publishing Modes
 
+- `local-blog-deploy`: central V1 blog path for a founder VPS. Build the generated Astro surface, back up the approved target path, write locally, reload only approved server or proxy services, and record the result.
 - `official-api`: production target for YouTube, TikTok, Instagram, and future platforms.
 - `playwright-experimental`: isolated test adapter only; use a dedicated account, rate limits, screenshots, and a kill switch.
 - `export-manual`: always-available contingency package for human upload.
 
-Live publishing requires explicit approval. Paid spend is outside v1.0.0.
+Live publishing and local blog deploy require explicit approval. Local deploy must back up before write and must stop rather than overwrite a working path without rollback. Paid spend is outside v1.0.0.
 
 ## Trigger Rules
 

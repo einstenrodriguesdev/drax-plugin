@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drax.co/schemas/access-token.schema.json",
+  "title": "Drax Access Token",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "tokenId", "tier", "billingInterval", "issuedAt", "expiresAt", "signature"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "tokenId": { "type": "string", "minLength": 1 },
+    "tier": { "enum": ["Solo", "Studio", "Scale"] },
+    "billingInterval": { "enum": ["monthly", "annual"] },
+    "issuedAt": { "type": "string", "format": "date-time" },
+    "expiresAt": { "type": "string", "format": "date-time" },
+    "signature": { "type": "string", "minLength": 1 },
+    "subject": { "type": "string", "minLength": 1 },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dailyRunCadence", "maxRuntimeHoursPerDay"],
+      "properties": {
+        "dailyRunCadence": { "type": "string", "minLength": 1 },
+        "maxRuntimeHoursPerDay": { "type": "number", "exclusiveMinimum": 0 },
+        "maxRunsPerDay": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

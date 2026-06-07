@@ -66,10 +66,12 @@ drax
 
 The generated launcher lives in `~/.local/bin`. Add that directory to `PATH` and run `codex login` before the first Drax session.
 
+Runtime commands require a Drax access token at `.drax/access-token.json` or `DRAX_ACCESS_TOKEN_FILE`. The token is issued by the payment backend and validated before Drax runs.
+
 Generate a stack-independent editorial blog surface for an existing customer site:
 
 ```bash
-drax blog init --target drax-blog --site-name "Customer Editorial" --site-url "https://example.com" --description "Editorial updates from the company"
+drax blog init --target drax-blog
 ```
 
 ## Repository Boundary

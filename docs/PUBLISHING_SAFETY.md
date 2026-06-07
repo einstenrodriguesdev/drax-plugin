@@ -2,9 +2,12 @@
 
 ## Adapter Priority
 
-1. Official platform API.
-2. Export-manual contingency.
-3. Playwright experimental adapter.
+1. Local blog deploy on the founder VPS.
+2. Official platform API.
+3. Export-manual contingency.
+4. Playwright experimental adapter.
+
+Local blog deploy is a publishing path. It requires explicit approval, a target path, a static output path, a backup directory, and a rollback command before writing files.
 
 Browser automation is not the production default. Passing a small test does not remove account-policy, UI-change, credential, or anti-automation risk.
 
@@ -21,6 +24,7 @@ Every attempt records:
 - requested privacy status
 - response or screenshot evidence
 - remote post identifier
+- local backup path when the adapter writes to the VPS filesystem
 - rollback or delete result
 
 ## Kill Switches

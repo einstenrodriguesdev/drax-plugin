@@ -101,9 +101,14 @@ The default renderer is `python-ffmpeg` because it runs deterministically on low
 
 Adapter priority:
 
-1. `official-api` for production where the platform supports it and the adapter has passed gates.
-2. `export-manual` as the universal contingency.
-3. `playwright-experimental` for isolated tests only.
+1. `local-blog-deploy` for the founder VPS blog surface after approval and backup.
+2. `official-api` for external platforms where the adapter has passed gates.
+3. `export-manual` as the universal contingency.
+4. `playwright-experimental` for isolated tests only.
+
+Local blog deploy is central to V1. The customer runs Drax on the same VPS as the site, so deploy means building the blog surface, backing up the approved target path, writing files locally, and reloading only the already configured static server or proxy approved in `DISTRIBUTION_PLAN.md`.
+
+Remote access, remote credentials, and a Drax API backend are not required for local blog deploy. Backup before write is mandatory.
 
 Playwright can be useful for proving workflows, but it carries UI-change, anti-automation, credential, and account-policy risk. It does not become the default production path just because a small test passed.
 

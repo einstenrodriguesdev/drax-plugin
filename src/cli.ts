@@ -17,6 +17,7 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateAccess } from "./access.js";
 import { directTaskPrompt, founderIntakePrompt } from "./prompts.js";
 
 const VERSION = "1.0.0";
@@ -88,6 +89,45 @@ function optionValue(args: string[], flag: string): string | null {
   return value && !value.startsWith("--") ? value : null;
 }
 
+function escapeRegExp(value: string): string {
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function readWorkspaceArtifact(cwd: string, file: string): string {
+  const target = path.join(cwd, file);
+  return existsSync(target) ? readFileSync(target, "utf8") : "";
+}
+
+function artifactField(content: string, label: string): string | null {
+  const match = content.match(new RegExp(`^-\\s+${escapeRegExp(label)}:\\s*(.*)$`, "im"));
+  const value = match?.[1]?.trim();
+  if (!value) return null;
+  return value.replace(/^`(.+)`$/, "$1").trim() || null;
+}
+
+function founderBlogConfig(cwd: string): Record<string, string> {
+  const distributionPlan = readWorkspaceArtifact(cwd, "DISTRIBUTION_PLAN.md");
+  const productContext = readWorkspaceArtifact(cwd, "PRODUCT_CONTEXT.md");
+  return {
+    SITE_NAME: artifactField(distributionPlan, "Editorial site name") || "NEEDS_DECISION",
+    SITE_URL:
+      artifactField(distributionPlan, "Canonical site URL") ||
+      artifactField(productContext, "Live URL") ||
+      "NEEDS_DECISION",
+    SITE_DESCRIPTION: artifactField(distributionPlan, "Editorial description") || "NEEDS_DECISION",
+    MOUNT_MODE: artifactField(distributionPlan, "Blog attachment mode") || "NEEDS_DECISION",
+    BASE_PATH: artifactField(distributionPlan, "Public base path") || "NEEDS_DECISION",
+  };
+}
+
+function requireRuntimeAccess(): boolean {
+  const result = validateAccess(process.cwd());
+  if (result.ok) return true;
+  console.error(["Drax access token validation failed.", ...result.errors].join("\n"));
+  process.exitCode = 1;
+  return false;
+}
+
 function copyBaselineArtifacts(cwd: string, force: boolean): { created: number; skipped: number } {
   let created = 0;
   let skipped = 0;
@@ -105,6 +145,7 @@ function copyBaselineArtifacts(cwd: string, force: boolean): { created: number; 
 }
 
 function initWorkspace(args: string[]): void {
+  if (!requireRuntimeAccess()) return;
   const force = hasFlag(args, "--force");
   const { created, skipped } = copyBaselineArtifacts(process.cwd(), force);
   console.log(`Drax baseline artifacts ready. Created: ${created}. Skipped: ${skipped}.`);
@@ -245,24 +286,18 @@ function copyBlogTemplate(source: string, target: string, values: Record<string,
 }
 
 function initBlog(args: string[]): void {
+  if (!requireRuntimeAccess()) return;
   const target = path.resolve(process.cwd(), optionValue(args, "--target") || "drax-blog");
   const force = hasFlag(args, "--force");
-  const mountMode = optionValue(args, "--mount") || "subpath";
-  const basePath = optionValue(args, "--base-path") || (mountMode === "subdomain" ? "/" : "/blog");
-  const values = {
-    SITE_NAME: optionValue(args, "--site-name") || "NEEDS_DECISION",
-    SITE_URL: optionValue(args, "--site-url") || "NEEDS_DECISION",
-    SITE_DESCRIPTION: optionValue(args, "--description") || "NEEDS_DECISION",
-    MOUNT_MODE: mountMode,
-    BASE_PATH: basePath,
-  };
+  const values = founderBlogConfig(process.cwd());
 
   copyBlogTemplate(bundlePath("templates", "blog-surface"), target, values, force);
   console.log(`Drax blog surface generated at ${target}`);
-  console.log("Next: fill src/site.config.ts, add posts in src/content/posts, then run `npm install` and `npm run build`.");
+  console.log("Next: resolve NEEDS_DECISION values in the founder docs, add posts, then run `npm install` and `npm run build`.");
 }
 
 function launchCodex(args: string[]): void {
+  if (!requireRuntimeAccess()) return;
   if (!args.length && process.cwd() !== packageRoot) {
     copyBaselineArtifacts(process.cwd(), false);
   }
@@ -289,7 +324,10 @@ function main(): void {
   if (command === "doctor") return doctor();
   if (command === "init") return initWorkspace(args.slice(1));
   if (command === "blog" && args[1] === "init") return initBlog(args.slice(2));
-  if (command === "prompt") return console.log(directTaskPrompt(args.slice(1).join(" ") || "Start Drax."));
+  if (command === "prompt") {
+    if (!requireRuntimeAccess()) return;
+    return console.log(directTaskPrompt(args.slice(1).join(" ") || "Start Drax."));
+  }
   if (command === "install") {
     const targetIndex = args.indexOf("--target");
     return install(targetIndex >= 0 ? args[targetIndex + 1] || "all" : "all");

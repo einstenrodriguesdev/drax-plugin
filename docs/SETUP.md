@@ -36,6 +36,17 @@ Complete the Device Code login flow shown by Codex. If Codex is not on `PATH`, s
 export DRAX_CODEX_BIN="/absolute/path/to/codex"
 ```
 
+## Access Token
+
+Runtime commands require a Drax access token. Store the token outside tracked source files.
+
+Supported locations:
+
+- `.drax/access-token.json` inside the founder workspace
+- `DRAX_ACCESS_TOKEN_FILE` pointing to an absolute token path
+
+Drax fails closed when the token is missing, expired, structurally invalid, or not validated by the Drax server.
+
 ## First Workspace Run
 
 From a customer project workspace:
