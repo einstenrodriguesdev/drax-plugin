@@ -6,6 +6,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const required = [
+  ".agents/plugins/marketplace.json",
   "plugins/drax/.codex-plugin/plugin.json",
   "plugins/drax/skills/drax/SKILL.md",
   "plugins/drax/hooks/hooks.json",
