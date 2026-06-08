@@ -8,11 +8,15 @@ Last reviewed:
 ## Runtime Configuration
 
 - Primary language:
-- Daily clock trigger:
-- Manual trigger:
+- Daily clock trigger: NEEDS_DECISION
+- Manual trigger: drax cycle --dry-run
 - Publishing adapter:
-- Isolated environment:
-- Environment reference:
+- Isolated environment: .drax/worktrees/current
+- Environment reference: EXECUTION_STATE.json
+- Scheduler timezone: NEEDS_DECISION
+- Next post index: 1
+- Last run ID:
+- Last published at:
 
 ## Completed
 

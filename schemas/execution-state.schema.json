@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drax.co/schemas/execution-state.schema.json",
+  "title": "Drax Execution State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "currentPhase",
+    "publishingMode",
+    "videoEngine",
+    "activeVersion",
+    "nextPostIndex",
+    "lastRunId",
+    "lastPublishedAt",
+    "config",
+    "completed",
+    "inProgress",
+    "blocked",
+    "nextGate",
+    "lastDecisions"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "currentPhase": { "type": "string", "minLength": 1 },
+    "publishingMode": { "enum": ["dry-run", "publish"] },
+    "videoEngine": { "type": "string", "minLength": 1 },
+    "activeVersion": { "type": "string", "minLength": 1 },
+    "nextPostIndex": { "type": "integer", "minimum": 1 },
+    "lastRunId": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+    "lastPublishedAt": {
+      "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manualCommand",
+        "clockSchedule",
+        "schedulerTimezone",
+        "cloneLocation",
+        "runDirectory",
+        "logDirectory",
+        "publishRecordDirectory",
+        "blogSurfaceDirectory",
+        "lockMode",
+        "publishRecordFormat",
+        "dryRunDefault"
+      ],
+      "properties": {
+        "manualCommand": { "type": "string", "minLength": 1 },
+        "clockSchedule": { "$ref": "#/$defs/decisionString" },
+        "schedulerTimezone": { "$ref": "#/$defs/decisionString" },
+        "cloneLocation": { "type": "string", "minLength": 1 },
+        "runDirectory": { "type": "string", "minLength": 1 },
+        "logDirectory": { "type": "string", "minLength": 1 },
+        "publishRecordDirectory": { "type": "string", "minLength": 1 },
+        "blogSurfaceDirectory": { "type": "string", "minLength": 1 },
+        "lockMode": { "const": "fail-fast" },
+        "publishRecordFormat": { "const": "json" },
+        "dryRunDefault": { "type": "boolean" }
+      }
+    },
+    "completed": { "type": "array", "items": { "type": "string" } },
+    "inProgress": { "type": "array", "items": { "type": "string" } },
+    "blocked": { "type": "array", "items": { "type": "string" } },
+    "nextGate": { "type": "string", "minLength": 1 },
+    "lastDecisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["date", "artifact", "decision", "owner", "revisitTrigger"],
+        "properties": {
+          "date": { "type": "string", "minLength": 1 },
+          "artifact": { "type": "string", "minLength": 1 },
+          "decision": { "type": "string", "minLength": 1 },
+          "owner": { "type": "string", "minLength": 1 },
+          "revisitTrigger": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "decisionString": {
+      "anyOf": [{ "type": "string", "minLength": 1 }, { "const": "NEEDS_DECISION" }]
+    }
+  }
+}

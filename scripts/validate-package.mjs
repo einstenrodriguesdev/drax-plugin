@@ -23,6 +23,7 @@ const required = [
   "templates/WORKER_ROUTING.md",
   "templates/MEASUREMENT_PLAN.md",
   "templates/EXECUTION_STATE.md",
+  "templates/EXECUTION_STATE.json",
   "templates/workers/analytics-attribution-specialist.md",
   "templates/workers/content-strategist.md",
   "templates/workers/copywriter-performance.md",
@@ -50,9 +51,12 @@ const required = [
   "schemas/conversion-record.schema.json",
   "schemas/tier-limits.schema.json",
   "schemas/deploy-config.schema.json",
+  "schemas/execution-state.schema.json",
+  "schemas/run-manifest.schema.json",
   "docs/SETUP.md",
   "docs/BLOG_AUTOMATION.md",
   "docs/ACCESS_GATE.md",
+  "docs/TRIGGER_ENGINE.md",
   "SECURITY.md",
 ];
 const forbidden = [/(^|\/)\.env($|\.)/, /credential/i, /(^|\/)node_modules\//, /\.pem$/, /\.key$/];

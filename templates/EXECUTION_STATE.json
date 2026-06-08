@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "currentPhase": "qualification",
+  "publishingMode": "dry-run",
+  "videoEngine": "python-ffmpeg",
+  "activeVersion": "1.1.0",
+  "nextPostIndex": 1,
+  "lastRunId": null,
+  "lastPublishedAt": null,
+  "config": {
+    "manualCommand": "drax cycle --dry-run",
+    "clockSchedule": "NEEDS_DECISION",
+    "schedulerTimezone": "NEEDS_DECISION",
+    "cloneLocation": ".drax/worktrees/current",
+    "runDirectory": ".drax/runs",
+    "logDirectory": ".drax/logs",
+    "publishRecordDirectory": ".drax/publish-records",
+    "blogSurfaceDirectory": "drax-blog",
+    "lockMode": "fail-fast",
+    "publishRecordFormat": "json",
+    "dryRunDefault": true
+  },
+  "completed": [],
+  "inProgress": [],
+  "blocked": [],
+  "nextGate": "Complete founder baseline, pass validate-baseline, then run drax cycle --dry-run.",
+  "lastDecisions": []
+}

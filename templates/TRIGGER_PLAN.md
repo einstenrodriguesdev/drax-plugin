@@ -6,6 +6,8 @@ Last reviewed:
 
 Daily posting requires both a clock trigger and a manual trigger. Both read the same approved queue and write the same publish record format.
 
+Machine state lives in `EXECUTION_STATE.json`. `EXECUTION_STATE.md` is the readable view rendered from JSON after a successful publish.
+
 ## Trigger Options
 
 | Option | Trigger posture | Advantage | Disadvantage | Cost/complexity | Choose when | Do not choose when |
@@ -20,12 +22,28 @@ Custom answer:
 
 - Selected option:
 - Clock schedule:
-- Manual command:
-- Queue file/location:
-- Publish record location:
+- Manual command: drax cycle --dry-run
+- Queue file/location: EXECUTION_STATE.json
+- Publish record location: .drax/publish-records
 - Failure notification:
 - Kill switch:
 - Revisit trigger:
+
+## Trigger Engine
+
+- Lock: `.drax/locks/cycle.lock` through `flock`, acquired before state read.
+- Manual dry run: `drax cycle --dry-run`.
+- Manual publish: `drax cycle --publish`.
+- Scheduled trigger: system cron calling the same `drax cycle` wrapper.
+- Cron helper: `drax cycle cron`.
+- Runtime state: `EXECUTION_STATE.json`.
+- Human view: `EXECUTION_STATE.md`, rendered from JSON.
+- Run manifests: `.drax/runs/pending`, `.drax/runs/published`, and `.drax/runs/failed`.
+- Logs: `.drax/logs`.
+- Isolated clone: `.drax/worktrees/current`.
+- Content engine: `codex exec --sandbox workspace-write` inside the isolated clone.
+- Publisher implemented in v1: local blog surface only.
+- Live server deploy: approval-gated and backup-first, outside the first trigger write.
 
 ## Idempotency Rules
 
@@ -34,6 +52,7 @@ Custom answer:
 - A trigger verifies asset hashes against the manifest before attempting upload.
 - A failed run records failure evidence and does not retry infinitely.
 - If official API and Playwright are unavailable, export-manual is generated.
+- A trigger that fails a gate does not advance `EXECUTION_STATE.json`.
 
 ## Trigger Log
 

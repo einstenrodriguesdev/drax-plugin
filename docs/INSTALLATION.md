@@ -53,6 +53,20 @@ drax blog init --target drax-blog
 
 The generator reads blog identity and base path from the founder docs. Replace any generated `NEEDS_DECISION` value in those docs before production deployment.
 
+To run the trigger engine without publishing:
+
+```bash
+drax cycle --dry-run
+```
+
+To print the cron entry after schedule and timezone are decided in `EXECUTION_STATE.json`:
+
+```bash
+drax cycle cron
+```
+
+The trigger writes local runtime state under `.drax/`, which is ignored by git. The scheduled trigger uses system cron and the same `drax cycle` wrapper as the manual trigger.
+
 ## 3. Source Development
 
 ```bash

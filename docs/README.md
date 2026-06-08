@@ -29,11 +29,12 @@ ls
 9. [Setup](SETUP.md) - non-root install, PATH setup, Codex Device Code login, and first workspace run.
 10. [Blog Automation](BLOG_AUTOMATION.md) - self-contained Astro blog surface generation and local VPS deploy path.
 11. [Access Gate](ACCESS_GATE.md) - token validation, conversion record, tier limits, and backend boundary.
-12. [Architecture](ARCHITECTURE.md) - product boundary, runtime layers, state model, and environment reuse.
-13. [Publishing Safety](PUBLISHING_SAFETY.md) - adapter priority, publish records, kill switches, and trigger safety.
-14. [Video Pipeline](VIDEO_PIPELINE.md) - render modes, audio policy, and failure behavior.
-15. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - how `drax-plugin`, `drax-site`, and `conclave-cc` relate.
-16. [ADR 0001](adr/0001-lean-capability-runtime.md) - why v1 is a lean capability runtime.
+12. [Trigger Engine](TRIGGER_ENGINE.md) - manual trigger, cron trigger, JSON state, run manifests, and executable gates.
+13. [Architecture](ARCHITECTURE.md) - product boundary, runtime layers, state model, and environment reuse.
+14. [Publishing Safety](PUBLISHING_SAFETY.md) - adapter priority, publish records, kill switches, and trigger safety.
+15. [Video Pipeline](VIDEO_PIPELINE.md) - render modes, audio policy, and failure behavior.
+16. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - how `drax-plugin`, `drax-site`, and `conclave-cc` relate.
+17. [ADR 0001](adr/0001-lean-capability-runtime.md) - why v1 is a lean capability runtime.
 
 ## Current Semantic Tags
 

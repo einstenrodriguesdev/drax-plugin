@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drax.co/schemas/run-manifest.schema.json",
+  "title": "Drax Cycle Run Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "mode",
+    "trigger",
+    "startedAt",
+    "endedAt",
+    "postClass",
+    "postIndex",
+    "contentPackagePath",
+    "articlePath",
+    "assetManifestPath",
+    "artifactHash",
+    "publishRecordPath",
+    "status",
+    "failureReason",
+    "published"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "runId": { "type": "string", "minLength": 1 },
+    "mode": { "enum": ["dry-run", "publish"] },
+    "trigger": { "enum": ["manual", "clock"] },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "endedAt": {
+      "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+    },
+    "postClass": { "type": "string", "minLength": 1 },
+    "postIndex": { "type": "integer", "minimum": 1 },
+    "contentPackagePath": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+    "articlePath": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+    "assetManifestPath": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+    "artifactHash": {
+      "anyOf": [{ "type": "string", "pattern": "^[a-f0-9]{64}$" }, { "type": "null" }]
+    },
+    "publishRecordPath": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+    "status": { "enum": ["PENDING", "PUBLISHED", "FAILED"] },
+    "failureReason": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+    "published": { "type": "boolean" }
+  }
+}

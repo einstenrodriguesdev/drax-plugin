@@ -18,6 +18,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateAccess } from "./access.js";
+import { runCycleCommand } from "./cycle.js";
 import { directTaskPrompt, founderIntakePrompt } from "./prompts.js";
 
 const VERSION = "1.0.0";
@@ -38,6 +39,7 @@ const BASELINE_ARTIFACTS = [
   "MEASUREMENT_PLAN.md",
   "EXECUTION_STATE.md",
 ];
+const RUNTIME_STATE_FILES = ["EXECUTION_STATE.json"];
 
 type Marketplace = {
   name?: string;
@@ -53,6 +55,9 @@ Usage:
   drax "task"                  Run Drax direct-task mode
   drax init                    Copy the 12 baseline artifacts into the current workspace
   drax blog init               Generate a self-contained Astro editorial blog surface
+  drax cycle --dry-run         Run the headless content cycle without publishing
+  drax cycle --publish         Run the headless content cycle and write the blog artifact in the isolated clone
+  drax cycle cron              Print the cron entry for the scheduled trigger
   drax prompt "task"           Print a portable Drax prompt
   drax install --target all    Install Codex plugin, Claude command, and shell launcher
   drax doctor                  Verify the local installation
@@ -132,6 +137,16 @@ function copyBaselineArtifacts(cwd: string, force: boolean): { created: number; 
   let created = 0;
   let skipped = 0;
   for (const artifact of BASELINE_ARTIFACTS) {
+    const source = bundlePath("templates", artifact);
+    const target = path.join(cwd, artifact);
+    if (existsSync(target) && !force) {
+      skipped += 1;
+      continue;
+    }
+    copyFileSync(source, target);
+    created += 1;
+  }
+  for (const artifact of RUNTIME_STATE_FILES) {
     const source = bundlePath("templates", artifact);
     const target = path.join(cwd, artifact);
     if (existsSync(target) && !force) {
@@ -324,6 +339,16 @@ function main(): void {
   if (command === "doctor") return doctor();
   if (command === "init") return initWorkspace(args.slice(1));
   if (command === "blog" && args[1] === "init") return initBlog(args.slice(2));
+  if (command === "cycle") {
+    if (!requireRuntimeAccess()) return;
+    process.exitCode = runCycleCommand(args.slice(1), {
+      cwd: process.cwd(),
+      cliPath: currentFile,
+      nodePath: process.execPath,
+      env: process.env,
+    });
+    return;
+  }
   if (command === "prompt") {
     if (!requireRuntimeAccess()) return;
     return console.log(directTaskPrompt(args.slice(1).join(" ") || "Start Drax."));

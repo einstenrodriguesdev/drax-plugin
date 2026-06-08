@@ -74,6 +74,20 @@ Generate a stack-independent editorial blog surface for an existing customer sit
 drax blog init --target drax-blog
 ```
 
+Run the trigger engine in dry-run mode:
+
+```bash
+drax cycle --dry-run
+```
+
+Print the scheduled trigger entry:
+
+```bash
+drax cycle cron
+```
+
+The trigger uses `flock`, `codex exec --sandbox workspace-write`, JSON state, run manifests, and publish records under `.drax/`. Dry-run writes what would publish and does not advance the post index.
+
 ## Repository Boundary
 
 The full `conclave-cc` agent corpus remains an internal source library. This repository ships only the capability and context needed for organic automation v1.0.0. Later modules must pass their own product, security, and commercial gates before inclusion.
@@ -86,4 +100,4 @@ The full `conclave-cc` agent corpus remains an internal source library. This rep
 - Current state: [Current State](docs/CURRENT_STATE.md)
 - Repository map: [Repository Topology](docs/REPOSITORY_TOPOLOGY.md)
 
-See [System Definition](docs/SYSTEM_DEFINITION.md), [Architecture](docs/ARCHITECTURE.md), [Operating Model](docs/OPERATING_MODEL.md), [Organic Automation Runtime](docs/ORGANIC_AUTOMATION_RUNTIME.md), [Portfolio Roadmap](docs/PORTFOLIO_ROADMAP.md), [Release Roadmap](docs/ROADMAP.md), [Release Gates](docs/RELEASE_GATES.md), [Installation](docs/INSTALLATION.md), [Video Pipeline](docs/VIDEO_PIPELINE.md), and [Publishing Safety](docs/PUBLISHING_SAFETY.md).
+See [System Definition](docs/SYSTEM_DEFINITION.md), [Architecture](docs/ARCHITECTURE.md), [Operating Model](docs/OPERATING_MODEL.md), [Organic Automation Runtime](docs/ORGANIC_AUTOMATION_RUNTIME.md), [Portfolio Roadmap](docs/PORTFOLIO_ROADMAP.md), [Release Roadmap](docs/ROADMAP.md), [Release Gates](docs/RELEASE_GATES.md), [Installation](docs/INSTALLATION.md), [Trigger Engine](docs/TRIGGER_ENGINE.md), [Video Pipeline](docs/VIDEO_PIPELINE.md), and [Publishing Safety](docs/PUBLISHING_SAFETY.md).

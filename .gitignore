@@ -2,6 +2,7 @@ dist/
 node_modules/
 *.tgz
 *.log
+.drax/
 .env
 .env.*
 !.env.example
