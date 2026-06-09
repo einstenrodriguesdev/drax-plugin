@@ -1,55 +1,49 @@
 # Drax Docs
 
-This folder is the documentation source of truth for the Drax v1.0.0 organic automation runtime.
+This folder documents the current Drax plugin runtime, release gates, and promotion rules.
 
-## Repository
+## Repository Context
 
-- Local repository: `/home/conclave/drax/drax-plugin`
-- Docs folder: `/home/conclave/drax/drax-plugin/docs`
-- Git remote: `git@github.com:einstenrodriguesdev/drax-plugin.git`
-- GitHub docs URL, after the private repository exists: `https://github.com/einstenrodriguesdev/drax-plugin/tree/main/docs`
+| Surface | Path | Role |
+|---|---|---|
+| `drax-plugin` | `/home/conclave/drax/drax-plugin` | Public production product and Codex marketplace source. |
+| `drax-dev` | `/home/conclave/drax/drax-dev` | Private pre-release factory for the next plugin version. |
+| `drax-recursive` | `/home/conclave/drax/drax-recursive` | Private DRAX founder workspace and dogfooding customer state. |
+| `conclave` | `/home/conclave` | Internal operator machine and role-creation environment. |
 
-To open the docs locally:
-
-```bash
-cd /home/conclave/drax/drax-plugin/docs
-ls
-```
+Docs are updated in `drax-dev` first, then promoted into `drax-plugin` only after the path passes its gates.
 
 ## Reading Order
 
-1. [Current State](CURRENT_STATE.md) - exact state of the runtime, repository, gates, and blockers.
-2. [System Definition](SYSTEM_DEFINITION.md) - canonical definitions, final system state, version sequence, v1 path map, and four-repo deploy topology.
-3. [Repository Topology](REPOSITORY_TOPOLOGY.md) - physical repo model and promotion rules for dev and production.
-4. [Organic Automation Runtime](ORGANIC_AUTOMATION_RUNTIME.md) - the v1 product boundary and operating loop.
-5. [Operating Model](OPERATING_MODEL.md) - canonical artifacts, decision rights, and capability flow.
-6. [Roadmap](ROADMAP.md) - phase gates from foundation to commercial v1.
-7. [Release Gates](RELEASE_GATES.md) - what must pass before each capability is claimed.
-8. [Installation](INSTALLATION.md) - install, test, isolated workspace, and rollback.
-9. [Setup](SETUP.md) - non-root install, PATH setup, Codex Device Code login, and first workspace run.
-10. [Blog Automation](BLOG_AUTOMATION.md) - self-contained Astro blog surface generation and local VPS deploy path.
-11. [Access Gate](ACCESS_GATE.md) - token validation, conversion record, tier limits, and backend boundary.
-12. [Trigger Engine](TRIGGER_ENGINE.md) - manual trigger, cron trigger, JSON state, run manifests, and executable gates.
-13. [Architecture](ARCHITECTURE.md) - product boundary, runtime layers, state model, and environment reuse.
-14. [Publishing Safety](PUBLISHING_SAFETY.md) - adapter priority, publish records, kill switches, and trigger safety.
-15. [Video Pipeline](VIDEO_PIPELINE.md) - render modes, audio policy, and failure behavior.
-16. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - how `drax-plugin`, `drax-site`, and `conclave-cc` relate.
-17. [ADR 0001](adr/0001-lean-capability-runtime.md) - why v1 is a lean capability runtime.
-
-## Current Semantic Tags
-
-- `organic-automation-v1`
-- `founder-intake-first`
-- `language-first`
-- `stack-security-decision`
-- `ninety-post-plan`
-- `clock-and-manual-triggers`
-- `worker-routing`
-- `dry-run-by-default`
-- `security-gated-publishing`
-- `four-repo-deploy-topology`
-- `path-level-promotion`
+1. [Current State](CURRENT_STATE.md) - current implementation state, gates, blockers, and next test path.
+2. [System Definition](SYSTEM_DEFINITION.md) - canonical scope, version meaning, surfaces, and path map.
+3. [Repository Topology](REPOSITORY_TOPOLOGY.md) - four surfaces, promotion flow, and isolation rules.
+4. [Architecture](ARCHITECTURE.md) - runtime layers, state model, and environment boundary.
+5. [Operating Model](OPERATING_MODEL.md) - capability loop, state discipline, decision rights, and worker boundary.
+6. [Installation](INSTALLATION.md) - marketplace, package, non-root setup, and workspace commands.
+7. [Setup](SETUP.md) - PATH, Codex login, access token, and first workspace run.
+8. [Blog Automation](BLOG_AUTOMATION.md) - Astro blog generation and local deploy contract.
+9. [Trigger Engine](TRIGGER_ENGINE.md) - manual trigger, cron trigger, JSON state, run manifests, and executable gates.
+10. [Access Gate](ACCESS_GATE.md) - token validation, conversion record, tier limits, and backend boundary.
+11. [Release Gates](RELEASE_GATES.md) - required proof before capability claims.
+12. [Publishing Safety](PUBLISHING_SAFETY.md) - adapter priority, publish records, kill switches, and trigger safety.
+13. [Video Pipeline](VIDEO_PIPELINE.md) - render modes, audio policy, and failure behavior.
+14. [Roadmap](ROADMAP.md) - remaining phase gates before promotion.
+15. [Portfolio Roadmap](PORTFOLIO_ROADMAP.md) - expansion sequence after the organic loop.
+16. [ADR 0001](adr/0001-lean-capability-runtime.md) - why V1 ships a lean marketing runtime.
 
 ## Documentation Rule
 
-Every public claim about Drax must map to a passed gate. If a capability has not passed its gate, document it as planned, experimental, or blocked.
+Every public claim must map to a passed gate. If a capability has not passed its gate, document it as planned, experimental, stubbed, or blocked.
+
+## Current Semantic Tags
+
+- `open-core-plugin`
+- `founder-intake-first`
+- `marketing-team-only`
+- `blog-surface-v1`
+- `headless-trigger-engine`
+- `json-state-source`
+- `dry-run-default`
+- `server-side-token-validation`
+- `promotion-from-drax-dev`

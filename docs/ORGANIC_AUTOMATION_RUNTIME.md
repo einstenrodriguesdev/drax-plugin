@@ -2,127 +2,84 @@
 
 ## Product Boundary
 
-Drax v1.0.0 turns an existing product into a daily organic publishing operation. The founder may have a SaaS, software product, mobile app, online store, infoproduct, or service. If there is no product, no buyer hypothesis, and no conversion path, v1 does not proceed as an automation system.
+Drax V1 turns an existing product into a reviewable organic blog operation. If there is no product, buyer hypothesis, and conversion path, V1 records the gap and does not pretend automation is ready.
 
-The first commercial promise is not broad enterprise automation. It is this loop:
+The first commercial loop is:
 
 ```text
-founder interview
-  -> product and stack context
-  -> language strategy
-  -> 90-post/class plan
-  -> article draft
-  -> SVG/carousel asset
-  -> short video asset
-  -> approved queue
-  -> daily clock/manual trigger
-  -> publishing record
-  -> metrics review
-  -> next content decision
+chairman interview
+  -> baseline artifacts
+  -> language and stack decisions
+  -> 90-post plan
+  -> editorial calendar
+  -> blog surface
+  -> headless dry-run
+  -> publish record
+  -> measurement review
 ```
 
-## Phase 1: Interview And Context
+## Phase 1: Recognition
 
-The runtime starts after install when the founder runs `drax`. The first interaction is founder intake, not code generation.
+The first interaction is free text. The founder explains who they are and what they are building. The system classifies product type, state, objective, and constraints behind the scenes.
 
-The intake captures:
+After the first answer, Drax reads repo evidence and asks for confirmation instead of asking the founder to list facts the repo already contains.
 
-- product type, stage, offer, and conversion path
-- current stack, deployment, database/state, analytics, payments, auth, and repository
-- founder voice, proof, banned claims, and confidential areas
-- audience, geography, language, buyer pain, and purchase behavior
-- available devices, VPS access, budget, and risk tolerance
+Missing facts are written as `NEEDS_DECISION`.
 
-Missing facts are written as `NEEDS_DECISION`. They are not guessed.
+## Phase 2: Strategic Definition
 
-## Phase 2: Language First
+Strategic choices use three options plus a custom answer in interactive sessions. The rich option analysis is printed as text first; the selector uses short labels.
 
-Language is chosen before the content calendar. A founder selling to Brazil and the United States is not running one content system. They are running at least two market surfaces with different examples, CTAs, and metrics.
+Headless runs never depend on AskUserQuestion or any human prompt.
 
-The default decision pattern:
+## Blog Surface
 
-- Option A: one primary language
-- Option B: primary language plus one translated derivative
-- Option C: multilingual from day one
+The plugin generates a self-contained Astro blog surface:
 
-The chosen posture is recorded in `LANGUAGE_STRATEGY.md`.
+```bash
+drax blog init --target drax-blog
+```
 
-## Phase 3: Stack And Security Decision
+Identity comes from founder docs at runtime. Missing site name, canonical URL, description, or base path remains `NEEDS_DECISION`.
 
-The automation environment is decided before publishing starts.
+## Trigger Engine
 
-Default options:
+The manual and scheduled triggers use the same command wrapper:
 
-- Option A: current stack plus manual/export publishing
-- Option B: isolated VPS automation node
-- Option C: production API-first publishing system
+```bash
+drax cycle --dry-run
+drax cycle --publish
+```
 
-Option B is the normal v1 target when the founder can operate SSH and wants 24/7 execution: a separated Linux environment with its own env reference, queue, logs, timers, and backups. It is suitable for a founder-managed VPS without coupling the automation node to the product repository.
+The wrapper:
 
-Security baseline:
+1. Acquires `flock`.
+2. Reads `EXECUTION_STATE.json`.
+3. Clones the workspace into `.drax/worktrees/current`.
+4. Runs `codex exec --sandbox workspace-write`.
+5. Verifies generated files, proof note, forbidden claims, duplicate records, and hashes.
+6. Writes the publish record.
+7. Advances state only after a publish succeeds.
+
+The scheduled trigger is system cron. It is not Codex Automations.
+
+## Local Deploy
+
+Local deploy is central to the founder VPS use case, but live deploy implementation is still gated. The current trigger writes into the isolated clone's blog surface. A later deploy path must back up before write and require rollback fields before touching a live server directory.
+
+Remote access and a Drax API backend are not required for local blog deploy.
+
+## Worker Routing
+
+Customer installs use the vendored V1 marketing worker definitions in `templates/workers/`. Existing `conclave-cc` roles are internal source patterns only. New roles must pass the internal HR protocol before they are vendored into a later plugin release.
+
+## Safety Baseline
 
 - dry-run default
-- secrets from environment or secret manager only
-- least-privilege tokens
-- isolated test accounts before production accounts
-- package validation and lockfiles
-- asset hashes and publish records
-- kill switches for platform automation
-- OWASP ASVS Level 1 intent for hosted surfaces
-- NIST SSDF-style software delivery controls
-
-## Phase 4: Ninety-Post Plan
-
-The runtime generates exactly 90 posts/classes before the daily publishing calendar begins. This prevents the system from becoming a one-off content prompt.
-
-Default mix:
-
-- 30 problem and buyer education posts
-- 30 product/use-case and proof posts
-- 20 operational/tutorial posts
-- 10 conversion and objection-handling posts
-
-The 90-post plan is a source document. `EDITORIAL_CALENDAR.md` schedules it; it does not replace it.
-
-## Phase 5: Production Pipeline
-
-Each approved class becomes:
-
-- long-form article or post draft
-- SVG/carousel visual asset
-- short-video script
-- rendered video through `python-ffmpeg`, `remotion`, or `ffmpeg-template`
-- metadata and CTA package
-- publish manifest with asset hashes
-
-The default renderer is `python-ffmpeg` because it runs deterministically on low-resource Linux and ARM64. Remotion is optional when richer TypeScript motion is worth the additional runtime cost. `ffmpeg-template` is the fallback for simple caption, audio, and image assembly.
-
-## Phase 6: Publishing Adapters
-
-Adapter priority:
-
-1. `local-blog-deploy` for the founder VPS blog surface after approval and backup.
-2. `official-api` for external platforms where the adapter has passed gates.
-3. `export-manual` as the universal contingency.
-4. `playwright-experimental` for isolated tests only.
-
-Local blog deploy is central to V1. The customer runs Drax on the same VPS as the site, so deploy means building the blog surface, backing up the approved target path, writing files locally, and reloading only the already configured static server or proxy approved in `DISTRIBUTION_PLAN.md`.
-
-Remote access, remote credentials, and a Drax API backend are not required for local blog deploy. Backup before write is mandatory.
-
-Playwright can be useful for proving workflows, but it carries UI-change, anti-automation, credential, and account-policy risk. It does not become the default production path just because a small test passed.
-
-## Phase 7: Triggers
-
-Daily posting has two triggers:
-
-- `clock`: scheduled job for the approved cadence
-- `manual`: operator command for the next approved package
-
-Both read the same approved queue, verify hashes, prevent duplicate posts, write publish records, and fail closed when state is inconsistent.
-
-## Phase 8: Worker Routing
-
-Every job has one accountable worker, allowed tools, forbidden actions, output artifacts, and approval gates. Customer installs use the vendored worker definitions in `templates/workers/`. Existing `conclave-cc` roles are internal source patterns only. New roles must pass the internal HR protocol before they are vendored into a later plugin release.
-
-The system is allowed to be autonomous only where the approval gate allows autonomy. Public publishing, paid spend, credential changes, and destructive actions stay human-approved in v1.0.0.
+- access token fails closed
+- no secret values in prompts or artifacts
+- local runtime state under `.drax/`
+- isolated clone before action
+- publish records as source of truth
+- no live server deploy without approval, backup, and rollback
+- no social posting in V1 customer runtime

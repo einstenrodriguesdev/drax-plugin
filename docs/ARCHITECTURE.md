@@ -2,27 +2,68 @@
 
 ## Product Boundary
 
-Drax Plugin is the commercial organic-growth module. `conclave-cc` remains the internal enterprise source library. The commercial plugin consumes selected patterns through reviewed, versioned capabilities rather than copying the full agent corpus.
+Drax Plugin is an open-core organic automation runtime. It ships a fixed V1 marketing team, founder workspace templates, a blog generator, a trigger engine, and client-side access-token checks.
+
+The plugin does not ship the internal Conclave HR protocol, the full `conclave-cc` agent corpus, payment-provider keys, signing keys, browser sessions, or founder-specific facts.
 
 ## Runtime Layers
 
-1. Intake and qualification.
-2. Language strategy.
-3. Stack/security decision.
-4. Canonical project artifacts.
-5. Ninety-post/class plan.
-6. Editorial and asset manifests.
-7. Worker routing and trigger planning.
-8. Renderer adapters.
-9. Publishing adapters.
-10. Measurement and decision loop.
-
-All adapters implement dry-run before live mode. A failed adapter never blocks export-manual mode.
+1. Access gate.
+2. Founder intake and qualification.
+3. Baseline workspace artifacts.
+4. Language strategy.
+5. Stack and security decision.
+6. Blog surface generator.
+7. Content package generation through `codex exec`.
+8. Trigger engine with lock, clone, gates, manifests, and publish records.
+9. Blog publisher for the isolated clone.
+10. Measurement and next-decision loop.
 
 ## State Model
 
-Markdown artifacts are the human-auditable source of truth in v1.0.0. Machine execution state may use JSON beside those artifacts, but it must never silently override the human-readable decision record.
+State is split by purpose:
 
-## Environment Reuse
+| State | Source of truth | Purpose |
+|---|---|---|
+| Founder decisions | Markdown artifacts | Human-readable decisions and unresolved `NEEDS_DECISION` values. |
+| Execution state | `EXECUTION_STATE.json` | Trigger memory, next post index, paths, and schedule config. |
+| Run history | `.drax/runs/*/*.json` | One manifest per run with status and failure reason. |
+| Publication evidence | `.drax/publish-records/*.json` | Authoritative record used for verification and duplicate refusal. |
+| Asset integrity | asset manifests and hashes | Reproducibility and fail-closed checks. |
 
-Existing ignored environment files can be referenced through `DRAX_ENV_PATH`. Secrets are not copied between repositories. Each runtime receives only the variables needed for its adapter.
+`EXECUTION_STATE.md` is a readable view rendered from JSON after successful publish runs. It is not the trigger engine's parser target.
+
+## Headless Execution
+
+Manual and scheduled triggers use the same wrapper:
+
+```bash
+drax cycle --dry-run
+drax cycle --publish
+```
+
+The wrapper:
+
+1. Acquires a `flock` lock.
+2. Reads `EXECUTION_STATE.json`.
+3. Clones the product workspace into `.drax/worktrees/current`.
+4. Runs `codex exec --sandbox workspace-write` inside the clone.
+5. Verifies generated files, hashes, proof note, duplicate records, and forbidden claims.
+6. Writes a publish record.
+7. Advances state only after a publish succeeds.
+
+Cron calls the same wrapper. Codex Automations are not the scheduler for the VPS path.
+
+## Blog Surface
+
+The plugin generates a self-contained Astro blog surface from founder docs. The generator does not embed product identity at package build time. Missing identity fields remain `NEEDS_DECISION`.
+
+The current publisher writes generated posts only into the isolated clone's blog surface. Live local server deploy remains a separate approval-gated, backup-first path.
+
+## Access Boundary
+
+The plugin validates token shape and dates locally, then calls the server validation seam. Signature verification, revocation, provider webhooks, and billing state belong to `drax-api`, not the plugin.
+
+## Environment Boundary
+
+Secrets are read from ignored files or environment variables only. They must never be written to prompts, Markdown artifacts, package output, run manifests, publish records, or generated media.

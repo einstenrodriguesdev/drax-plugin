@@ -1,40 +1,36 @@
 # DRAX Portfolio Roadmap
 
-Status: versioned operating plan  
-Current release target: `v1.0.0`  
+Status: versioned operating plan
+Current release target: `v1.0.0`
 Primary user: a founder with an existing product who wants a measurable organic automation system
 
 ## Product Thesis
 
-DRAX should prove one narrow capability before presenting itself as an enterprise operating system:
+DRAX earns expansion by proving one narrow capability first:
 
-> Convert a founder's real expertise and product evidence into a source-backed, reviewable, multi-format organic publishing loop that improves from measured results.
+> Convert a founder's real expertise and product evidence into a source-backed, reviewable organic blog loop that improves from measured results.
 
-The long-term enterprise thesis remains valid, but the commercial product earns the right to expand through passed release gates, not roadmap language.
+The broader enterprise thesis remains a later gate, not the current release contract.
 
-## Repository Model
+## Product Surfaces
 
-### `drax-plugin`
-
-Owns the private plugin runtime, canonical founder and product artifacts, asset manifests, renderer and publishing adapter contracts, audit records, tests, and versioned releases.
-
-### `drax-site`
-
-Owns the public knowledge base and commercial trust surface. It demonstrates the publishing system while remaining a static, independently deployable application.
-
-### `conclave-cc`
-
-Remains an internal source library. A useful capability moves into `drax-plugin` only after a review confirms that it is required, coherent, supportable, and safe for the current release.
+| Surface | Role |
+|---|---|
+| `drax-plugin` | Public plugin source and customer install surface. |
+| `drax-dev` | Private pre-release factory. |
+| `drax-recursive` | DRAX's own customer workspace. |
+| `conclave` | Internal operator and role factory. |
 
 ## Non-Negotiable Controls
 
 - Dry-run is the default.
-- Official platform APIs are the production publishing path.
-- Playwright is an isolated experimental adapter with a dedicated account, rate limits, screenshots, and a kill switch.
-- Manual export is always available.
-- Secrets stay in an environment file or secret manager and are never copied into prompts, Markdown artifacts, logs, or assets.
-- A strategic recommendation may be automated. A strategic commitment, public post, credential change, or spend decision requires accountable approval.
-- Every claim in public product documentation must be backed by a passed release gate.
+- Blog automation is the V1 distribution surface.
+- Social APIs are future adapters.
+- Playwright remains outside the customer V1 runtime.
+- Secrets stay in environment files or secret managers.
+- Runtime state under `.drax/` is not committed.
+- Payment and signing secrets live only in `drax-api`.
+- Every public claim must map to a passed gate.
 
 ## Phase Plan
 
@@ -42,141 +38,101 @@ Remains an internal source library. A useful capability moves into `drax-plugin`
 
 Deliver:
 
-- independent repositories and ownership boundaries
-- package allowlists and lockfiles
-- canonical documentation and architecture decisions
-- static public site with trust pages
-- dry-run and approval defaults
+- public plugin source
+- private factory repo
+- vendored marketing worker roles
+- package allowlist
+- trust and setup docs
 
-Exit gate:
+Exit:
 
-- package, plugin, type, and static production builds pass
-- no secret material is committed
-- rollback and incident paths are documented
+- package validation, tests, build, and secret scan pass
 
-### Phase 1: Founder Intelligence, Language, And Stack
+### Phase 1: Founder Intelligence
 
 Deliver:
 
-- one-question-at-a-time founder interview
-- product, buyer, offer, proof, voice, constraints, current stack, language market, and conversion-path qualification
-- baseline operating artifacts including language strategy, stack/security decision, 90-post plan, trigger plan, and worker routing
-- explicit v1 fit or gap decision
+- free-text recognition
+- repo-read confirmation
+- one-purpose questions
+- strategic three-option decisions
+- baseline artifacts
 
-Exit gate:
+Exit:
 
-- three representative founder interviews produce coherent artifacts without factual duplication
-- unsupported products are rejected or redirected clearly
-- time-to-first-plan is measured
+- representative founder interviews produce coherent artifacts without invented facts
 
-### Phase 2: Editorial Production
-
-Deliver:
-
-- source-backed article briefs
-- editorial calendar and channel hypotheses
-- SVG/carousel asset manifests
-- video and audio manifests
-- deterministic preview renders
-
-Rendering modes:
-
-1. `python-ffmpeg`: default deterministic path for Linux and ARM64.
-2. `remotion`: optional richer TypeScript motion path.
-3. `ffmpeg-template`: low-complexity contingency for captions, images, music, and effects.
-
-Exit gate:
-
-- the same manifest creates reproducible output
-- accessibility, source, metadata, and visual-quality checks pass
-- every asset can be exported manually
-
-### Phase 3: DRAX Dogfooding
+### Phase 2: Blog Automation
 
 Deliver:
 
-- publish the DRAX knowledge base on a defined calendar
-- produce article, SVG, and video variants from the same approved brief
-- record cycle time, edits, engagement, and conversion signals
+- Astro blog generator
+- identity from founder docs
+- content collection, listing, post pages, RSS, metadata
 
-Exit gate:
+Exit:
 
-- two complete weeks run with zero secret leakage, no duplicate publishing, and complete audit records
-- failed steps recover without losing the content package
-- measured evidence identifies what should continue, change, or stop
+- generated blog builds in a clean workspace
 
-### Phase 4: Publishing Integrations
+### Phase 3: Trigger Engine
 
 Deliver:
 
-- YouTube official API adapter
-- TikTok Content Posting API adapter
-- platform-specific metadata and privacy controls
-- retry, idempotency, rollback, and audit records
-- Playwright test adapter and manual-export contingency
+- `flock` lock
+- isolated clone
+- `codex exec` headless cycle
+- dry-run and publish modes
+- run manifests and publish records
+- executable gates
 
-Exit gate:
+Exit:
 
-- private or unlisted tests pass before any public test
-- duplicate prevention, token revocation, rate-limit behavior, and rollback are verified
-- platform terms and account permissions are documented
+- real `codex exec` dry-run passes from zero
 
-### Phase 5: Commercial v1.0.0
-
-Deliver:
-
-- signed package and documented installation paths
-- upgrade and rollback process
-- onboarding and support boundaries
-- first external founder cohort
-
-Exit gate:
-
-- three external founders complete an approved content cycle
-- support load, time-to-value, output quality, and retention signals are measured
-- no capability is sold before its production gate passes
-
-### Phase 6: Observability and Content Intelligence
+### Phase 4: Access And Commercial Gate
 
 Deliver:
 
-- normalized platform metrics
-- purchase-intent signal model
-- content reuse and cadence recommendations
-- documented decision provenance
+- access-token schema
+- conversion-record schema
+- runtime fail-closed check
+- `drax-api` validation endpoint
+- payment webhook token issuance
 
-Exit gate:
+Exit:
 
-- recommendations are traceable to evidence
-- false-positive and low-data behavior is understood
-- the founder can override and audit every recommendation
+- a paid token can be issued, validated, revoked, and measured as a sale
 
-### Version Sequence
+### Phase 5: DRAX Dogfooding
 
-- `v1`: organic traffic automation — founder interview, content system, site, blog, sales page, and autonomous daily publishing on VPS
-- `v2`: paid traffic amplification — only after organic evidence and positive ROAS controls exist
-- `v3`: documentation layer — structured knowledge base and public docs generated from the system
-- `v4`: product layer — building and shipping products from within the system
-- `v5`: venture capital and institutional readiness — capital, M&A, legal, and compliance at institutional scale
+Deliver:
+
+- complete DRAX baseline in `drax-recursive`
+- DRAX blog loop running through Drax
+- publish records and measurement review
+
+Exit:
+
+- DRAX produces paid subscriptions from its own organic loop
 
 ## Business Gates
 
 | Gate | Required evidence |
 |---|---|
-| Problem | Founders repeatedly spend meaningful time assembling the same organic system |
-| Product | Users reach an approved first content cycle with materially less effort |
-| Distribution | DRAX's own publishing loop creates qualified traffic and buyer signals |
-| Commercial | Customers pay, use the system, and complete another cycle |
-| Expansion | Existing customers request and adopt the next capability |
+| Problem | Founders repeatedly need the same organic automation setup. |
+| Product | Users reach first dry-run content cycle with materially less effort. |
+| Distribution | DRAX's own loop creates qualified traffic and buyer signal. |
+| Commercial | Paid access tokens are issued and validated. |
+| Expansion | Existing customers request and adopt the next distribution surface. |
 
 ## Known Risks
 
-- Platform policies and interfaces can invalidate browser automation.
-- Content volume can damage authority if source and editorial standards weaken.
-- An agent hierarchy can create complexity without improving outcomes.
-- Near-zero infrastructure cost does not imply near-100% gross margin after support, payment fees, compliance, and sales costs.
-- Conversion and market-size claims remain hypotheses until measured against a defined cohort.
+- Codex headless behavior can change across CLI versions.
+- Content volume can damage authority if source and proof gates are weak.
+- Local deploy can break a working site without backup and rollback.
+- Support load can erase margin if install and recovery paths are unclear.
+- Conversion claims remain hypotheses until paid tokens are issued.
 
 ## Decision Rule
 
-Build the smallest capability that can pass the next evidence gate. Preserve the broader thesis in documentation, but do not make it part of the release contract until it works.
+Build the smallest path that can pass the next evidence gate. Do not sell or document broader capability as shipped until it works.

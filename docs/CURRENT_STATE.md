@@ -1,54 +1,64 @@
 # Current State
 
-Date: 2026-06-05
-Runtime: Drax v1.0.0 organic automation
-State tag: `v1.0.0-organic-automation-docs`
+Date: 2026-06-09
+Runtime: Drax Plugin organic automation
+State tag: `pre-release-trigger-engine`
 Canonical system definition: [Drax System Definition](SYSTEM_DEFINITION.md)
 
 ## Summary
 
-Drax v1.0.0 is now documented as a narrow organic automation runtime for founders who already have a product. It is not documented as a broad enterprise automation platform in this release.
+Drax Plugin is an open-core Codex plugin for founders who already have a product and want to operate a measurable organic blog automation loop on their own VPS.
 
-The current product loop is:
+The current pre-release factory state in `drax-dev` includes:
+
+- founder intake contract with recognition and strategic definition phases
+- 12 baseline founder artifacts
+- `EXECUTION_STATE.json` as machine state
+- vendored V1 marketing worker roles
+- self-contained Astro blog surface generator
+- access token schema and fail-closed validation stub
+- headless trigger engine using `flock` and `codex exec`
+- run manifests, publish records, and asset hash verification
+
+The implementation described here is the current promotion candidate. Until it is promoted, the public `drax-plugin` repository remains the installed production source.
+
+## Product Loop
 
 ```text
-founder interview
-  -> product and stack context
-  -> language strategy
-  -> stack/security decision
-  -> 90-post/class plan
-  -> article, SVG/carousel, short video, audio, metadata
-  -> approved queue
-  -> clock/manual trigger
-  -> publish record
-  -> metrics review
+chairman interview
+  -> baseline artifacts
+  -> language and stack decisions
+  -> 90-post plan and calendar
+  -> blog surface generation
+  -> dry-run content cycle
+  -> publish record and run manifest
+  -> measurement review
   -> next content decision
 ```
 
 ## Repository State
 
-- Local repository: `/home/conclave/drax/drax-plugin`
-- Docs folder: `/home/conclave/drax/drax-plugin/docs`
-- Remote configured: `git@github.com:einstenrodriguesdev/drax-plugin.git`
-- Repository topology: [Repository Topology](REPOSITORY_TOPOLOGY.md)
-- GitHub docs path: `https://github.com/einstenrodriguesdev/drax-plugin/tree/main/docs`
+| Surface | State |
+|---|---|
+| `drax-plugin` | Public production product and Codex marketplace source. |
+| `drax-dev` | Private pre-release factory for blog generation, access gate, trigger engine, and interview upgrades before promotion. |
+| `drax-recursive` | Private DRAX customer workspace. Holds founder interview state when active. |
+| `conclave` | Internal operator machine and role factory. Never ships to customers. |
 
-## What Is Ready
+## Ready In `drax-dev`
 
-- Founder intake starts first when `drax` is invoked without a concrete task.
-- Direct tasks stay inside v1 organic automation scope.
-- Required baseline artifacts are defined.
-- Language strategy is a first-class planning document.
-- Stack/security decision is a first-class planning document.
-- 90-post/class planning is required before daily calendar execution.
-- Worker routing maps jobs to accountable workers and permissions.
-- Daily automation has both clock and manual trigger plans.
-- Publishing defaults to dry-run.
-- Manual export remains the universal contingency.
-- Playwright remains experimental until adapter gates pass.
-- Official APIs remain the production target where available and approved.
+- `drax init` copies the founder artifacts plus `EXECUTION_STATE.json`.
+- `drax` starts the Chairman interview with a free-text recognition first question.
+- `drax blog init --target drax-blog` generates the Astro blog surface from founder docs.
+- `drax cycle --dry-run` runs the headless content cycle without advancing the post index.
+- `drax cycle --publish` writes the generated article into the isolated clone's blog surface.
+- `drax cycle cron` prints the system cron wrapper.
+- Package validation requires the vendored marketing roles, schemas, templates, and docs.
+- Tests cover install, intake prompt, blog generator, trigger dry-run, fail-closed gate, and cron output.
 
-## Required Baseline Artifacts
+## Workspace Artifacts
+
+Founder-readable artifacts:
 
 - `FOUNDER_PROFILE.md`
 - `PRODUCT_CONTEXT.md`
@@ -63,50 +73,43 @@ founder interview
 - `MEASUREMENT_PLAN.md`
 - `EXECUTION_STATE.md`
 
+Machine-readable state:
+
+- `EXECUTION_STATE.json`
+- `.drax/runs/pending/*.json`
+- `.drax/runs/published/*.json`
+- `.drax/runs/failed/*.json`
+- `.drax/publish-records/*.json`
+
 ## Current Gates
 
 | Gate | State | Notes |
 |---|---|---|
-| TypeScript build | Passed | `npm run verify` passed before this docs update. |
-| Unit tests | Passed | CLI prompt and installer tests passed before this docs update. |
-| Package validation | Passed | Package allowlist validation passed before this docs update. |
-| Plugin validation | Passed | Plugin schema validation passed before this docs update. |
-| Local install | Passed | Local installer wrote Codex plugin, Claude command, launcher, and persistent runtime. |
-| `drax doctor` | Mostly passed | FFmpeg is optional-missing locally; Python is present. |
-| GitHub push | Passed | `drax-plugin` and `drax-site` private repos exist and are pushed. |
-| Four-repo deploy topology | Planned | Final topology requires `drax-corp-dev` and `drax-site-dev`; older `drax-site` `staging` branch is legacy convenience only. |
+| TypeScript build | Passed | `npm test` rebuilds the package. |
+| Unit tests | Passed | 11 tests passed after the trigger engine commit. |
+| Package validation | Passed | Required templates, workers, docs, and schemas are present. |
+| Baseline validation | Expected fail in product root | `validate-baseline` validates founder workspaces, not the package repo. |
+| Public plugin repo | Ready for promotion target | `drax-plugin` is public and clean locally. |
+| Clean container install | Pending | Needs package artifact from the current `drax-dev` state. |
+| Real Codex cycle | Pending | Trigger tests use a fake Codex binary. A real `codex exec` dry-run is still required. |
+| Live local deploy | Not implemented | Deploy remains approval-gated and backup-first by contract. |
 
 ## Current Blockers
 
-1. Install FFmpeg before production video rendering.
-2. Run the first isolated founder intake in a clean product workspace.
-3. Generate and review the first 12 baseline artifacts before enabling any daily clock trigger.
-4. Keep live publishing disabled until at least one adapter passes its release gate.
-5. Create or connect `drax-corp-dev` and `drax-site-dev`.
-6. Connect `drax-site-dev` to `drax-dev.seudominio.com` or the chosen dev domain.
+1. Produce a fresh package artifact from `drax-dev`.
+2. Run clean install in `drax-clean`.
+3. Run a real `codex exec` dry-run cycle in a clean founder workspace.
+4. Decide scheduler timezone and clock schedule in `EXECUTION_STATE.json`.
+5. Decide real blog surface target path for the clean workspace.
+6. Promote only after clean install, dry-run cycle, and package audit pass.
 
-## Next Operating Road
+## Promotion Rule
 
-1. Create an isolated test workspace for a real product.
-2. Run `drax` and complete founder/product intake.
-3. Lock language strategy.
-4. Lock stack/security decision.
-5. Generate the 90-post/class plan.
-6. Schedule the first week in `EDITORIAL_CALENDAR.md`.
-7. Produce one article, one SVG/carousel, and one short-video package.
-8. Run manual export first.
-9. Enable clock trigger only after manual runs are clean and idempotent.
+No local `drax-dev` path becomes public until:
 
-## Current Git Tag Meaning
-
-Target annotated tag:
-
-```text
-v1.0.0-organic-automation-docs
-```
-
-Meaning:
-
-- v1 scope is locked to organic automation.
-- docs explain the repo, docs folder path, runtime loop, gates, and blockers.
-- first test path is clear: install, isolated workspace, founder intake, artifacts, manual export, then clock trigger.
+1. `npm test` passes.
+2. `node scripts/validate-package.mjs` passes.
+3. `npm pack` ships no forbidden file.
+4. Clean install passes from zero.
+5. Real headless dry-run produces a valid run manifest and publish record.
+6. The promotion patch into `drax-plugin` is reviewed separately.

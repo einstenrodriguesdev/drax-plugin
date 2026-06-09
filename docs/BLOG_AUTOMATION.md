@@ -13,7 +13,7 @@ The generated blog is static, stack-independent, and safe to host on common stat
 
 The V1 customer is a founder running the site on a VPS and asking Drax to automate blog deploy on that same machine. Blog deploy is local: build the surface, place it in the approved directory, and use the already configured static server or proxy.
 
-No remote access, remote credentials, or Drax API backend is required for local blog deploy. The safety rule is approval first, backup before write, and never overwrite a working site path without a rollback path.
+No remote access or Drax API backend is required for local blog deploy. The safety rule is approval first, backup before write, and never overwrite a working site path without a rollback path.
 
 ## Identity Source
 
@@ -59,11 +59,11 @@ npm run build
 
 ## Local Deployment Path
 
-Local deploy is central to V1, but it remains gated.
+Local deploy is central to V1, but live deploy implementation remains gated.
 
 Before deploy, `DISTRIBUTION_PLAN.md` must define the blog target directory, static output directory, public base path, server or proxy, backup directory, approval owner, and rollback command.
 
-The deploy configuration shape is defined in `schemas/deploy-config.schema.json`. Clean testing supplies this shape with `dryRun: true`; live deploy remains stubbed and approval-gated.
+The deploy configuration shape is defined in `schemas/deploy-config.schema.json`. Clean testing supplies this shape with `dryRun: true`; live deploy remains approval-gated and not implemented in the trigger engine.
 
 The approved deploy sequence is:
 

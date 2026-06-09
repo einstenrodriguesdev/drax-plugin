@@ -1,35 +1,102 @@
 # Roadmap And Phase Gates
 
-## Phase 0: Repository And Safety Baseline
+## Phase 0: Open-Core Foundation
 
-Exit: package allowlist, tests, secret scan, documented trust boundaries, and dry-run defaults pass.
+Status: passed for `drax-plugin`, pending promotion for `drax-dev` changes.
 
-## Phase 1: Founder Intake, Language, And Stack Planning
+Exit:
 
-Exit: a founder with an existing product can run `drax`, complete qualification, and receive the baseline artifacts for product context, language strategy, stack/security decision, 90-post plan, worker routing, trigger planning, distribution, measurement, and execution state without duplicated or contradictory context.
+- public plugin source exists
+- secret scan passes
+- package allowlist passes
+- marketplace install path is documented
+- no payment, signing, session, or environment secret ships
 
-## Phase 2: Editorial Production
+## Phase 1: Founder Intake Upgrade
 
-Exit: Drax produces the 90-post/class plan, source-backed article briefs, a calendar, SVG/carousel manifests, video manifests, and deterministic preview assets.
+Status: built in `drax-dev`.
 
-## Phase 3: Private Dogfooding
+Exit:
 
-Exit: DRAX prepares two weeks of assets with human approval, zero secret leakage, reproducible output, a daily clock trigger, and a manual trigger reading the same queue.
+- recognition phase uses free text
+- strategic definition uses three options plus custom answer only after recognition
+- repo facts are read and confirmed
+- no question asks for secret values
+- live interactive test confirms the behavior
 
-## Phase 4: Platform Integrations
+## Phase 2: Blog Surface
 
-Exit: YouTube and TikTok official API adapters pass private/unlisted tests, retries, audit logs, and rollback. Instagram follows after Meta review. Playwright remains experimental.
+Status: built in `drax-dev`.
 
-## Phase 5: Commercial v1
+Exit:
 
-Exit: three external founders reach first approved content cycle, time-to-first-calendar is measured, and support limits are known.
+- `drax blog init` generates the Astro blog surface
+- identity comes from founder docs at runtime
+- missing values remain `NEEDS_DECISION`
+- clean workspace build passes
 
-## Version Sequence
+## Phase 3: Trigger Engine
 
-- `v1`: organic traffic automation — founder interview, content system, site, blog, sales page, and autonomous daily publishing on VPS
-- `v2`: paid traffic amplification — only after organic evidence and positive ROAS controls exist
-- `v3`: documentation layer — structured knowledge base and public docs generated from the system
-- `v4`: product layer — building and shipping products from within the system
-- `v5`: venture capital and institutional readiness — capital, M&A, legal, and compliance at institutional scale
+Status: built with fake-Codex tests in `drax-dev`.
 
-Paid growth, documentation, product building, capital readiness, autonomous spend, and broad platform support remain separate major-version gates.
+Exit:
+
+- `drax cycle --dry-run` passes with real `codex exec`
+- run manifest and publish record are verified from disk
+- forbidden-claim gate fails closed
+- cron command is correct for the decided timezone and schedule
+- no live deploy occurs
+
+## Phase 4: Access Gate
+
+Status: schema and fail-closed stub built.
+
+Exit:
+
+- `drax-api` validates token signature, expiry, revocation, billing state, and tier limits
+- payment webhook issues a token and conversion record
+- provider to tier mapping is decided
+- no provider key enters plugin source or package output
+
+## Phase 5: Clean Install And Promotion
+
+Status: next operational step.
+
+Exit:
+
+- package artifact installs on a clean non-root machine
+- Codex PATH and Device Code setup are documented and verified
+- `drax init`, `drax blog init`, and `drax cycle --dry-run` pass from zero
+- forbidden-pattern audit passes on tarball contents
+- promotion patch lands in public `drax-plugin`
+
+## Phase 6: DRAX Dogfooding
+
+Status: pending.
+
+Exit:
+
+- `drax-recursive` baseline is complete
+- DRAX qualifies through its own gate
+- two weeks of dry-run and approved publish records are produced
+- measurement identifies continue, change, scale, or stop decisions
+
+## Phase 7: Local Deploy
+
+Status: contract only.
+
+Exit:
+
+- backup-before-write implemented
+- target/output/backup/reload/rollback fields are enforced
+- dry-run deploy and rollback tests pass
+- live deploy requires approval and stops on missing rollback
+
+## Later Major Versions
+
+- `v2`: paid traffic amplification after organic evidence and ROAS controls
+- `v3`: documentation layer
+- `v4`: product-building layer
+- `v5`: capital and institutional readiness
+
+No later capability enters V1 docs as a shipped claim.

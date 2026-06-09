@@ -1,86 +1,114 @@
 # Installation
 
-## 1. Repository Marketplace
+## Public Codex Marketplace
 
-For private testing:
+Clean Codex users install the public plugin from the GitHub marketplace source:
 
 ```bash
-codex plugin marketplace add /home/conclave/drax/drax-plugin
-codex plugin add drax@drax-plugin
+codex plugin marketplace add einstenrodriguesdev/drax-plugin --ref main
+codex plugin add drax@drax
 ```
 
-## 2. Package Installer
+After installation, complete the non-root setup:
 
 ```bash
+export PATH="$HOME/.local/bin:$PATH"
+codex login
+```
+
+Complete the Device Code login flow shown by Codex. If Codex is installed outside `PATH`, set:
+
+```bash
+export DRAX_CODEX_BIN="/absolute/path/to/codex"
+```
+
+## Package Artifact Test
+
+From `drax-dev`:
+
+```bash
+npm install
+npm run verify
 npm pack
 npm exec --yes --package ./drax-plugin-1.0.0.tgz -- drax-plugin install --target all
 ```
 
-Supported targets: `codex`, `claude`, and `all`.
+Supported install targets are `codex`, `claude`, and `all`.
 
-The installer is non-root. It writes to the current user's home directory. After installation, make sure the launcher path is available:
+The installer is non-root. It writes to:
 
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
+- `~/plugins/drax`
+- `~/.agents/plugins/marketplace.json`
+- `~/.claude/commands/drax.md`
+- `~/.local/share/drax-plugin`
+- `~/.local/bin/drax`
 
-Codex must be authenticated before the first Drax session:
+## Access Token
 
-```bash
-codex login
-```
+Runtime commands require a Drax access token. Store it outside tracked source files.
 
-Complete the Device Code login flow shown by Codex. If Codex is installed outside `PATH`, set `DRAX_CODEX_BIN` to the full binary path.
+Supported locations:
 
-Runtime commands require a Drax access token. Place it at `.drax/access-token.json` in the founder workspace or set `DRAX_ACCESS_TOKEN_FILE` to the token path. The runtime fails closed until the token can be validated by the Drax server.
+- `.drax/access-token.json` inside the founder workspace
+- `DRAX_ACCESS_TOKEN_FILE` pointing to an absolute token path
+- `DRAX_ACCESS_TOKEN_JSON` for controlled tests
 
-After installation, test in an isolated workspace:
+Drax fails closed when the token is missing, expired, structurally invalid, revoked, or not validated by the Drax server. Until `drax-api` exists, production validation is a TODO and test runs use the explicit validation stub.
+
+## First Workspace Run
+
+Use a git repository workspace. The trigger engine clones that repo into `.drax/worktrees/current` before taking action.
 
 ```bash
 mkdir -p ~/drax-tests/example-product
 cd ~/drax-tests/example-product
+git init
 drax init
 drax
 ```
 
-`drax init` creates the v1 baseline artifacts for founder/product context, language strategy, stack/security decision, 90-post planning, worker routing, triggers, distribution, measurement, and execution state. It does not overwrite existing files unless `--force` is used.
+`drax init` creates the baseline Markdown artifacts and `EXECUTION_STATE.json`. It does not overwrite existing files unless `--force` is used.
 
-To generate a self-contained editorial blog surface for an existing customer site:
+## Blog Surface
+
+Generate the self-contained Astro blog surface:
 
 ```bash
 drax blog init --target drax-blog
 ```
 
-The generator reads blog identity and base path from the founder docs. Replace any generated `NEEDS_DECISION` value in those docs before production deployment.
+The generator reads identity and base path from the founder docs. Missing values stay `NEEDS_DECISION`.
 
-To run the trigger engine without publishing:
+## Trigger Engine
+
+Dry run:
 
 ```bash
 drax cycle --dry-run
 ```
 
-To print the cron entry after schedule and timezone are decided in `EXECUTION_STATE.json`:
+Publish into the isolated clone's blog surface:
+
+```bash
+drax cycle --publish
+```
+
+Print the cron entry:
 
 ```bash
 drax cycle cron
 ```
 
-The trigger writes local runtime state under `.drax/`, which is ignored by git. The scheduled trigger uses system cron and the same `drax cycle` wrapper as the manual trigger.
-
-## 3. Source Development
-
-```bash
-npm install
-npm run verify
-npm link
-npx drax-plugin install --target all
-drax doctor
-```
+The scheduled trigger uses system cron, not Codex Automations. It calls the same `drax cycle` wrapper as the manual trigger.
 
 ## Rollback
 
-The installer preserves unrelated personal marketplace entries and backs up user-owned files before replacement. It installs a persistent runtime under `~/.local/share/drax-plugin` so the launcher remains usable after a temporary package command exits. Remove installer-owned `~/plugins/drax`, the Drax marketplace entry, the generated Claude command, `~/.local/share/drax-plugin`, and `~/.local/bin/drax` to roll back.
+The installer preserves unrelated personal marketplace entries and backs up user-owned files before replacement. To roll back, remove installer-owned `~/plugins/drax`, the Drax marketplace entry, the generated Claude command, `~/.local/share/drax-plugin`, and `~/.local/bin/drax`.
 
-## Antigravity
+## Not Included
 
-Antigravity support is a compatibility target, not a v1.0.0 production claim. Add an adapter only after its plugin, command, permission, and isolated-install behavior are documented and tested.
+- live local server deploy
+- social platform API posting
+- browser account automation
+- payment backend
+- signing or validation secrets

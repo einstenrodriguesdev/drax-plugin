@@ -4,7 +4,7 @@ Status: accepted
 
 ## Decision
 
-Ship a small organic-growth runtime in v1.0.0 instead of the complete internal 138-agent organization.
+Ship a small organic-growth runtime in v1.0.0 instead of the complete internal role library.
 
 ## Reason
 

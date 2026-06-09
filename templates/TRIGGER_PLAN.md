@@ -51,7 +51,7 @@ Custom answer:
 - A trigger refuses to publish an ID that already has a successful publish record for the same platform/account.
 - A trigger verifies asset hashes against the manifest before attempting upload.
 - A failed run records failure evidence and does not retry infinitely.
-- If official API and Playwright are unavailable, export-manual is generated.
+- Future external adapters fall back to export-manual when their own gates are blocked.
 - A trigger that fails a gate does not advance `EXECUTION_STATE.json`.
 
 ## Trigger Log

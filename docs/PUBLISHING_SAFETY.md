@@ -1,40 +1,60 @@
 # Publishing Safety
 
-## Adapter Priority
+## Active Surface
 
-1. Local blog deploy on the founder VPS.
-2. Official platform API.
-3. Export-manual contingency.
-4. Playwright experimental adapter.
+The active V1 publishing surface is the local blog surface.
 
-Local blog deploy is a publishing path. It requires explicit approval, a target path, a static output path, a backup directory, and a rollback command before writing files.
+`drax cycle --dry-run` fabricates the package, runs gates, writes hashes, writes a run manifest, and writes a dry-run publish record.
 
-Browser automation is not the production default. Passing a small test does not remove account-policy, UI-change, credential, or anti-automation risk.
+`drax cycle --publish` writes the generated article into the isolated clone's blog surface. It does not deploy to the live server path.
 
-Official APIs also have constraints. YouTube uploads require OAuth and application registration. TikTok Content Posting API uploads can require creator completion in-app, have rate limits, and can hit pending-share limits. Treat each platform as a gated adapter, not as a generic "post anywhere" interface.
+## Local Deploy Boundary
+
+Live local deploy is a future approval-gated path. Before it can write to a server path, the deploy config must define:
+
+- target directory
+- static output directory
+- backup directory
+- server or proxy reload command
+- rollback command
+- approval owner
+- approval timestamp
+
+The deploy must back up before write and stop if rollback is not available.
+
+## Future Adapters
+
+Future external platform adapters are gated separately:
+
+1. Official platform API.
+2. Export-manual contingency.
+3. Playwright experimental adapter for isolated tests only.
+
+Browser automation is not the customer production default. Passing a small test does not remove account-policy, UI-change, connection, or anti-automation risk.
 
 ## Required Publish Record
 
 Every attempt records:
 
+- run ID
+- content package ID
+- post class
+- adapter and mode
 - content and asset hashes
-- adapter and adapter version
-- target account and environment
 - approval identity and timestamp
-- requested privacy status
-- response or screenshot evidence
-- remote post identifier
-- local backup path when the adapter writes to the VPS filesystem
-- rollback or delete result
+- evidence path
+- target path or remote identifier
+- result
+- rollback or delete result when relevant
+
+The publish record on disk is the source of truth for semantic success. Stdout and exit code are not enough.
 
 ## Kill Switches
 
-Stop immediately on authentication anomalies, unexpected public visibility, repeated challenge pages, platform warnings, duplicate posts, rate-limit escalation, or metadata mismatch.
+Stop immediately on unexpected public visibility, duplicate posts, connection anomalies, repeated challenge pages, platform warnings, rate-limit escalation, metadata mismatch, hash mismatch, or missing rollback.
 
 ## Trigger Safety
 
-The clock trigger and manual trigger read the same approved queue. They must verify asset hashes, check existing publish records for duplicate prevention, and write evidence for every attempt. A trigger failure never invents a substitute post.
+The clock trigger and manual trigger call the same wrapper. They acquire the same `flock` lock before reading `EXECUTION_STATE.json`, verify asset hashes, check publish records for duplicate prevention, and write evidence for every attempt.
 
-## Rendering Options
-
-`python-ffmpeg` is the default because it is deterministic and works on low-resource Linux/ARM64. `remotion` is used when richer TypeScript motion is worth its browser/runtime cost. `ffmpeg-template` provides a minimal caption, image, audio, and sound-effect path when the primary renderer is unavailable.
+A trigger failure never invents a substitute post and never advances state.

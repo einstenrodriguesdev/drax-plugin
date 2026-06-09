@@ -2,48 +2,55 @@
 
 ## Primary User
 
-Drax v1.0.0 is for a founder who already has a product, a buyer hypothesis, and a real path to purchase or contact. The plugin qualifies those facts before constructing an organic automation system.
+Drax V1 is for a founder who already has a product, a buyer hypothesis, and a real path to purchase or contact. The plugin qualifies those facts before constructing an organic automation system.
 
 ## Capability Loop
 
-1. Intake captures founder, product, buyer, proof, voice, constraints, and current evidence.
-2. Language strategy selects the primary market before content planning.
-3. Stack decision records server, database/state, scheduler, secrets, logging, security, and paid-tool upgrade triggers.
-4. Strategy defines falsifiable content and channel hypotheses.
-5. Editorial creates a 90-post/class plan and a dependency-aware calendar.
-6. Production creates reviewable article, SVG, video, audio, and metadata manifests.
-7. Worker routing assigns each job to one accountable worker with permissions and gates.
-8. Distribution queues approved assets through a controlled adapter.
-9. Triggering runs the daily clock and manual fallback against the same approved queue.
-10. Measurement records results and recommends continue, change, scale, or stop.
+1. Intake captures founder, product, buyer, proof, voice, constraints, current stack, and current evidence.
+2. Recognition uses free text. The system classifies behind the scenes.
+3. Strategic definition uses three options plus custom answer in interactive sessions.
+4. Language strategy selects the primary market before content planning.
+5. Stack decision records server, state, scheduler, environment references, logging, security, and paid-tool upgrade triggers.
+6. Strategy defines falsifiable content and channel hypotheses.
+7. Editorial creates a 90-post/class plan and dependency-aware calendar.
+8. Blog generation creates the Astro surface beside the existing customer site.
+9. Triggering runs dry-run or publish through the same headless wrapper.
+10. Measurement reads publish records and recommends continue, change, scale, or stop.
 
-## Canonical State
+## State Discipline
 
-Human-readable Markdown files hold the operating decisions. Facts belong in one canonical file and are linked elsewhere. Execution records and asset manifests may use JSON, but they cannot silently overwrite the human decision record.
+Facts belong in one canonical artifact and are linked elsewhere.
 
-The baseline artifacts are:
+Human-readable decisions live in Markdown. Machine execution state lives in JSON:
 
-- `FOUNDER_PROFILE.md`
-- `PRODUCT_CONTEXT.md`
-- `LANGUAGE_STRATEGY.md`
-- `STACK_DECISION.md`
-- `ORGANIC_GROWTH_STRATEGY.md`
-- `NINETY_POST_PLAN.md`
-- `EDITORIAL_CALENDAR.md`
-- `DISTRIBUTION_PLAN.md`
-- `TRIGGER_PLAN.md`
-- `WORKER_ROUTING.md`
-- `MEASUREMENT_PLAN.md`
-- `EXECUTION_STATE.md`
+- `EXECUTION_STATE.json`
+- `.drax/runs/*/*.json`
+- `.drax/publish-records/*.json`
+- asset manifests
+
+If the system lacks a founder fact, it writes `NEEDS_DECISION`. It does not invent the value.
 
 ## Decision Rights
 
-The system may research, draft, render previews, compare results, and recommend changes autonomously. Public publishing, credential changes, paid spend, destructive actions, and strategic commitments require accountable approval.
+The system may research, draft, render previews, run dry-runs, compare results, and recommend changes autonomously.
 
-Strategic choices use a three-option decision pattern: lowest-risk, balanced professional, and scale/future. Each option records advantage, disadvantage, cost/complexity, when to choose, and when not to choose. The founder can always type a custom answer.
+These actions require accountable approval:
+
+- live server deploy
+- public publishing outside the isolated clone
+- paid spend
+- secret rotation or connection changes
+- destructive operations
+- strategic commitments that change product or market direction
+
+## Trigger Discipline
+
+The decision to run `drax cycle --dry-run` is a test action. The decision to run `drax cycle --publish` publishes only into the isolated clone's blog surface. Live local deploy remains a separate approval gate.
+
+Scheduled execution uses system cron and the same wrapper as manual execution. Cron must not depend on AskUserQuestion or any prompt that requires a human response.
 
 ## Internal Capability Reuse
 
-`conclave-cc` is a source library, not a customer runtime dependency. A capability is promoted into Drax only when it is necessary for the current outcome, has a clear owner, passes security review, and does not duplicate an existing capability.
+`conclave-cc` is a source library, not a customer runtime dependency. Customer installs use the vendored worker definitions in `templates/workers/`.
 
-If a new worker role is needed, role creation happens through the internal Conclave HR protocol. That HR path is internal-only and is not part of the customer V1 runtime. Customer installs use the vendored worker definitions in `templates/workers/`.
+If a new worker role is needed, creation happens through the internal Conclave HR protocol first. Only reviewed, versioned roles are vendored into a later plugin release.

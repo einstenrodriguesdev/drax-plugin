@@ -50,7 +50,7 @@ Custom answer:
 
 | Control | Current phase action | Future action | Standard reference |
 |---|---|---|---|
-| Secrets | Environment-only; never write secrets to artifacts, logs, prompts, or generated media. | Secret manager with rotation and scoped tokens. | NIST SSDF; OWASP CI/CD credential hygiene |
+| Secrets | Environment-only; never write secrets to artifacts, logs, prompts, or generated media. | Secret manager with rotation and scoped tokens. | NIST SSDF; OWASP secret-handling practice |
 | App security | Apply OWASP ASVS Level 1 intent to any hosted surface. | ASVS Level 2 where customer data or auth risk increases. | OWASP ASVS 5.0 |
 | Software delivery | Lock dependencies, validate package contents, and keep dry-run defaults. | SBOM, signed artifacts, SAST, and release approvals. | NIST SSDF |
 | Platform accounts | Isolated test accounts before production accounts. | Least-privilege OAuth apps and formal app review. | Platform developer docs |

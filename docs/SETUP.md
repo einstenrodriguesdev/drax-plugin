@@ -12,7 +12,7 @@ Installer-owned paths:
 - `~/.local/share/drax-plugin`
 - `~/.local/bin/drax`
 
-## PATH Setup
+## PATH
 
 Make sure `~/.local/bin` is on `PATH` before running `drax`.
 
@@ -22,38 +22,53 @@ export PATH="$HOME/.local/bin:$PATH"
 
 Persist it in the user's shell profile when needed.
 
-## Codex Device Code Login
+## Codex Login
 
-Drax launches Codex for the founder interview. Before the first Drax session, Codex must be installed and authenticated.
+Drax uses Codex for the founder interview and for the headless content cycle. Before the first run:
 
 ```bash
 codex login
 ```
 
-Complete the Device Code login flow shown by Codex. If Codex is not on `PATH`, set `DRAX_CODEX_BIN` to the full binary path.
+Complete the Device Code login flow shown by Codex. If Codex is not on `PATH`, set:
 
 ```bash
 export DRAX_CODEX_BIN="/absolute/path/to/codex"
 ```
 
-## Access Token
+## Founder Workspace
 
-Runtime commands require a Drax access token. Store the token outside tracked source files.
-
-Supported locations:
-
-- `.drax/access-token.json` inside the founder workspace
-- `DRAX_ACCESS_TOKEN_FILE` pointing to an absolute token path
-
-Drax fails closed when the token is missing, expired, structurally invalid, or not validated by the Drax server.
-
-## First Workspace Run
-
-From a customer project workspace:
+Run Drax from the customer's product git repository.
 
 ```bash
+cd /path/to/product-repo
 drax init
 drax
 ```
 
-`drax init` copies the 12 baseline artifacts into the current workspace without overwriting existing files unless `--force` is used.
+`drax init` creates the 12 baseline artifacts plus `EXECUTION_STATE.json`. Existing artifacts are preserved unless `--force` is used.
+
+The trigger engine writes local runtime state under `.drax/`. That directory should stay ignored by git.
+
+## Access Token
+
+Runtime commands require a Drax access token.
+
+Supported locations:
+
+- `.drax/access-token.json`
+- `DRAX_ACCESS_TOKEN_FILE`
+- `DRAX_ACCESS_TOKEN_JSON` for controlled tests
+
+The token is validated by the server-side access boundary. The plugin must not contain signing keys or payment-provider keys.
+
+## First Safe Cycle
+
+After the baseline passes:
+
+```bash
+drax blog init --target drax-blog
+drax cycle --dry-run
+```
+
+Do not use `drax cycle --publish` until the blog surface path and founder content boundaries are decided.
