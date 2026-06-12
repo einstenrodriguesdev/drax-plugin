@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { createPublicKey, verify as edVerify } from "node:crypto";
 
-export type AccessTier = "Solo" | "Studio" | "Scale";
+export type AccessTier = "Startup" | "Centaur" | "Unicorn";
 export type BillingInterval = "monthly" | "annual";
 
 export type TierLimits = {
@@ -30,8 +31,13 @@ export type AccessGrant = {
 
 export type AccessResult = { ok: true; grant: AccessGrant } | { ok: false; errors: string[] };
 
-const tiers = new Set<AccessTier>(["Solo", "Studio", "Scale"]);
+const tiers = new Set<AccessTier>(["Startup", "Centaur", "Unicorn"]);
 const billingIntervals = new Set<BillingInterval>(["monthly", "annual"]);
+// Production Ed25519 public key. The matching private key lives only on the drax-api licensing server.
+const DRAX_PRODUCTION_PUBLIC_KEY = "bqpUTfuMJBHnIbSXZX16jyj9ug7njEFVaQBw4iTGbWE=";
+// Licensing server that confirms revocation / live state. Overridable for self-hosters and tests.
+const DRAX_VALIDATION_URL = "https://api.conclave-company.com/v1/access/validate";
+const DRAX_VALIDATION_TIMEOUT_MS = 8000;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -112,7 +118,7 @@ function parseToken(value: unknown, now: Date): { ok: true; token: AccessToken }
   if (schemaVersion !== "1.0.0") errors.push("Access token schemaVersion must be 1.0.0.");
   if (!isNonEmptyString(tokenId)) errors.push("Access token tokenId is required.");
   if (!isNonEmptyString(tier) || !tiers.has(tier as AccessTier)) {
-    errors.push("Access token tier must be Solo, Studio, or Scale.");
+    errors.push("Access token tier must be Startup, Centaur, or Unicorn.");
   }
   if (!isNonEmptyString(billingInterval) || !billingIntervals.has(billingInterval as BillingInterval)) {
     errors.push("Access token billingInterval must be monthly or annual.");
@@ -168,31 +174,134 @@ function loadToken(cwd: string): { ok: true; token: unknown } | { ok: false; err
   }
 }
 
-function validateWithServerStub(token: AccessToken): AccessResult {
-  // TODO: POST the token to drax-api /v1/access/validate, then use the returned tier limits.
-  // Until that endpoint exists, customer runtime fails closed by default.
-  if (process.env.DRAX_ACCESS_VALIDATION_STUB !== "allow") {
+function b64url(buffer: Buffer): string {
+  return buffer.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function resolvedPublicKey(): string {
+  return process.env.DRAX_ACCESS_PUBLIC_KEY?.trim() || DRAX_PRODUCTION_PUBLIC_KEY;
+}
+
+export function canonicalAccessTokenBytes(token: AccessToken): Buffer {
+  if (!token.limits) throw new Error("Access token is missing tier limits.");
+  const limits: Record<string, string | number> = {
+    dailyRunCadence: token.limits.dailyRunCadence,
+    maxProjects: token.limits.maxProjects,
+    dailyBlogPostCap: token.limits.dailyBlogPostCap,
+    maxRuntimeHoursPerDay: token.limits.maxRuntimeHoursPerDay,
+  };
+  if (token.limits.maxRunsPerDay !== undefined) limits.maxRunsPerDay = token.limits.maxRunsPerDay;
+
+  const claims = {
+    schemaVersion: token.schemaVersion,
+    tokenId: token.tokenId,
+    tier: token.tier,
+    billingInterval: token.billingInterval,
+    issuedAt: token.issuedAt,
+    expiresAt: token.expiresAt,
+    limits,
+  };
+  return Buffer.from(JSON.stringify(claims), "utf8");
+}
+
+export function verifyAccessTokenSignature(token: AccessToken, publicKeyStdB64: string): boolean {
+  try {
+    const publicKeyRaw = Buffer.from(publicKeyStdB64, "base64");
+    const signature = Buffer.from(token.signature, "base64");
+    if (publicKeyRaw.length !== 32 || signature.length !== 64) return false;
+    const publicKey = createPublicKey({
+      key: { kty: "OKP", crv: "Ed25519", x: b64url(publicKeyRaw) },
+      format: "jwk",
+    });
+    return edVerify(null, canonicalAccessTokenBytes(token), publicKey, signature);
+  } catch {
+    return false;
+  }
+}
+
+type LiveCheck = { decision: "allow" | "deny" | "unreachable"; errors?: string[] };
+
+// Ask the licensing server for revocation / live state. The offline signature + expiry checks
+// have already passed, so this call exists only to catch a still-valid-looking token that the
+// server has since revoked (refund, chargeback, abuse). Posture is fail-open within expiry: an
+// unreachable server (network/timeout/5xx) does NOT block a cryptographically valid token, but an
+// explicit negative verdict (HTTP 401 or ok:false) does.
+async function liveRevocationCheck(token: AccessToken): Promise<LiveCheck> {
+  const url = process.env.DRAX_ACCESS_VALIDATION_URL?.trim() || DRAX_VALIDATION_URL;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DRAX_VALIDATION_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+      signal: controller.signal,
+    });
+    type ValidateBody = { ok?: unknown; error?: unknown; revoked?: unknown };
+    let body: ValidateBody | null = null;
+    try {
+      body = (await response.json()) as ValidateBody;
+    } catch {
+      body = null;
+    }
+    if (response.status === 401 || (body && body.ok === false)) {
+      const reason = (body && typeof body.error === "string" && body.error) || `HTTP ${response.status}`;
+      return { decision: "deny", errors: [`Drax access denied by the licensing server: ${reason}.`] };
+    }
+    if (response.ok && body && body.ok === true) {
+      return { decision: "allow" };
+    }
+    // Reachable but inconclusive (5xx, malformed body): fail open within token expiry.
+    return { decision: "unreachable" };
+  } catch {
+    // Network failure, DNS failure, or timeout: fail open within token expiry.
+    return { decision: "unreachable" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function validateSignedAccess(token: AccessToken): Promise<AccessResult> {
+  const publicKey = resolvedPublicKey();
+  if (!publicKey) {
     return {
       ok: false,
       errors: [
-        "Drax access token server validation is not available yet.",
-        "TODO: call drax-api /v1/access/validate and fail closed on network, revocation, expiry, signature, or tier mismatch.",
+        "DRAX access public key is not configured.",
+        "Set DRAX_ACCESS_PUBLIC_KEY or embed the production key before validating tokens.",
       ],
     };
   }
 
   if (!token.limits) {
-    return { ok: false, errors: ["Access token validation stub requires tier limits on the token."] };
+    return { ok: false, errors: ["Access token is missing tier limits."] };
   }
+
+  if (!verifyAccessTokenSignature(token, publicKey)) {
+    return { ok: false, errors: ["Access token signature is invalid."] };
+  }
+
+  // Offline gate passed (signature valid, expiry checked in parseToken).
+  // DRAX_ACCESS_VALIDATION_STUB=allow is an offline/CI/air-gapped bypass that skips the live call.
+  if (process.env.DRAX_ACCESS_VALIDATION_STUB === "allow") {
+    return { ok: true, grant: { token, limits: token.limits } };
+  }
+
+  const live = await liveRevocationCheck(token);
+  if (live.decision === "deny") {
+    return { ok: false, errors: live.errors ?? ["Drax access denied by the licensing server."] };
+  }
+
+  // "allow" or "unreachable" -> grant. Unreachable fails open within token expiry by design.
   return { ok: true, grant: { token, limits: token.limits } };
 }
 
-export function validateAccess(cwd: string, now = new Date()): AccessResult {
+export async function validateAccess(cwd: string, now = new Date()): Promise<AccessResult> {
   const loaded = loadToken(cwd);
   if (!loaded.ok) return loaded;
 
   const parsed = parseToken(loaded.token, now);
   if (!parsed.ok) return parsed;
 
-  return validateWithServerStub(parsed.token);
+  return validateSignedAccess(parsed.token);
 }

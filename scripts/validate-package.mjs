@@ -53,13 +53,20 @@ const required = [
   "schemas/deploy-config.schema.json",
   "schemas/execution-state.schema.json",
   "schemas/run-manifest.schema.json",
+  "scripts/social_image.py",
+  "scripts/social_image.test.py",
+  "scripts/social_carousel.py",
+  "scripts/social_carousel.test.py",
+  "scripts/social_video.py",
+  "scripts/social_video.test.py",
   "docs/SETUP.md",
   "docs/BLOG_AUTOMATION.md",
   "docs/ACCESS_GATE.md",
+  "requirements.txt",
   "docs/TRIGGER_ENGINE.md",
   "SECURITY.md",
 ];
-const forbidden = [/(^|\/)\.env($|\.)/, /credential/i, /(^|\/)node_modules\//, /\.pem$/, /\.key$/];
+const forbidden = [/(^|\/)\.env($|\.)/, /credential/i, /(^|\/)node_modules\//, /(^|\/)__pycache__\//, /\.pyc$/, /\.pem$/, /\.key$/];
 const errors = [];
 
 for (const file of required) {

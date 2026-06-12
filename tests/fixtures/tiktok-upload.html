@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>TikTok Upload Fixture</title>
+  </head>
+  <body>
+    <main id="upload-form">
+      <input id="video-input" type="file" accept="video/*" />
+      <textarea id="caption" placeholder="Add a caption"></textarea>
+      <button type="button" id="submit-btn">Post</button>
+    </main>
+    <section id="result" hidden>
+      <p>Your video has been uploaded.</p>
+      <a id="permalink" href="https://tiktok.test/@drax/video/fake-reel-001">View video</a>
+    </section>
+    <script>
+      window.__posted = null;
+      const file = document.querySelector("#video-input");
+      const caption = document.querySelector("#caption");
+      const result = document.querySelector("#result");
+      document.querySelector("#submit-btn").addEventListener("click", () => {
+        window.__posted = {
+          caption: caption.value,
+          fileCount: file.files.length,
+          fileName: file.files[0] ? file.files[0].name : "",
+        };
+        result.hidden = false;
+      });
+    </script>
+  </body>
+</html>

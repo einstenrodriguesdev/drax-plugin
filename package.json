@@ -15,8 +15,10 @@
     "docs/",
     "plugins/",
     "schemas/",
+    "scripts/",
     "templates/",
     "LICENSE",
+    "requirements.txt",
     "README.md",
     "SECURITY.md"
   ],
@@ -27,6 +29,12 @@
     "validate": "node scripts/validate-package.mjs",
     "validate:baseline": "node scripts/validate-baseline.mjs",
     "verify": "npm run check && npm test && npm run validate",
+    "determinant": "npm run build && node scripts/determinant.mjs",
+    "determinism": "npm run determinant",
+    "test:image": "if command -v python3 >/dev/null 2>&1; then python3 scripts/social_image.test.py; else echo \"SKIP: python3 not found; social image renderer test skipped.\"; fi",
+    "test:video": "if command -v python3 >/dev/null 2>&1 && command -v ffmpeg >/dev/null 2>&1; then python3 scripts/social_video.test.py; else echo \"SKIP: python3 or ffmpeg not found; social video renderer test skipped.\"; fi",
+    "test:carousel": "if command -v python3 >/dev/null 2>&1; then python3 scripts/social_carousel.test.py; else echo \"SKIP: python3 not found; social carousel renderer test skipped.\"; fi",
+    "test:distribute": "if node -e \"require.resolve('playwright')\" >/dev/null 2>&1; then node --test tests/distribute.test.mjs; else echo \"SKIP: playwright not installed; distribution tests skipped.\"; fi",
     "prepack": "npm run verify"
   },
   "engines": {

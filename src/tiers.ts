@@ -1,6 +1,6 @@
 export const NEEDS_DECISION = "NEEDS_DECISION" as const;
 
-export type TierName = "Solo" | "Studio" | "Scale";
+export type TierName = "Startup" | "Centaur" | "Unicorn";
 export type TierDecisionValue = number | "unlimited" | typeof NEEDS_DECISION;
 
 export type TierLimitDefinition = {
@@ -13,28 +13,28 @@ export type TierLimitDefinition = {
 };
 
 export const TIER_LIMITS: Record<TierName, TierLimitDefinition> = {
-  Solo: {
-    tier: "Solo",
+  Startup: {
+    tier: "Startup",
     maxProjects: 1,
-    dailyBlogPostCap: NEEDS_DECISION,
-    maxRuntimeHoursPerDay: NEEDS_DECISION,
-    maxRunsPerDay: NEEDS_DECISION,
-    notes: "Founder to confirm daily blog cadence cap. Proposed default for review: 1 post/day.",
+    dailyBlogPostCap: 1,
+    maxRuntimeHoursPerDay: 2,
+    maxRunsPerDay: 1,
+    notes: "1 post/day, 2h runtime, 1 run/day. Matches drax-api LimitsForTier(Startup).",
   },
-  Studio: {
-    tier: "Studio",
+  Centaur: {
+    tier: "Centaur",
     maxProjects: 5,
-    dailyBlogPostCap: NEEDS_DECISION,
-    maxRuntimeHoursPerDay: NEEDS_DECISION,
-    maxRunsPerDay: NEEDS_DECISION,
-    notes: "Founder to confirm higher cadence than Solo.",
+    dailyBlogPostCap: 3,
+    maxRuntimeHoursPerDay: 6,
+    maxRunsPerDay: 3,
+    notes: "3 posts/day, 6h runtime, 3 runs/day. Matches drax-api LimitsForTier(Centaur).",
   },
-  Scale: {
-    tier: "Scale",
+  Unicorn: {
+    tier: "Unicorn",
     maxProjects: "unlimited",
-    dailyBlogPostCap: NEEDS_DECISION,
-    maxRuntimeHoursPerDay: NEEDS_DECISION,
-    maxRunsPerDay: NEEDS_DECISION,
-    notes: "Founder to confirm highest cadence and runtime ceiling.",
+    dailyBlogPostCap: 999999,
+    maxRuntimeHoursPerDay: 24,
+    maxRunsPerDay: 999999,
+    notes: "Effectively unlimited posts, 24h runtime. Matches drax-api LimitsForTier(Unicorn) sentinel.",
   },
 };

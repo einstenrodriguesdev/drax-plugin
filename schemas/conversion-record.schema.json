@@ -20,7 +20,7 @@
     "conversionId": { "type": "string", "minLength": 1 },
     "event": { "const": "access-token-issued" },
     "tokenId": { "type": "string", "minLength": 1 },
-    "tier": { "enum": ["Solo", "Studio", "Scale"] },
+    "tier": { "enum": ["Startup", "Centaur", "Unicorn"] },
     "billingInterval": { "enum": ["monthly", "annual"] },
     "issuedAt": { "type": "string", "format": "date-time" },
     "recordedAt": { "type": "string", "format": "date-time" },

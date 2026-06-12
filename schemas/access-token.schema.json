@@ -8,7 +8,7 @@
   "properties": {
     "schemaVersion": { "const": "1.0.0" },
     "tokenId": { "type": "string", "minLength": 1 },
-    "tier": { "enum": ["Solo", "Studio", "Scale"] },
+    "tier": { "enum": ["Startup", "Centaur", "Unicorn"] },
     "billingInterval": { "enum": ["monthly", "annual"] },
     "issuedAt": { "type": "string", "format": "date-time" },
     "expiresAt": { "type": "string", "format": "date-time" },

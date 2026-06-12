@@ -10,11 +10,11 @@
     "tiers": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["Solo", "Studio", "Scale"],
+      "required": ["Startup", "Centaur", "Unicorn"],
       "properties": {
-        "Solo": { "$ref": "#/$defs/tier" },
-        "Studio": { "$ref": "#/$defs/tier" },
-        "Scale": { "$ref": "#/$defs/tier" }
+        "Startup": { "$ref": "#/$defs/tier" },
+        "Centaur": { "$ref": "#/$defs/tier" },
+        "Unicorn": { "$ref": "#/$defs/tier" }
       }
     }
   },

@@ -20,7 +20,10 @@
     "contentPackagePath",
     "artifactHashes",
     "publishTarget",
-    "dryRun"
+    "dryRun",
+    "images",
+    "video",
+    "carousel"
   ],
   "properties": {
     "schemaVersion": { "const": "1.0.0" },
@@ -63,6 +66,9 @@
       }
     },
     "dryRun": { "type": "boolean" },
+    "images": { "$ref": "#/$defs/socialImages" },
+    "video": { "$ref": "#/$defs/socialVideo" },
+    "carousel": { "$ref": "#/$defs/socialCarousel" },
     "rollbackResult": { "type": "string" }
   },
   "$defs": {
@@ -75,6 +81,103 @@
         "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "mediaType": { "type": "string" }
       }
+    },
+    "socialImages": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "enum": ["generated", "skipped-dry-run", "skipped-no-python", "error"]
+        },
+        "vertical": { "type": "string", "minLength": 1 },
+        "square": { "type": "string", "minLength": 1 },
+        "error": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "generated" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["vertical", "square"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "error" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["error"] }
+        }
+      ]
+    },
+    "socialVideo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "enum": ["generated", "skipped-dry-run", "skipped-no-python", "skipped-no-ffmpeg", "error"]
+        },
+        "reel": { "type": "string", "minLength": 1 },
+        "error": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "generated" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["reel"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "error" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["error"] }
+        }
+      ]
+    },
+    "socialCarousel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "enum": ["generated", "skipped-dry-run", "skipped-no-python", "error"]
+        },
+        "slides": { "type": "integer", "minimum": 3, "maximum": 7 },
+        "rasterized": { "type": "boolean" },
+        "rasterStatus": {
+          "enum": ["generated", "skipped-no-rasterizer", "skipped-rasterizer-error"]
+        },
+        "svgs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "pngs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "error": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "generated" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["slides", "rasterized", "rasterStatus", "svgs", "pngs"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "error" } },
+            "required": ["status"]
+          },
+          "then": { "required": ["error"] }
+        }
+      ]
     }
   }
 }

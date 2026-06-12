@@ -14,7 +14,7 @@ Required fields:
 
 - `schemaVersion`
 - `tokenId`
-- `tier`: `Solo`, `Studio`, or `Scale`
+- `tier`: `Startup`, `Centaur`, or `Unicorn`
 - `billingInterval`: `monthly` or `annual`
 - `issuedAt`
 - `expiresAt`
@@ -30,11 +30,11 @@ Current confirmed limits:
 
 | Tier | Project cap | Daily blog cadence cap | Runtime hours/day | Runs/day |
 |---|---:|---|---|---|
-| Solo | 1 | NEEDS_DECISION. Proposed default for founder review: 1 post/day. | NEEDS_DECISION | NEEDS_DECISION |
-| Studio | 5 | NEEDS_DECISION. Must be higher than Solo after founder confirmation. | NEEDS_DECISION | NEEDS_DECISION |
-| Scale | unlimited | NEEDS_DECISION. Must be the highest cadence after founder confirmation. | NEEDS_DECISION | NEEDS_DECISION |
+| Startup | 1 | 1 post/day | 2 | 1 |
+| Centaur | 5 | 3 posts/day | 6 | 3 |
+| Unicorn | unlimited | effectively unlimited (999999 sentinel) | 24 | 999999 |
 
-Issued access tokens must carry concrete effective limits from the Drax server. `NEEDS_DECISION` is allowed in the tier model only while product policy is unresolved.
+Issued access tokens carry concrete effective limits from the Drax server. These ratified limits also mirror `drax-api` `LimitsForTier`.
 
 ## Conversion Record
 
@@ -50,9 +50,13 @@ At runtime, Drax reads a token from either:
 - `.drax/access-token.json` in the founder workspace
 - `DRAX_ACCESS_TOKEN_JSON` for controlled tests
 
-Drax validates local token shape and dates, then must validate the token against the Drax server. The runtime fails closed when the token is absent, expired, structurally invalid, revoked, or not validated by the server.
+Drax validates local token shape and dates, then verifies the Ed25519 signature offline against a DRAX public key. This offline signature check is the anti-piracy gate. It does not need network access.
 
-The current implementation includes a stub where the server call belongs. It fails closed by default until `drax-api` exists.
+The server call to `drax-api` `POST /v1/access/validate` is the second layer: revocation and live-state. It is not the primary security gate. A token with an invalid signature never reaches the live-state layer.
+
+`DRAX_ACCESS_VALIDATION_STUB=allow` skips only the network revocation/live-state call for offline development, tests, and controlled dry runs. It does not bypass local shape, date, tier-limit, public-key, or Ed25519 signature verification.
+
+Production fails closed when the token is absent, expired, structurally invalid, missing limits, signed by the wrong key, forged, or when the public key is not configured. Once `drax-api` is deployed, production can also fail closed on revocation or inactive billing state according to the founder's revocation strictness decision.
 
 ## Backend Boundary
 

@@ -19,7 +19,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateAccess } from "./access.js";
 import { runCycleCommand } from "./cycle.js";
+import { runDistributeCommand } from "./distribute.js";
 import { directTaskPrompt, founderIntakePrompt } from "./prompts.js";
+import { runStatusCommand } from "./status.js";
 
 const VERSION = "1.0.0";
 const currentFile = fileURLToPath(import.meta.url);
@@ -58,8 +60,16 @@ Usage:
   drax cycle --dry-run         Run the headless content cycle without publishing
   drax cycle --publish         Run the headless content cycle and write the blog artifact in the isolated clone
   drax cycle cron              Print the cron entry for the scheduled trigger
+  drax distribute login --platform instagram
+                               Open a browser once and save a Playwright session
+  drax distribute --platform instagram
+                               Queue an Instagram post draft from the latest publish record
+  drax distribute --platform instagram --confirm
+                               Post the queued Instagram single-image feed post
   drax prompt "task"           Print a portable Drax prompt
   drax install --target all    Install Codex plugin, Claude command, and shell launcher
+  drax status                  Show funnel layer health (generation, distribution, activation)
+  drax status --json           Same as above in machine-readable JSON
   drax doctor                  Verify the local installation
   drax --version               Print version
 `);
@@ -125,8 +135,8 @@ function founderBlogConfig(cwd: string): Record<string, string> {
   };
 }
 
-function requireRuntimeAccess(): boolean {
-  const result = validateAccess(process.cwd());
+async function requireRuntimeAccess(): Promise<boolean> {
+  const result = await validateAccess(process.cwd());
   if (result.ok) return true;
   console.error(["Drax access token validation failed.", ...result.errors].join("\n"));
   process.exitCode = 1;
@@ -159,8 +169,8 @@ function copyBaselineArtifacts(cwd: string, force: boolean): { created: number; 
   return { created, skipped };
 }
 
-function initWorkspace(args: string[]): void {
-  if (!requireRuntimeAccess()) return;
+async function initWorkspace(args: string[]): Promise<void> {
+  if (!(await requireRuntimeAccess())) return;
   const force = hasFlag(args, "--force");
   const { created, skipped } = copyBaselineArtifacts(process.cwd(), force);
   console.log(`Drax baseline artifacts ready. Created: ${created}. Skipped: ${skipped}.`);
@@ -219,7 +229,7 @@ function installClaude(): void {
 function installLauncher(): void {
   const runtimeRoot = path.join(home, ".local", "share", "drax-plugin");
   const target = path.join(home, ".local", "bin", "drax");
-  const assets = ["dist", "plugins", "compat", "templates", "schemas"];
+  const assets = ["dist", "plugins", "compat", "templates", "schemas", "scripts", "requirements.txt"];
 
   mkdirSync(runtimeRoot, { recursive: true });
   for (const asset of assets) {
@@ -271,12 +281,16 @@ function doctor(): void {
   }
   for (const [label, binary] of [
     ["Codex CLI", codexBinary],
-    ["Python renderer runtime", "python3"],
-    ["FFmpeg renderer runtime", "ffmpeg"],
+    ["Python renderer runtime (social images and video)", "python3"],
+    ["FFmpeg social video renderer runtime", "ffmpeg"],
   ] as const) {
     const present = spawnSync(binary, ["--version"], { stdio: "ignore" }).status === 0;
     console.log(`${present ? "OK" : "OPTIONAL-MISSING"} ${label}`);
   }
+  const pillowPresent = spawnSync("python3", ["-c", "import PIL"], { stdio: "ignore" }).status === 0;
+  console.log(`${pillowPresent ? "OK" : "OPTIONAL-MISSING"} Pillow social image library`);
+  const playwrightPresent = spawnSync("node", ["-e", "require.resolve('playwright')"], { stdio: "ignore" }).status === 0;
+  console.log(`${playwrightPresent ? "OK" : "OPTIONAL-MISSING"} Playwright social posting library`);
   console.log(`${process.env.DRAX_ENV_PATH ? "CONFIGURED" : "UNSET"} External environment reference`);
   process.exitCode = ok ? 0 : 1;
 }
@@ -300,8 +314,8 @@ function copyBlogTemplate(source: string, target: string, values: Record<string,
   writeFileSync(target, output, "utf8");
 }
 
-function initBlog(args: string[]): void {
-  if (!requireRuntimeAccess()) return;
+async function initBlog(args: string[]): Promise<void> {
+  if (!(await requireRuntimeAccess())) return;
   const target = path.resolve(process.cwd(), optionValue(args, "--target") || "drax-blog");
   const force = hasFlag(args, "--force");
   const values = founderBlogConfig(process.cwd());
@@ -311,8 +325,8 @@ function initBlog(args: string[]): void {
   console.log("Next: resolve NEEDS_DECISION values in the founder docs, add posts, then run `npm install` and `npm run build`.");
 }
 
-function launchCodex(args: string[]): void {
-  if (!requireRuntimeAccess()) return;
+async function launchCodex(args: string[]): Promise<void> {
+  if (!(await requireRuntimeAccess())) return;
   if (!args.length && process.cwd() !== packageRoot) {
     copyBaselineArtifacts(process.cwd(), false);
   }
@@ -331,16 +345,17 @@ function launchCodex(args: string[]): void {
   process.exitCode = result.status ?? 1;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const command = args[0];
   if (command === "--help" || command === "-h") return help();
   if (command === "--version" || command === "-v") return console.log(VERSION);
   if (command === "doctor") return doctor();
+  if (command === "status") return runStatusCommand(args.slice(1));
   if (command === "init") return initWorkspace(args.slice(1));
   if (command === "blog" && args[1] === "init") return initBlog(args.slice(2));
   if (command === "cycle") {
-    if (!requireRuntimeAccess()) return;
+    if (!(await requireRuntimeAccess())) return;
     process.exitCode = runCycleCommand(args.slice(1), {
       cwd: process.cwd(),
       cliPath: currentFile,
@@ -349,8 +364,13 @@ function main(): void {
     });
     return;
   }
+  if (command === "distribute") {
+    if (!(await requireRuntimeAccess())) return;
+    process.exitCode = await runDistributeCommand(args.slice(1), { cwd: process.cwd(), env: process.env });
+    return;
+  }
   if (command === "prompt") {
-    if (!requireRuntimeAccess()) return;
+    if (!(await requireRuntimeAccess())) return;
     return console.log(directTaskPrompt(args.slice(1).join(" ") || "Start Drax."));
   }
   if (command === "install") {
@@ -361,9 +381,7 @@ function main(): void {
   return launchCodex(args);
 }
 
-try {
-  main();
-} catch (error) {
+main().catch((error) => {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
-}
+});

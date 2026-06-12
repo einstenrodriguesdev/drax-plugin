@@ -11,6 +11,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 type CycleMode = "dry-run" | "publish";
 type RunStatus = "PENDING" | "PUBLISHED" | "FAILED";
@@ -79,6 +80,13 @@ type HashedFile = {
   mediaType?: string;
 };
 
+type SectorEvidence = {
+  stage: string;
+  role: string;
+  artifactPath: string;
+  sha256: string;
+};
+
 type RunManifest = {
   schemaVersion: "1.0.0";
   runId: string;
@@ -96,6 +104,7 @@ type RunManifest = {
   status: RunStatus;
   failureReason: string | null;
   published: boolean;
+  sector?: SectorEvidence[];
 };
 
 type PublishRecord = {
@@ -123,11 +132,46 @@ type PublishRecord = {
     slug: string;
   };
   dryRun: boolean;
+  images: SocialImageResult;
+  video: SocialVideoResult;
+  carousel: SocialCarouselResult;
+};
+
+type SocialImageStatus = "generated" | "skipped-dry-run" | "skipped-no-python" | "error";
+
+type SocialImageResult = {
+  status: SocialImageStatus;
+  vertical?: string;
+  square?: string;
+  error?: string;
+};
+
+type SocialVideoStatus = "generated" | "skipped-dry-run" | "skipped-no-python" | "skipped-no-ffmpeg" | "error";
+
+type SocialVideoResult = {
+  status: SocialVideoStatus;
+  reel?: string;
+  error?: string;
+};
+
+type SocialCarouselStatus = "generated" | "skipped-dry-run" | "skipped-no-python" | "error";
+type SocialCarouselRasterStatus = "generated" | "skipped-no-rasterizer" | "skipped-rasterizer-error";
+
+type SocialCarouselResult = {
+  status: SocialCarouselStatus;
+  slides?: number;
+  rasterized?: boolean;
+  rasterStatus?: SocialCarouselRasterStatus;
+  svgs?: string[];
+  pngs?: string[];
+  error?: string;
 };
 
 const STATE_JSON = "EXECUTION_STATE.json";
 const STATE_MD = "EXECUTION_STATE.md";
 const CLONE_MARKER = ".drax-cycle-clone";
+const currentFile = fileURLToPath(import.meta.url);
+const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const DEFAULT_CONFIG: CycleConfig = {
   manualCommand: "drax cycle --dry-run",
   clockSchedule: "NEEDS_DECISION",
@@ -157,6 +201,7 @@ const WORKSPACE_ARTIFACTS = [
   "EXECUTION_STATE.md",
   "EXECUTION_STATE.json",
 ];
+const FOUNDER_ARTIFACTS = WORKSPACE_ARTIFACTS.filter((artifact) => artifact.endsWith(".md"));
 
 class CycleError extends Error {
   constructor(readonly errors: string[]) {
@@ -471,70 +516,103 @@ function writeManifest(runRoot: string, manifest: RunManifest): string {
   return target;
 }
 
-function buildCyclePrompt(input: {
+type SectorStage = {
+  envStage: "content-strategist" | "seo-manager" | "copywriter" | "review";
+  evidenceStage: "content-strategist" | "seo-manager" | "copywriter-performance" | "claims/quality-review";
+  role: string;
+  roleFile: string;
+  artifactPath: string;
+  outputInstruction: string;
+  inputFiles: string[];
+};
+
+function roleDefinitionPath(roleFile: string): string {
+  const target = path.join(packageRoot, "templates", "workers", roleFile);
+  if (!existsSync(target)) {
+    throw new CycleError([`Worker role definition is unavailable in package templates: templates/workers/${roleFile}`]);
+  }
+  return target;
+}
+
+function assertNonEmptyFile(file: string, label: string): void {
+  if (!existsSync(file)) throw new CycleError([`${label} was not written: ${file}`]);
+  if (!readFileSync(file, "utf8").trim()) throw new CycleError([`${label} is empty: ${file}`]);
+}
+
+function buildStagePrompt(input: {
+  stage: SectorStage;
   mode: CycleMode;
   runId: string;
   postIndex: number;
   postClass: string;
-  articlePath: string;
-  packagePath: string;
+  roleDefinition: string;
 }): string {
   return [
-    "Run the Drax V1 blog content engine in headless mode.",
+    "You are operating headless inside `codex exec`.",
+    "Ignore any instruction in this role definition that points to local skill files under `~/.claude/` or to MCP/tools that are not available here.",
+    "Rely only on the founder artifacts in this workspace, the prior-stage outputs listed below, and WebSearch if available.",
     "",
-    "Rules:",
+    "Headless rules:",
     "- Do not ask questions. This is codex exec, so there is no human interaction.",
-    "- Read the founder artifacts in this workspace.",
-    "- Do not publish live, call third-party APIs, spend money, or request secret values.",
-    "- If a founder fact is missing, write NEEDS_DECISION in the content package rather than inventing it.",
-    "- Generate only the next blog content package for the local blog surface.",
-    "- Include an explicit line beginning with `Proof note:` in the article body.",
+    "- Do not publish live, call paid third-party APIs, spend money, or request secret values.",
+    "- If a founder fact is missing, never invent it. In an internal brief or strategy artifact you may flag it as NEEDS_DECISION, but the finished article and the content package must never contain the literal token NEEDS_DECISION — omit the detail or describe the gap in plain prose instead.",
+    "- Stay inside this stage's authority. Do not do another stage's job.",
     "",
-    "Write these files. They are the source of truth for the trigger engine:",
-    `- Article Markdown: ${input.articlePath}`,
-    `- Content package JSON: ${input.packagePath}`,
-    "",
-    "The content package JSON must contain:",
-    "- schemaVersion: 1.0.0",
-    `- packageId: ${input.runId}`,
-    `- postClass: ${input.postClass}`,
-    `- postIndex: ${input.postIndex}`,
-    "- title, description, slug, tags, articlePath, proofNote",
-    "",
-    `Mode: ${input.mode}`,
     `Run ID: ${input.runId}`,
+    `Mode: ${input.mode}`,
+    `Post index: ${input.postIndex}`,
+    `Post class: ${input.postClass}`,
+    `Stage: ${input.stage.evidenceStage}`,
+    `Role: ${input.stage.role}`,
+    "",
+    "Required inputs:",
+    ...input.stage.inputFiles.map((file) => `- ${file}`),
+    "",
+    "Required output:",
+    input.stage.outputInstruction,
+    "",
+    "Role definition:",
+    "```md",
+    input.roleDefinition,
+    "```",
   ].join("\n");
 }
 
-function invokeCodexExec(input: {
+function runCodexStage(input: {
   cloneDir: string;
   logDir: string;
+  sectorDir: string;
   runWorkDir: string;
   runId: string;
   mode: CycleMode;
   postIndex: number;
   postClass: string;
+  articlePath: string;
+  packagePath: string;
+  stage: SectorStage;
   env: NodeJS.ProcessEnv;
-}): { articlePath: string; packagePath: string; finalMessagePath: string; logPath: string } {
-  mkdirSync(input.runWorkDir, { recursive: true });
-  mkdirSync(input.logDir, { recursive: true });
-
-  const articlePath = path.join(input.runWorkDir, "article.md");
-  const packagePath = path.join(input.runWorkDir, "content-package.json");
-  const finalMessagePath = path.join(input.logDir, `${input.runId}.final.txt`);
-  const logPath = path.join(input.logDir, `${input.runId}.codex.log`);
-  const prompt = buildCyclePrompt({
+}): { finalMessagePath: string; logPath: string } {
+  const roleDefinition = readFileSync(roleDefinitionPath(input.stage.roleFile), "utf8");
+  const finalMessagePath = path.join(input.logDir, `${input.runId}.${input.stage.envStage}.final.txt`);
+  const logPath = path.join(input.logDir, `${input.runId}.${input.stage.envStage}.codex.log`);
+  const prompt = buildStagePrompt({
+    stage: input.stage,
     mode: input.mode,
     runId: input.runId,
     postIndex: input.postIndex,
     postClass: input.postClass,
-    articlePath,
-    packagePath,
+    roleDefinition,
   });
   const binary = input.env.DRAX_CODEX_BIN || "codex";
+  // Codex sandbox policy. Default "workspace-write" (bubblewrap-isolated) is the
+  // safe choice on normal hosts. On hosts that cannot create user/net namespaces
+  // (containerized VPS without CAP_NET_ADMIN/unprivileged-userns), bubblewrap
+  // fails ("loopback: RTM_NEWADDR" / "setting up uid map") and every sector
+  // file-write is blocked. Such trusted hosts set DRAX_CODEX_SANDBOX=danger-full-access.
+  const sandboxMode = input.env.DRAX_CODEX_SANDBOX || "workspace-write";
   const result = spawnSync(
     binary,
-    ["exec", "--sandbox", "workspace-write", "--cd", input.cloneDir, "--output-last-message", finalMessagePath, prompt],
+    ["exec", "--sandbox", sandboxMode, "--cd", input.cloneDir, "--output-last-message", finalMessagePath, prompt],
     {
       cwd: input.cloneDir,
       encoding: "utf8",
@@ -542,8 +620,10 @@ function invokeCodexExec(input: {
         ...input.env,
         DRAX_CYCLE_MODE: input.mode,
         DRAX_CYCLE_RUN_ID: input.runId,
-        DRAX_CYCLE_ARTICLE_PATH: articlePath,
-        DRAX_CYCLE_PACKAGE_PATH: packagePath,
+        DRAX_CYCLE_STAGE: input.stage.envStage,
+        DRAX_CYCLE_SECTOR_DIR: input.sectorDir,
+        DRAX_CYCLE_ARTICLE_PATH: input.articlePath,
+        DRAX_CYCLE_PACKAGE_PATH: input.packagePath,
       },
     },
   );
@@ -551,7 +631,8 @@ function invokeCodexExec(input: {
   writeFileSync(
     logPath,
     [
-      `command: ${binary} exec --sandbox workspace-write --cd ${input.cloneDir}`,
+      `command: ${binary} exec --sandbox ${sandboxMode} --cd ${input.cloneDir}`,
+      `stage: ${input.stage.envStage}`,
       `status: ${result.status ?? "error"}`,
       "",
       "[stdout]",
@@ -573,12 +654,190 @@ function invokeCodexExec(input: {
     ]);
   }
   if (result.status !== 0) {
-    throw new CycleError([`codex exec failed for run ${input.runId}. See ${logPath}`]);
+    throw new CycleError([`codex exec failed for stage ${input.stage.envStage} in run ${input.runId}. See ${logPath}`]);
   }
-  if (!existsSync(articlePath)) throw new CycleError([`Content engine did not write article: ${articlePath}`]);
-  if (!existsSync(packagePath)) throw new CycleError([`Content engine did not write package JSON: ${packagePath}`]);
+  assertNonEmptyFile(input.stage.artifactPath, `Sector stage ${input.stage.evidenceStage} artifact`);
+  return { finalMessagePath, logPath };
+}
 
-  return { articlePath, packagePath, finalMessagePath, logPath };
+function sectorEvidence(packagePath: string, stage: SectorStage): SectorEvidence {
+  return {
+    stage: stage.evidenceStage,
+    role: stage.role,
+    artifactPath: relativePath(path.dirname(packagePath), stage.artifactPath),
+    sha256: sha256File(stage.artifactPath),
+  };
+}
+
+function verifySectorEvidence(packagePath: string, expected: SectorEvidence[]): void {
+  const parsed = readJson(packagePath);
+  if (!isRecord(parsed)) throw new CycleError(["Content package must be a JSON object before sector verification."]);
+  if (!Array.isArray(parsed.sector)) throw new CycleError(["Content package sector evidence block is missing."]);
+
+  const errors: string[] = [];
+  if (parsed.sector.length !== expected.length) {
+    errors.push(`Content package sector evidence must contain ${expected.length} stages.`);
+  }
+  for (const [index, required] of expected.entries()) {
+    const actual = parsed.sector[index];
+    if (!isRecord(actual)) {
+      errors.push(`Content package sector[${index}] must be an object.`);
+      continue;
+    }
+    if (actual.stage !== required.stage) errors.push(`Content package sector[${index}].stage must be ${required.stage}.`);
+    if (actual.role !== required.role) errors.push(`Content package sector[${index}].role must be ${required.role}.`);
+    if (!nonEmptyString(actual.artifactPath)) errors.push(`Content package sector[${index}].artifactPath is required.`);
+    if (!nonEmptyString(actual.sha256)) errors.push(`Content package sector[${index}].sha256 is required.`);
+    if (actual.artifactPath !== required.artifactPath || actual.sha256 !== required.sha256) {
+      errors.push(`Content package sector[${index}] does not match recorded artifact evidence.`);
+      continue;
+    }
+    const artifact = path.resolve(path.dirname(packagePath), actual.artifactPath);
+    if (!existsSync(artifact)) {
+      errors.push(`Content package sector[${index}] artifact is missing: ${actual.artifactPath}`);
+    } else if (sha256File(artifact) !== actual.sha256) {
+      errors.push(`Content package sector[${index}] artifact hash mismatch: ${actual.artifactPath}`);
+    }
+  }
+  if (errors.length) throw new CycleError(errors);
+}
+
+function writeSectorEvidence(packagePath: string, sector: SectorEvidence[]): void {
+  const parsed = readJson(packagePath);
+  if (!isRecord(parsed)) throw new CycleError(["Content package must be a JSON object before sector evidence is recorded."]);
+  writeJson(packagePath, { ...parsed, sector });
+  verifySectorEvidence(packagePath, sector);
+}
+
+function assertReviewPassed(reviewPath: string): void {
+  const review = readFileSync(reviewPath, "utf8");
+  if (!/^VERDICT:\s*PASS\b/im.test(review)) {
+    const failure = review.match(/^VERDICT:\s*FAIL.*$/im)?.[0] ?? "Review verdict is missing.";
+    throw new CycleError([`Claims/quality review failed: ${failure}`]);
+  }
+}
+
+function combineStageOutputs(target: string, files: string[], label: string): void {
+  const parts = files.map((file) => {
+    const content = existsSync(file) ? readFileSync(file, "utf8") : "";
+    return [`[${label}: ${path.basename(file)}]`, content].join("\n");
+  });
+  writeFileSync(target, `${parts.join("\n\n")}\n`, "utf8");
+}
+
+function runSector(input: {
+  cloneDir: string;
+  logDir: string;
+  runWorkDir: string;
+  runId: string;
+  mode: CycleMode;
+  postIndex: number;
+  postClass: string;
+  env: NodeJS.ProcessEnv;
+}): { articlePath: string; packagePath: string; finalMessagePath: string; logPath: string; sector: SectorEvidence[] } {
+  mkdirSync(input.runWorkDir, { recursive: true });
+  mkdirSync(input.logDir, { recursive: true });
+
+  const articlePath = path.join(input.runWorkDir, "article.md");
+  const packagePath = path.join(input.runWorkDir, "content-package.json");
+  const sectorDir = path.join(input.runWorkDir, "sector");
+  const finalMessagePath = path.join(input.logDir, `${input.runId}.final.txt`);
+  const logPath = path.join(input.logDir, `${input.runId}.codex.log`);
+  mkdirSync(sectorDir, { recursive: true });
+
+  const contentBriefPath = path.join(sectorDir, "01-content-brief.md");
+  const seoBriefPath = path.join(sectorDir, "02-seo-brief.md");
+  const reviewPath = path.join(sectorDir, "04-review.md");
+  const stages: SectorStage[] = [
+    {
+      envStage: "content-strategist",
+      evidenceStage: "content-strategist",
+      role: "content-strategist",
+      roleFile: "content-strategist.md",
+      artifactPath: contentBriefPath,
+      inputFiles: FOUNDER_ARTIFACTS,
+      outputInstruction: `Write the strategic angle and content brief for this post to ${contentBriefPath}. Do not write finished copy.`,
+    },
+    {
+      envStage: "seo-manager",
+      evidenceStage: "seo-manager",
+      role: "seo-manager",
+      roleFile: "seo-manager.md",
+      artifactPath: seoBriefPath,
+      inputFiles: [...FOUNDER_ARTIFACTS, contentBriefPath],
+      outputInstruction: [
+        `Write the SEO/GEO brief to ${seoBriefPath}.`,
+        "Include target keywords, search intent, JSON-LD schema type, question-formatted H2s, entity blocks, citation points, and at least 3 quotable statistics.",
+        "Do not write finished article copy.",
+      ].join(" "),
+    },
+    {
+      envStage: "copywriter",
+      evidenceStage: "copywriter-performance",
+      role: "copywriter-performance",
+      roleFile: "copywriter-performance.md",
+      artifactPath: articlePath,
+      inputFiles: [contentBriefPath, seoBriefPath],
+      outputInstruction: [
+        `Write the final article to ${articlePath}.`,
+        `Write the content package JSON to ${packagePath}.`,
+        'Set the package field `articlePath` to exactly "article.md" (the article is written in the same directory as the package).',
+        'The package must include packageId, postClass, postIndex, title, description, slug, tags, articlePath, and proofNote, and set schemaVersion to the exact literal string "1.0.0" (the content-package protocol version, which is NOT the DRAX product version).',
+        "The article body must include a line beginning with `Proof note:`.",
+        "Neither the article nor the content package (including the proofNote field) may contain the literal token NEEDS_DECISION; if a fact is undecided, omit it or describe the gap in plain prose.",
+        "The exact primary keyword from the SEO brief's `target_keywords.primary` must appear verbatim at least once, woven in naturally without stuffing — either in the article body or in the content package title or description.",
+        "If the SEO brief's `schema_types` includes `FAQPage`, the article must contain a visibly labeled FAQ section whose questions and answers map to the brief's `question_h2s`; never declare or imply FAQPage schema without that visible section.",
+      ].join(" "),
+    },
+    {
+      envStage: "review",
+      evidenceStage: "claims/quality-review",
+      role: "claims/quality-review",
+      roleFile: "claims-quality-reviewer.md",
+      artifactPath: reviewPath,
+      inputFiles: [articlePath, contentBriefPath, seoBriefPath],
+      outputInstruction: [
+        `Inspect the article and write the claims and quality review to ${reviewPath}.`,
+        "The first verdict line must be `VERDICT: PASS` or `VERDICT: FAIL - <rule>`.",
+        "Do not rewrite the article.",
+      ].join(" "),
+    },
+  ];
+  const sector: SectorEvidence[] = [];
+  const finalMessageFiles: string[] = [];
+  const logFiles: string[] = [];
+
+  for (const stage of stages) {
+    const result = runCodexStage({
+      cloneDir: input.cloneDir,
+      logDir: input.logDir,
+      sectorDir,
+      runWorkDir: input.runWorkDir,
+      runId: input.runId,
+      mode: input.mode,
+      postIndex: input.postIndex,
+      postClass: input.postClass,
+      articlePath,
+      packagePath,
+      stage,
+      env: input.env,
+    });
+    finalMessageFiles.push(result.finalMessagePath);
+    logFiles.push(result.logPath);
+
+    if (stage.envStage === "copywriter") {
+      assertNonEmptyFile(articlePath, "Content engine article");
+      assertNonEmptyFile(packagePath, "Content engine package JSON");
+    }
+    if (stage.envStage === "review") assertReviewPassed(reviewPath);
+    sector.push(sectorEvidence(packagePath, stage));
+  }
+
+  writeSectorEvidence(packagePath, sector);
+  combineStageOutputs(finalMessagePath, finalMessageFiles, "final-message");
+  combineStageOutputs(logPath, logFiles, "codex-log");
+
+  return { articlePath, packagePath, finalMessagePath, logPath, sector };
 }
 
 function parseContentPackage(packagePath: string, articlePath: string, postIndex: number): ContentPackage {
@@ -599,7 +858,9 @@ function parseContentPackage(packagePath: string, articlePath: string, postIndex
     proofNote: nonEmptyString(parsed.proofNote) ? parsed.proofNote : "",
   };
 
-  if (parsed.schemaVersion !== "1.0.0") errors.push("Content package schemaVersion must be 1.0.0.");
+  // schemaVersion is a plugin-owned, single-run protocol stamp (already set to "1.0.0" above), so a
+  // model-authored value is normalized rather than gated — the content engine must never block a
+  // valid, review-passed post over an internal constant it reproduced as the product version.
   for (const [field, value] of [
     ["packageId", packageRecord.packageId],
     ["postClass", packageRecord.postClass],
@@ -614,8 +875,16 @@ function parseContentPackage(packagePath: string, articlePath: string, postIndex
     errors.push(`Content package postIndex ${packageRecord.postIndex} does not match execution state ${postIndex}.`);
   }
 
+  // The engine owns the real article path (article.md in the run-work dir) and publishes that path
+  // downstream regardless of this field, so accept any model-expressed path that points at the same
+  // file — absolute, package-relative, or clone-relative — by also matching on basename. Only a
+  // genuinely different file reference (the model wrote a different document) should trip this.
   const resolvedArticle = path.resolve(path.dirname(packagePath), packageRecord.articlePath);
-  if (path.resolve(articlePath) !== resolvedArticle && path.resolve(packageRecord.articlePath) !== path.resolve(articlePath)) {
+  const articleMatches =
+    path.resolve(articlePath) === resolvedArticle ||
+    path.resolve(packageRecord.articlePath) === path.resolve(articlePath) ||
+    path.basename(packageRecord.articlePath) === path.basename(articlePath);
+  if (!articleMatches) {
     errors.push("Content package articlePath does not match the generated article path.");
   }
 
@@ -733,6 +1002,25 @@ function runSafetyGates(input: {
   if (errors.length) throw new CycleError(errors);
 }
 
+function renderBlogPost(articlePath: string, contentPackage: ContentPackage): string {
+  // The generated Astro blog declares a content-collection schema that requires title, description,
+  // and publishedAt frontmatter, so a raw article body would fail `astro build`. The post layout
+  // renders the title as its own <h1>, so strip a leading body H1 to avoid a duplicate title.
+  // JSON.stringify yields YAML-safe scalars and a valid flow sequence for tags.
+  const body = readFileSync(articlePath, "utf8").replace(/^﻿/, "");
+  const withoutLeadingH1 = body.replace(/^\s*#\s+[^\n]*(?:\r?\n)+/, "");
+  const frontmatter = [
+    "---",
+    `title: ${JSON.stringify(contentPackage.title)}`,
+    `description: ${JSON.stringify(contentPackage.description)}`,
+    `publishedAt: ${JSON.stringify(new Date().toISOString())}`,
+    `tags: ${JSON.stringify(contentPackage.tags)}`,
+    "---",
+    "",
+  ].join("\n");
+  return `${frontmatter}${withoutLeadingH1}`;
+}
+
 function publishBlogArtifact(input: {
   mode: CycleMode;
   cloneDir: string;
@@ -762,8 +1050,996 @@ function publishBlogArtifact(input: {
     throw new CycleError([`Refusing to overwrite existing blog post: ${targetPath}`]);
   }
   mkdirSync(postDir, { recursive: true });
-  copyFileSync(input.articlePath, targetPath);
+  writeFileSync(targetPath, renderBlogPost(input.articlePath, input.contentPackage), "utf8");
   return { targetPath, published: true };
+}
+
+function persistPublishedPost(input: {
+  cwd: string;
+  cloneDir: string;
+  state: ExecutionState;
+  contentPackage: ContentPackage;
+  env: NodeJS.ProcessEnv;
+}): { persisted: string[]; committed: boolean } {
+  // Durable publish. The cycle generates and validates the post inside a throwaway
+  // clone (.drax/worktrees/current) that prepareClone wipes on every run, so without
+  // this copy-back the published post never survives into the real workspace. Only
+  // runs on a real publish that already passed every gate. Opt out with
+  // DRAX_PERSIST_PUBLISH=0.
+  if (input.env.DRAX_PERSIST_PUBLISH === "0") return { persisted: [], committed: false };
+
+  const surface = distributionBlogSurface(input.cloneDir, input.state);
+  if (needsDecision(surface)) return { persisted: [], committed: false };
+
+  const cloneSurfaceDir = resolveWorkspacePath(input.cloneDir, surface);
+  const workspaceSurfaceDir = resolveWorkspacePath(input.cwd, surface);
+  if (!isInside(input.cloneDir, cloneSurfaceDir)) return { persisted: [], committed: false };
+  if (!isInside(input.cwd, workspaceSurfaceDir)) {
+    throw new CycleError(["Blog surface must stay inside the workspace to persist published posts."]);
+  }
+
+  const slug = input.contentPackage.slug;
+  const persisted: string[] = [];
+
+  const postRel = path.join("src", "content", "posts", `${slug}.md`);
+  const postSource = path.join(cloneSurfaceDir, postRel);
+  const postTarget = path.join(workspaceSurfaceDir, postRel);
+  if (existsSync(postSource)) {
+    mkdirSync(path.dirname(postTarget), { recursive: true });
+    copyFileSync(postSource, postTarget);
+    persisted.push(postTarget);
+  }
+
+  // This post's social assets are all "<slug>-" prefixed (image/reel/carousel/story/highlight).
+  const assetSourceDir = path.join(cloneSurfaceDir, "src", "assets", "social");
+  const assetTargetDir = path.join(workspaceSurfaceDir, "src", "assets", "social");
+  if (existsSync(assetSourceDir)) {
+    for (const entry of readdirSync(assetSourceDir, { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.startsWith(`${slug}-`)) continue;
+      mkdirSync(assetTargetDir, { recursive: true });
+      copyFileSync(path.join(assetSourceDir, entry.name), path.join(assetTargetDir, entry.name));
+      persisted.push(path.join(assetTargetDir, entry.name));
+    }
+  }
+
+  // Commit the persisted artifacts to the workspace repo: gives published posts a real
+  // history and feeds them into future clones (copyWorkspaceInputs cpSyncs the surface).
+  // Scoped to only these files so engine state files never ride along. A non-git
+  // workspace just keeps the copied files. Opt out with DRAX_PERSIST_COMMIT=0.
+  let committed = false;
+  if (persisted.length > 0 && input.env.DRAX_PERSIST_COMMIT !== "0") {
+    const relPaths = persisted.map((file) => path.relative(input.cwd, file));
+    const add = spawnSync("git", ["add", "--", ...relPaths], { cwd: input.cwd, encoding: "utf8" });
+    if (add.status === 0) {
+      const commit = spawnSync("git", ["commit", "-m", `drax: publish ${slug}`, "--", ...relPaths], {
+        cwd: input.cwd,
+        encoding: "utf8",
+      });
+      committed = commit.status === 0;
+    }
+  }
+
+  return { persisted, committed };
+}
+
+function stderrTail(value: string | null | undefined): string {
+  const text = (value || "").trim();
+  if (!text) return "";
+  return text.split(/\r?\n/).slice(-8).join("\n");
+}
+
+function socialImageWarning(message: string): void {
+  console.warn(`Drax social images: ${message}`);
+}
+
+function writeSocialImageLog(input: {
+  logDir: string;
+  runId: string;
+  lines: string[];
+  stdout?: string | undefined;
+  stderr?: string | undefined;
+  error?: string | undefined;
+}): string {
+  mkdirSync(input.logDir, { recursive: true });
+  const logPath = path.join(input.logDir, `${input.runId}.social-images.log`);
+  writeFileSync(
+    logPath,
+    [
+      ...input.lines,
+      "",
+      "[stdout]",
+      input.stdout ?? "",
+      "",
+      "[stderr]",
+      input.stderr ?? "",
+      "",
+      input.error ? `[error]\n${input.error}\n` : "",
+    ].join("\n"),
+    "utf8",
+  );
+  return logPath;
+}
+
+function socialImageError(input: {
+  logDir: string;
+  runId: string;
+  message: string;
+  lines?: string[];
+  stdout?: string | undefined;
+  stderr?: string | undefined;
+  error?: string | undefined;
+}): SocialImageResult {
+  const logPath = writeSocialImageLog({
+    logDir: input.logDir,
+    runId: input.runId,
+    lines: input.lines ?? [`status: error`, `message: ${input.message}`],
+    stdout: input.stdout,
+    stderr: input.stderr,
+    error: input.error,
+  });
+  const detail = `${input.message} See ${logPath}`;
+  socialImageWarning(detail);
+  return { status: "error", error: input.message };
+}
+
+function generateSocialImages(input: {
+  cwd: string;
+  cloneDir: string;
+  logDir: string;
+  runWorkDir: string;
+  runId: string;
+  mode: CycleMode;
+  published: boolean;
+  state: ExecutionState;
+  contentPackage: ContentPackage;
+  env: NodeJS.ProcessEnv;
+}): SocialImageResult {
+  try {
+    if (input.mode === "dry-run" || !input.published) {
+      writeSocialImageLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          "status: skipped-dry-run",
+          `mode: ${input.mode}`,
+          `published: ${String(input.published)}`,
+          "Social images would be generated after a successful publish run.",
+        ],
+      });
+      return { status: "skipped-dry-run" };
+    }
+
+    const scriptPath = path.join(packageRoot, "scripts", "social_image.py");
+    if (!existsSync(scriptPath)) {
+      return socialImageError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "scripts/social_image.py is unavailable in this Drax package.",
+      });
+    }
+
+    const binary = input.env.DRAX_PYTHON_BIN || "python3";
+    const pillowProbe = spawnSync(binary, ["-c", "import PIL"], {
+      cwd: input.cloneDir,
+      encoding: "utf8",
+      env: input.env,
+    });
+    if (pillowProbe.error) {
+      writeSocialImageLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          `command: ${binary} -c import PIL`,
+          `status: ${pillowProbe.status ?? "error"}`,
+        ],
+        stdout: pillowProbe.stdout,
+        stderr: pillowProbe.stderr,
+        error: pillowProbe.error.message,
+      });
+      if ("code" in pillowProbe.error && pillowProbe.error.code === "ENOENT") {
+        socialImageWarning("python3 was not found. Install python3 and Pillow to enable social image generation.");
+        return { status: "skipped-no-python" };
+      }
+      return { status: "error", error: pillowProbe.error.message };
+    }
+    if (pillowProbe.status !== 0) {
+      writeSocialImageLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          `command: ${binary} -c import PIL`,
+          `status: ${pillowProbe.status}`,
+          "Pillow is unavailable, so social image generation was skipped.",
+        ],
+        stdout: pillowProbe.stdout,
+        stderr: pillowProbe.stderr,
+      });
+      socialImageWarning("Pillow is not installed. Install with `python3 -m pip install -r requirements.txt` to enable social images.");
+      return { status: "skipped-no-python", error: "Pillow is not installed." };
+    }
+
+    mkdirSync(input.runWorkDir, { recursive: true });
+    const imageInputPath = path.join(input.runWorkDir, "image-input.json");
+    writeJson(imageInputPath, {
+      title: input.contentPackage.title,
+      description: input.contentPackage.description,
+      tags: input.contentPackage.tags,
+      postClass: input.contentPackage.postClass,
+      slug: input.contentPackage.slug,
+      brand: {
+        bg: [8, 8, 8],
+        fg: [237, 232, 223],
+        accent: [255, 61, 0],
+        dim: [100, 100, 100],
+      },
+      outDir: input.runWorkDir,
+    });
+
+    const result = spawnSync(binary, [scriptPath, imageInputPath], {
+      cwd: input.cloneDir,
+      encoding: "utf8",
+      env: {
+        ...input.env,
+        DRAX_CYCLE_MODE: input.mode,
+        DRAX_CYCLE_RUN_ID: input.runId,
+      },
+    });
+
+    writeSocialImageLog({
+      logDir: input.logDir,
+      runId: input.runId,
+      lines: [
+        `command: ${binary} ${scriptPath} ${imageInputPath}`,
+        `status: ${result.status ?? "error"}`,
+      ],
+      stdout: result.stdout,
+      stderr: result.stderr,
+      error: result.error?.message,
+    });
+
+    if (result.error) {
+      if ("code" in result.error && result.error.code === "ENOENT") {
+        socialImageWarning("python3 was not found. Install python3 and Pillow to enable social image generation.");
+        return { status: "skipped-no-python" };
+      }
+      return { status: "error", error: result.error.message };
+    }
+    if (result.status !== 0) {
+      const message = stderrTail(result.stderr) || `social image renderer exited with status ${result.status}`;
+      socialImageWarning(message);
+      return { status: "error", error: message };
+    }
+
+    const parsed = JSON.parse(result.stdout.trim());
+    if (!isRecord(parsed) || !nonEmptyString(parsed.vertical) || !nonEmptyString(parsed.square)) {
+      return socialImageError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "social image renderer did not return vertical and square paths.",
+        stdout: result.stdout,
+        stderr: result.stderr,
+      });
+    }
+
+    const verticalSource = path.resolve(parsed.vertical);
+    const squareSource = path.resolve(parsed.square);
+    if (!existsSync(verticalSource) || !existsSync(squareSource)) {
+      return socialImageError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "social image renderer completed but one or more PNG outputs are missing.",
+        stdout: result.stdout,
+        stderr: result.stderr,
+      });
+    }
+
+    const surface = distributionBlogSurface(input.cloneDir, input.state);
+    if (needsDecision(surface)) {
+      return socialImageError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "Blog surface target directory must be decided before social images can be copied.",
+      });
+    }
+    const surfaceDir = resolveWorkspacePath(input.cloneDir, surface);
+    if (!isInside(input.cloneDir, surfaceDir)) {
+      return socialImageError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "Blog surface target directory must be relative to the isolated clone.",
+      });
+    }
+
+    const assetDir = path.join(surfaceDir, "src", "assets", "social");
+    mkdirSync(assetDir, { recursive: true });
+    const verticalTarget = path.join(assetDir, `${input.contentPackage.slug}-vertical.png`);
+    const squareTarget = path.join(assetDir, `${input.contentPackage.slug}-square.png`);
+    copyFileSync(verticalSource, verticalTarget);
+    copyFileSync(squareSource, squareTarget);
+
+    return {
+      status: "generated",
+      vertical: relativePath(input.cwd, verticalTarget),
+      square: relativePath(input.cwd, squareTarget),
+    };
+  } catch (error) {
+    return socialImageError({
+      logDir: input.logDir,
+      runId: input.runId,
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+function socialVideoWarning(message: string): void {
+  console.warn(`Drax social video: ${message}`);
+}
+
+function writeSocialVideoLog(input: {
+  logDir: string;
+  runId: string;
+  lines: string[];
+  stdout?: string | undefined;
+  stderr?: string | undefined;
+  error?: string | undefined;
+}): string {
+  mkdirSync(input.logDir, { recursive: true });
+  const logPath = path.join(input.logDir, `${input.runId}.social-video.log`);
+  writeFileSync(
+    logPath,
+    [
+      ...input.lines,
+      "",
+      "[stdout]",
+      input.stdout ?? "",
+      "",
+      "[stderr]",
+      input.stderr ?? "",
+      "",
+      input.error ? `[error]\n${input.error}\n` : "",
+    ].join("\n"),
+    "utf8",
+  );
+  return logPath;
+}
+
+function socialVideoError(input: {
+  logDir: string;
+  runId: string;
+  message: string;
+  lines?: string[];
+  stdout?: string | undefined;
+  stderr?: string | undefined;
+  error?: string | undefined;
+}): SocialVideoResult {
+  const logPath = writeSocialVideoLog({
+    logDir: input.logDir,
+    runId: input.runId,
+    lines: input.lines ?? [`status: error`, `message: ${input.message}`],
+    stdout: input.stdout,
+    stderr: input.stderr,
+    error: input.error,
+  });
+  const detail = `${input.message} See ${logPath}`;
+  socialVideoWarning(detail);
+  return { status: "error", error: input.message };
+}
+
+function generateSocialVideo(input: {
+  cwd: string;
+  cloneDir: string;
+  logDir: string;
+  runWorkDir: string;
+  runId: string;
+  mode: CycleMode;
+  published: boolean;
+  state: ExecutionState;
+  contentPackage: ContentPackage;
+  env: NodeJS.ProcessEnv;
+}): SocialVideoResult {
+  try {
+    if (input.mode === "dry-run" || !input.published) {
+      writeSocialVideoLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          "status: skipped-dry-run",
+          `mode: ${input.mode}`,
+          `published: ${String(input.published)}`,
+          "Social video would be generated after a successful publish run.",
+        ],
+      });
+      return { status: "skipped-dry-run" };
+    }
+
+    const scriptPath = path.join(packageRoot, "scripts", "social_video.py");
+    if (!existsSync(scriptPath)) {
+      return socialVideoError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "scripts/social_video.py is unavailable in this Drax package.",
+      });
+    }
+
+    const binary = input.env.DRAX_PYTHON_BIN || "python3";
+    const pythonProbe = spawnSync(binary, ["--version"], {
+      cwd: input.cloneDir,
+      encoding: "utf8",
+      env: input.env,
+    });
+    if (pythonProbe.error) {
+      writeSocialVideoLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          `command: ${binary} --version`,
+          `status: ${pythonProbe.status ?? "error"}`,
+        ],
+        stdout: pythonProbe.stdout,
+        stderr: pythonProbe.stderr,
+        error: pythonProbe.error.message,
+      });
+      if ("code" in pythonProbe.error && pythonProbe.error.code === "ENOENT") {
+        socialVideoWarning("python3 was not found. Install python3, Pillow, and ffmpeg to enable social video reels.");
+        return { status: "skipped-no-python" };
+      }
+      return { status: "error", error: pythonProbe.error.message };
+    }
+    if (pythonProbe.status !== 0) {
+      const message = stderrTail(pythonProbe.stderr) || "python3 is unavailable for social video generation.";
+      socialVideoWarning(message);
+      return { status: "skipped-no-python", error: message };
+    }
+
+    const ffmpeg = input.env.DRAX_FFMPEG_BIN || "ffmpeg";
+    const ffmpegProbe = spawnSync(ffmpeg, ["-version"], {
+      cwd: input.cloneDir,
+      encoding: "utf8",
+      env: input.env,
+    });
+    if (ffmpegProbe.error) {
+      writeSocialVideoLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          `command: ${ffmpeg} -version`,
+          `status: ${ffmpegProbe.status ?? "error"}`,
+        ],
+        stdout: ffmpegProbe.stdout,
+        stderr: ffmpegProbe.stderr,
+        error: ffmpegProbe.error.message,
+      });
+      if ("code" in ffmpegProbe.error && ffmpegProbe.error.code === "ENOENT") {
+        socialVideoWarning("ffmpeg was not found. Install ffmpeg to enable social video reels.");
+        return { status: "skipped-no-ffmpeg" };
+      }
+      return { status: "error", error: ffmpegProbe.error.message };
+    }
+    if (ffmpegProbe.status !== 0) {
+      writeSocialVideoLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          `command: ${ffmpeg} -version`,
+          `status: ${ffmpegProbe.status}`,
+          "ffmpeg is unavailable, so social video generation was skipped.",
+        ],
+        stdout: ffmpegProbe.stdout,
+        stderr: ffmpegProbe.stderr,
+      });
+      socialVideoWarning("ffmpeg is unavailable. Install ffmpeg to enable social video reels.");
+      return { status: "skipped-no-ffmpeg", error: stderrTail(ffmpegProbe.stderr) || "ffmpeg is unavailable." };
+    }
+
+    const pillowProbe = spawnSync(binary, ["-c", "import PIL"], {
+      cwd: input.cloneDir,
+      encoding: "utf8",
+      env: input.env,
+    });
+    if (pillowProbe.error) {
+      writeSocialVideoLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          `command: ${binary} -c import PIL`,
+          `status: ${pillowProbe.status ?? "error"}`,
+        ],
+        stdout: pillowProbe.stdout,
+        stderr: pillowProbe.stderr,
+        error: pillowProbe.error.message,
+      });
+      if ("code" in pillowProbe.error && pillowProbe.error.code === "ENOENT") {
+        socialVideoWarning("python3 was not found. Install python3, Pillow, and ffmpeg to enable social video reels.");
+        return { status: "skipped-no-python" };
+      }
+      return { status: "error", error: pillowProbe.error.message };
+    }
+    if (pillowProbe.status !== 0) {
+      writeSocialVideoLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          `command: ${binary} -c import PIL`,
+          `status: ${pillowProbe.status}`,
+          "Pillow is unavailable, so social video generation was skipped.",
+        ],
+        stdout: pillowProbe.stdout,
+        stderr: pillowProbe.stderr,
+      });
+      socialVideoWarning("Pillow is not installed. Install with `python3 -m pip install -r requirements.txt` to enable social video reels.");
+      return { status: "skipped-no-python", error: "Pillow is not installed." };
+    }
+
+    mkdirSync(input.runWorkDir, { recursive: true });
+    const videoInputPath = path.join(input.runWorkDir, "video-input.json");
+    writeJson(videoInputPath, {
+      title: input.contentPackage.title,
+      description: input.contentPackage.description,
+      tags: input.contentPackage.tags,
+      postClass: input.contentPackage.postClass,
+      slug: input.contentPackage.slug,
+      brand: {
+        bg: [8, 8, 8],
+        fg: [237, 232, 223],
+        accent: [255, 61, 0],
+        dim: [100, 100, 100],
+      },
+      ffmpegBin: ffmpeg,
+      outDir: input.runWorkDir,
+    });
+
+    const result = spawnSync(binary, [scriptPath, videoInputPath], {
+      cwd: input.cloneDir,
+      encoding: "utf8",
+      env: {
+        ...input.env,
+        DRAX_CYCLE_MODE: input.mode,
+        DRAX_CYCLE_RUN_ID: input.runId,
+      },
+    });
+
+    writeSocialVideoLog({
+      logDir: input.logDir,
+      runId: input.runId,
+      lines: [
+        `command: ${binary} ${scriptPath} ${videoInputPath}`,
+        `status: ${result.status ?? "error"}`,
+      ],
+      stdout: result.stdout,
+      stderr: result.stderr,
+      error: result.error?.message,
+    });
+
+    if (result.error) {
+      if ("code" in result.error && result.error.code === "ENOENT") {
+        socialVideoWarning("python3 was not found. Install python3, Pillow, and ffmpeg to enable social video reels.");
+        return { status: "skipped-no-python" };
+      }
+      return { status: "error", error: result.error.message };
+    }
+    if (result.status !== 0) {
+      const message = stderrTail(result.stderr) || `social video renderer exited with status ${result.status}`;
+      socialVideoWarning(message);
+      return { status: "error", error: message };
+    }
+
+    const parsed = JSON.parse(result.stdout.trim());
+    if (!isRecord(parsed) || !nonEmptyString(parsed.reel)) {
+      return socialVideoError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "social video renderer did not return a reel path.",
+        stdout: result.stdout,
+        stderr: result.stderr,
+      });
+    }
+
+    const reelSource = path.resolve(parsed.reel);
+    if (!existsSync(reelSource)) {
+      return socialVideoError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "social video renderer completed but the MP4 output is missing.",
+        stdout: result.stdout,
+        stderr: result.stderr,
+      });
+    }
+
+    const surface = distributionBlogSurface(input.cloneDir, input.state);
+    if (needsDecision(surface)) {
+      return socialVideoError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "Blog surface target directory must be decided before social video can be copied.",
+      });
+    }
+    const surfaceDir = resolveWorkspacePath(input.cloneDir, surface);
+    if (!isInside(input.cloneDir, surfaceDir)) {
+      return socialVideoError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "Blog surface target directory must be relative to the isolated clone.",
+      });
+    }
+
+    const assetDir = path.join(surfaceDir, "src", "assets", "social");
+    mkdirSync(assetDir, { recursive: true });
+    const reelTarget = path.join(assetDir, `${input.contentPackage.slug}-reel.mp4`);
+    copyFileSync(reelSource, reelTarget);
+
+    return {
+      status: "generated",
+      reel: relativePath(input.cwd, reelTarget),
+    };
+  } catch (error) {
+    return socialVideoError({
+      logDir: input.logDir,
+      runId: input.runId,
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+function socialCarouselWarning(message: string): void {
+  console.warn(`Drax social carousel: ${message}`);
+}
+
+function writeSocialCarouselLog(input: {
+  logDir: string;
+  runId: string;
+  lines: string[];
+  stdout?: string | undefined;
+  stderr?: string | undefined;
+  error?: string | undefined;
+}): string {
+  mkdirSync(input.logDir, { recursive: true });
+  const logPath = path.join(input.logDir, `${input.runId}.social-carousel.log`);
+  writeFileSync(
+    logPath,
+    [
+      ...input.lines,
+      "",
+      "[stdout]",
+      input.stdout ?? "",
+      "",
+      "[stderr]",
+      input.stderr ?? "",
+      "",
+      input.error ? `[error]\n${input.error}\n` : "",
+    ].join("\n"),
+    "utf8",
+  );
+  return logPath;
+}
+
+function socialCarouselError(input: {
+  logDir: string;
+  runId: string;
+  message: string;
+  lines?: string[];
+  stdout?: string | undefined;
+  stderr?: string | undefined;
+  error?: string | undefined;
+}): SocialCarouselResult {
+  const logPath = writeSocialCarouselLog({
+    logDir: input.logDir,
+    runId: input.runId,
+    lines: input.lines ?? [`status: error`, `message: ${input.message}`],
+    stdout: input.stdout,
+    stderr: input.stderr,
+    error: input.error,
+  });
+  const detail = `${input.message} See ${logPath}`;
+  socialCarouselWarning(detail);
+  return { status: "error", error: input.message };
+}
+
+function stripMarkdownInline(value: string): string {
+  return value
+    .replaceAll(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replaceAll(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replaceAll(/[`*_~>#-]+/g, "")
+    .replaceAll(/\s+/g, " ")
+    .trim();
+}
+
+function truncateCarouselPoint(value: string): string {
+  const cleaned = stripMarkdownInline(value);
+  if (cleaned.length <= 90) return cleaned;
+  return `${cleaned.slice(0, 87).replaceAll(/\s+\S*$/g, "").trimEnd()}...`;
+}
+
+function firstSentence(value: string): string {
+  const cleaned = stripMarkdownInline(value);
+  const match = cleaned.match(/^(.+?[.!?])(?:\s|$)/);
+  return match?.[1]?.trim() || cleaned;
+}
+
+function articleWithoutFrontmatter(article: string): string {
+  return article.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "");
+}
+
+function carouselPointsFromArticle(articlePath: string, contentPackage: ContentPackage): string[] {
+  const article = articleWithoutFrontmatter(readFileSync(articlePath, "utf8"));
+  const headings = article
+    .split(/\r?\n/)
+    .map((line) => line.match(/^##\s+(.+)$/)?.[1] ?? "")
+    .map(truncateCarouselPoint)
+    .filter((line) => line && !/^faq$/i.test(line))
+    .slice(0, 5);
+  if (headings.length >= 2) return headings;
+
+  const paragraphs = article
+    .split(/\r?\n\s*\r?\n/)
+    .map((part) => part.trim())
+    .filter((part) => part && !part.startsWith("#") && !part.startsWith("---"))
+    .map((part) => truncateCarouselPoint(firstSentence(part)))
+    .filter(Boolean)
+    .slice(0, 5);
+  if (paragraphs.length) return paragraphs;
+  return [truncateCarouselPoint(contentPackage.description || contentPackage.title)];
+}
+
+function joinUrl(base: string, ...parts: string[]): string {
+  const cleanBase = base.replaceAll(/\/+$/g, "");
+  const cleanParts = parts
+    .map((part) => part.replaceAll(/^\/+|\/+$/g, ""))
+    .filter(Boolean);
+  return [cleanBase, ...cleanParts].join("/");
+}
+
+function carouselCtaUrl(cloneDir: string, state: ExecutionState, slug: string): string {
+  const plan = readArtifact(cloneDir, "DISTRIBUTION_PLAN.md");
+  const canonical = artifactField(plan, "Canonical site URL");
+  const basePath = artifactField(plan, "Public base path");
+  if (canonical && !needsDecision(canonical)) {
+    return joinUrl(canonical, basePath && !needsDecision(basePath) ? basePath : "", slug);
+  }
+  const surface = state.config.blogSurfaceDirectory;
+  return joinUrl("/", surface && !needsDecision(surface) ? surface : "", slug);
+}
+
+function stringArray(value: unknown): string[] | null {
+  if (!Array.isArray(value)) return null;
+  const entries = value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0);
+  return entries.length === value.length ? entries : null;
+}
+
+function socialCarouselTargetName(slug: string, source: string): string {
+  const parsed = path.parse(source);
+  if (/^carousel-\d{2}$/.test(parsed.name)) return `${slug}-${parsed.base}`;
+  if (parsed.name === "story") return `${slug}-story${parsed.ext}`;
+  if (parsed.name === "highlight-cover") return `${slug}-highlight${parsed.ext}`;
+  return `${slug}-${parsed.base}`;
+}
+
+function copySocialCarouselOutputs(input: {
+  cwd: string;
+  cloneDir: string;
+  state: ExecutionState;
+  slug: string;
+  sources: string[];
+}): string[] {
+  const surface = distributionBlogSurface(input.cloneDir, input.state);
+  if (needsDecision(surface)) throw new Error("Blog surface target directory must be decided before social carousel assets can be copied.");
+  const surfaceDir = resolveWorkspacePath(input.cloneDir, surface);
+  if (!isInside(input.cloneDir, surfaceDir)) throw new Error("Blog surface target directory must be relative to the isolated clone.");
+
+  const assetDir = path.join(surfaceDir, "src", "assets", "social");
+  mkdirSync(assetDir, { recursive: true });
+  const targets: string[] = [];
+  for (const source of input.sources) {
+    const sourcePath = path.resolve(source);
+    if (!existsSync(sourcePath)) throw new Error(`social carousel renderer output is missing: ${source}`);
+    const target = path.join(assetDir, socialCarouselTargetName(input.slug, path.basename(sourcePath)));
+    copyFileSync(sourcePath, target);
+    targets.push(relativePath(input.cwd, target));
+  }
+  return targets;
+}
+
+function generateSocialCarousel(input: {
+  cwd: string;
+  cloneDir: string;
+  logDir: string;
+  runWorkDir: string;
+  runId: string;
+  mode: CycleMode;
+  published: boolean;
+  state: ExecutionState;
+  contentPackage: ContentPackage;
+  articlePath: string;
+  env: NodeJS.ProcessEnv;
+}): SocialCarouselResult {
+  try {
+    if (input.mode === "dry-run" || !input.published) {
+      writeSocialCarouselLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          "status: skipped-dry-run",
+          `mode: ${input.mode}`,
+          `published: ${String(input.published)}`,
+          "Social carousel assets would be generated after a successful publish run.",
+        ],
+      });
+      return { status: "skipped-dry-run" };
+    }
+
+    const scriptPath = path.join(packageRoot, "scripts", "social_carousel.py");
+    if (!existsSync(scriptPath)) {
+      return socialCarouselError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "scripts/social_carousel.py is unavailable in this Drax package.",
+      });
+    }
+
+    const binary = input.env.DRAX_PYTHON_BIN || "python3";
+    const pythonProbe = spawnSync(binary, ["--version"], {
+      cwd: input.cloneDir,
+      encoding: "utf8",
+      env: input.env,
+    });
+    if (pythonProbe.error) {
+      writeSocialCarouselLog({
+        logDir: input.logDir,
+        runId: input.runId,
+        lines: [
+          `command: ${binary} --version`,
+          `status: ${pythonProbe.status ?? "error"}`,
+        ],
+        stdout: pythonProbe.stdout,
+        stderr: pythonProbe.stderr,
+        error: pythonProbe.error.message,
+      });
+      if ("code" in pythonProbe.error && pythonProbe.error.code === "ENOENT") {
+        socialCarouselWarning("python3 was not found. Install python3 to enable SVG carousel asset generation.");
+        return { status: "skipped-no-python" };
+      }
+      return { status: "error", error: pythonProbe.error.message };
+    }
+    if (pythonProbe.status !== 0) {
+      const message = stderrTail(pythonProbe.stderr) || "python3 is unavailable for social carousel generation.";
+      socialCarouselWarning(message);
+      return { status: "skipped-no-python", error: message };
+    }
+
+    const rsvg = input.env.DRAX_RSVG_BIN || "rsvg-convert";
+    let rsvgForRenderer = "";
+    let rasterStatus: SocialCarouselRasterStatus = "skipped-no-rasterizer";
+    const rsvgProbe = spawnSync(rsvg, ["--version"], {
+      cwd: input.cloneDir,
+      encoding: "utf8",
+      env: input.env,
+    });
+    if (!rsvgProbe.error && rsvgProbe.status === 0) {
+      rsvgForRenderer = rsvg;
+      rasterStatus = "generated";
+    }
+
+    mkdirSync(input.runWorkDir, { recursive: true });
+    const carouselInputPath = path.join(input.runWorkDir, "carousel-input.json");
+    writeJson(carouselInputPath, {
+      title: input.contentPackage.title,
+      description: input.contentPackage.description,
+      tags: input.contentPackage.tags,
+      points: carouselPointsFromArticle(input.articlePath, input.contentPackage),
+      postClass: input.contentPackage.postClass,
+      slug: input.contentPackage.slug,
+      ctaUrl: carouselCtaUrl(input.cloneDir, input.state, input.contentPackage.slug),
+      brand: {
+        bg: [8, 8, 8],
+        fg: [237, 232, 223],
+        accent: [255, 61, 0],
+        dim: [100, 100, 100],
+      },
+      rsvgBin: rsvgForRenderer,
+      outDir: input.runWorkDir,
+    });
+
+    const result = spawnSync(binary, [scriptPath, carouselInputPath], {
+      cwd: input.cloneDir,
+      encoding: "utf8",
+      env: {
+        ...input.env,
+        DRAX_CYCLE_MODE: input.mode,
+        DRAX_CYCLE_RUN_ID: input.runId,
+      },
+    });
+
+    writeSocialCarouselLog({
+      logDir: input.logDir,
+      runId: input.runId,
+      lines: [
+        `command: ${binary} ${scriptPath} ${carouselInputPath}`,
+        `status: ${result.status ?? "error"}`,
+        `rsvg: ${rsvgForRenderer || "skipped-no-rasterizer"}`,
+      ],
+      stdout: result.stdout,
+      stderr: result.stderr,
+      error: result.error?.message,
+    });
+
+    if (result.error) {
+      if ("code" in result.error && result.error.code === "ENOENT") {
+        socialCarouselWarning("python3 was not found. Install python3 to enable SVG carousel asset generation.");
+        return { status: "skipped-no-python" };
+      }
+      return { status: "error", error: result.error.message };
+    }
+    if (result.status !== 0) {
+      const message = stderrTail(result.stderr) || `social carousel renderer exited with status ${result.status}`;
+      socialCarouselWarning(message);
+      return { status: "error", error: message };
+    }
+
+    const parsed = JSON.parse(result.stdout.trim());
+    if (!isRecord(parsed)) {
+      return socialCarouselError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "social carousel renderer did not return a JSON object.",
+        stdout: result.stdout,
+        stderr: result.stderr,
+      });
+    }
+    const svgs = stringArray(parsed.svgs);
+    const pngs = stringArray(parsed.pngs) ?? [];
+    const slides = typeof parsed.slides === "number" && Number.isInteger(parsed.slides) ? parsed.slides : 0;
+    if (!svgs || slides < 3 || slides > 7) {
+      return socialCarouselError({
+        logDir: input.logDir,
+        runId: input.runId,
+        message: "social carousel renderer did not return SVG paths and a valid slide count.",
+        stdout: result.stdout,
+        stderr: result.stderr,
+      });
+    }
+
+    const copiedSvgs = copySocialCarouselOutputs({
+      cwd: input.cwd,
+      cloneDir: input.cloneDir,
+      state: input.state,
+      slug: input.contentPackage.slug,
+      sources: svgs,
+    });
+    let copiedPngs: string[] = [];
+    if (pngs.length) {
+      try {
+        copiedPngs = copySocialCarouselOutputs({
+          cwd: input.cwd,
+          cloneDir: input.cloneDir,
+          state: input.state,
+          slug: input.contentPackage.slug,
+          sources: pngs,
+        });
+      } catch (error) {
+        rasterStatus = "skipped-rasterizer-error";
+        socialCarouselWarning(error instanceof Error ? error.message : String(error));
+      }
+    }
+    const rasterized = copiedPngs.length > 0 && parsed.rasterized === true;
+    if (!rasterized && rasterStatus === "generated") rasterStatus = "skipped-rasterizer-error";
+    if (rasterStatus === "skipped-no-rasterizer") {
+      socialCarouselWarning("rsvg-convert was not found; SVG carousel assets generated without PNG rasterization.");
+    }
+
+    return {
+      status: "generated",
+      slides,
+      rasterized,
+      rasterStatus,
+      svgs: copiedSvgs,
+      pngs: copiedPngs,
+    };
+  } catch (error) {
+    return socialCarouselError({
+      logDir: input.logDir,
+      runId: input.runId,
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
 }
 
 function writePublishRecord(input: {
@@ -777,6 +2053,9 @@ function writePublishRecord(input: {
   targetPath: string;
   hashes: HashedFile[];
   requestedAt: string;
+  images: SocialImageResult;
+  video: SocialVideoResult;
+  carousel: SocialCarouselResult;
 }): string {
   const record: PublishRecord = {
     schemaVersion: "1.0.0",
@@ -803,6 +2082,9 @@ function writePublishRecord(input: {
       slug: input.contentPackage.slug,
     },
     dryRun: input.mode === "dry-run",
+    images: input.images,
+    video: input.video,
+    carousel: input.carousel,
   };
   const target = path.join(resolveWorkspacePath(input.cwd, input.state.config.publishRecordDirectory), `${input.manifest.runId}.json`);
   writeJson(target, record);
@@ -837,7 +2119,7 @@ function executeCycle(args: string[], options: CycleOptions): number {
   try {
     const cloneDir = prepareClone(options.cwd, state.config.cloneLocation, state.config.blogSurfaceDirectory);
     const runWorkDir = path.join(cloneDir, ".drax", "run-work", runId);
-    const codexResult = invokeCodexExec({
+    const codexResult = runSector({
       cloneDir,
       logDir,
       runWorkDir,
@@ -877,6 +2159,43 @@ function executeCycle(args: string[], options: CycleOptions): number {
       articlePath: codexResult.articlePath,
       contentPackage,
     });
+    const images = generateSocialImages({
+      cwd: options.cwd,
+      cloneDir,
+      logDir,
+      runWorkDir,
+      runId,
+      mode,
+      published: published.published,
+      state,
+      contentPackage,
+      env: options.env,
+    });
+    const video = generateSocialVideo({
+      cwd: options.cwd,
+      cloneDir,
+      logDir,
+      runWorkDir,
+      runId,
+      mode,
+      published: published.published,
+      state,
+      contentPackage,
+      env: options.env,
+    });
+    const carousel = generateSocialCarousel({
+      cwd: options.cwd,
+      cloneDir,
+      logDir,
+      runWorkDir,
+      runId,
+      mode,
+      published: published.published,
+      state,
+      contentPackage,
+      articlePath: codexResult.articlePath,
+      env: options.env,
+    });
     const publishRecordPath = writePublishRecord({
       cwd: options.cwd,
       state,
@@ -888,6 +2207,9 @@ function executeCycle(args: string[], options: CycleOptions): number {
       targetPath: published.targetPath,
       hashes,
       requestedAt: startedAt,
+      images,
+      video,
+      carousel,
     });
     verifyPublishRecord(publishRecordPath, hashes, path.dirname(codexResult.packagePath));
 
@@ -901,6 +2223,7 @@ function executeCycle(args: string[], options: CycleOptions): number {
       publishRecordPath: relativePath(options.cwd, publishRecordPath),
       status: published.published ? "PUBLISHED" : "PENDING",
       published: published.published,
+      sector: codexResult.sector,
     };
     manifestFile = writeManifest(runRoot, manifest);
 
@@ -910,6 +2233,27 @@ function executeCycle(args: string[], options: CycleOptions): number {
       state.lastRunId = runId;
       state.publishingMode = "publish";
       writeExecutionState(options.cwd, state, new Date().toISOString());
+
+      try {
+        const persistence = persistPublishedPost({
+          cwd: options.cwd,
+          cloneDir,
+          state,
+          contentPackage,
+          env: options.env,
+        });
+        if (persistence.persisted.length > 0) {
+          console.log(
+            `Persisted ${persistence.persisted.length} published artifact(s) to workspace${persistence.committed ? " (committed)" : ""}.`,
+          );
+        } else {
+          console.warn("Drax durable publish: nothing copied back (post remains only in the isolated clone).");
+        }
+      } catch (error) {
+        console.warn(
+          `Drax durable publish: persist step failed (post remains in isolated clone): ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
     }
 
     console.log(`Drax cycle ${mode} passed.`);

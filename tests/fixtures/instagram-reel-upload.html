@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Instagram Reel Upload Fixture</title>
+  </head>
+  <body>
+    <nav>
+      <button type="button" aria-label="Create" id="create">Create</button>
+    </nav>
+    <main id="composer" hidden>
+      <input id="video-input" type="file" accept="video/*" />
+      <textarea id="caption" aria-label="Caption"></textarea>
+      <button type="button" id="share">Share</button>
+    </main>
+    <section id="result" hidden>
+      <p>Your reel has been shared.</p>
+      <a href="https://instagram.test/reel/fake-reel-001/">View reel</a>
+    </section>
+    <script>
+      window.__posted = null;
+      const composer = document.querySelector("#composer");
+      const file = document.querySelector("#video-input");
+      const caption = document.querySelector("#caption");
+      const result = document.querySelector("#result");
+      document.querySelector("#create").addEventListener("click", () => {
+        composer.hidden = false;
+      });
+      document.querySelector("#share").addEventListener("click", () => {
+        window.__posted = {
+          caption: caption.value,
+          fileCount: file.files.length,
+          fileName: file.files[0] ? file.files[0].name : "",
+        };
+        result.hidden = false;
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>YouTube Upload Fixture</title>
+  </head>
+  <body>
+    <main id="upload-form">
+      <input id="video-input" type="file" accept="video/*" />
+      <input id="title" type="text" placeholder="Add a title" />
+      <textarea id="description" placeholder="Tell viewers about your video"></textarea>
+      <button type="button" id="submit-btn" aria-label="Publish">Publish</button>
+    </main>
+    <section id="result" hidden>
+      <p>Your video has been published.</p>
+      <a id="permalink" href="https://youtube.test/shorts/fake-short-001">View video</a>
+    </section>
+    <script>
+      window.__posted = null;
+      const file = document.querySelector("#video-input");
+      const title = document.querySelector("#title");
+      const description = document.querySelector("#description");
+      const result = document.querySelector("#result");
+      document.querySelector("#submit-btn").addEventListener("click", () => {
+        window.__posted = {
+          title: title.value,
+          description: description.value,
+          fileCount: file.files.length,
+          fileName: file.files[0] ? file.files[0].name : "",
+        };
+        result.hidden = false;
+      });
+    </script>
+  </body>
+</html>
