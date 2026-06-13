@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash, createPrivateKey, sign as edSign } from "node:crypto";
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -117,8 +117,8 @@ function writeDoctorMarker(home, relativePath) {
   writeFileSync(target, "test marker\n", "utf8");
 }
 
-function runDoctor(home) {
-  return spawnSync(process.execPath, [path.resolve("dist/cli.js"), "doctor"], {
+function runDoctor(home, cli = path.resolve("dist/cli.js")) {
+  return spawnSync(process.execPath, [cli, "doctor"], {
     encoding: "utf8",
     env: { ...process.env, HOME: home, DRAX_CODEX_BIN: path.join(home, "missing-codex") },
   });
@@ -426,20 +426,33 @@ test("installer preserves a persistent working launcher", () => {
       env: { ...process.env, HOME: home },
     });
     assert.equal(doctor.status, 0, doctor.stderr);
-    assert.match(doctor.stdout, /OK Persistent runtime/);
+    assert.match(doctor.stdout, /OK Bundled runtime assets/);
+    assert.match(doctor.stdout, /OK Install-flow runtime root/);
   } finally {
     rmSync(home, { recursive: true, force: true });
   }
 });
 
-test("doctor passes with runtime and only the Codex surface installed", (t) => {
+test("doctor passes in standalone CLI mode without surfaces or install-flow runtime root", (t) => {
+  const home = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-standalone-"));
+  t.after(() => rmSync(home, { recursive: true, force: true }));
+
+  const result = runDoctor(home);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /OK Bundled runtime assets/);
+  assert.match(result.stdout, /absent \(standalone\/global install\) Install-flow runtime root/);
+  assert.match(result.stdout, /No marketplace surface installed - standalone CLI mode/);
+  assert.match(result.stdout, /Drax install: OK \(standalone CLI\)/);
+});
+
+test("doctor passes with a full Codex surface", (t) => {
   const home = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-codex-"));
   t.after(() => rmSync(home, { recursive: true, force: true }));
   for (const marker of [
     "plugins/drax/.codex-plugin/plugin.json",
     "plugins/drax/skills/drax/SKILL.md",
     ".agents/plugins/marketplace.json",
-    ".local/share/drax-plugin/dist/cli.js",
   ]) {
     writeDoctorMarker(home, marker);
   }
@@ -455,31 +468,28 @@ test("doctor passes with runtime and only the Codex surface installed", (t) => {
 test("doctor fails when an integration surface is partial", (t) => {
   const home = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-partial-"));
   t.after(() => rmSync(home, { recursive: true, force: true }));
-  writeDoctorMarker(home, "plugins/drax/.codex-plugin/plugin.json");
-  writeDoctorMarker(home, ".local/share/drax-plugin/dist/cli.js");
+  writeDoctorMarker(home, "plugins/drax/skills/drax/SKILL.md");
 
   const result = runDoctor(home);
 
   assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stdout, /OK Bundled runtime assets/);
   assert.match(result.stdout, /Drax install: FAILED - .*Codex surface is partial/);
 });
 
-test("doctor fails when the persistent runtime is missing", (t) => {
-  const home = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-runtime-"));
-  t.after(() => rmSync(home, { recursive: true, force: true }));
-  for (const marker of [
-    "plugins/drax/.codex-plugin/plugin.json",
-    "plugins/drax/skills/drax/SKILL.md",
-    ".agents/plugins/marketplace.json",
-  ]) {
-    writeDoctorMarker(home, marker);
-  }
+test("doctor fails when the running package is missing bundled runtime assets", (t) => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-corrupt-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const home = path.join(root, "home");
+  mkdirSync(home);
+  cpSync(path.resolve("dist"), path.join(root, "dist"), { recursive: true });
+  writeFileSync(path.join(root, "package.json"), '{"type":"module"}\n', "utf8");
 
-  const result = runDoctor(home);
+  const result = runDoctor(home, path.join(root, "dist", "cli.js"));
 
   assert.equal(result.status, 1, result.stderr);
-  assert.match(result.stdout, /MISSING Persistent runtime/);
-  assert.match(result.stdout, /Drax install: FAILED - persistent runtime is missing/);
+  assert.match(result.stdout, /MISSING Bundled runtime assets/);
+  assert.match(result.stdout, /Drax install: FAILED - bundled runtime assets are missing or corrupt/);
 });
 
 test("init copies baseline artifacts into a workspace", () => {

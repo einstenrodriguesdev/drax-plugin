@@ -289,12 +289,22 @@ function doctor(): void {
   }
   const launcherPresent = existsSync(path.join(home, ".local", "bin", "drax"));
   console.log(`${launcherPresent ? "OK" : "MISSING (optional)"} Shell launcher`);
-  const runtimePresent = existsSync(path.join(home, ".local", "share", "drax-plugin", "dist", "cli.js"));
-  console.log(`${runtimePresent ? "OK" : "MISSING"} Persistent runtime`);
+  let runtimePresent = true;
+  try {
+    bundlePath("templates");
+    bundlePath("templates", "workers", "claims-quality-reviewer.md");
+  } catch {
+    runtimePresent = false;
+  }
+  console.log(`${runtimePresent ? "OK" : "MISSING"} Bundled runtime assets`);
+  const installFlowRuntimePresent = existsSync(path.join(home, ".local", "share", "drax-plugin", "dist", "cli.js"));
+  console.log(`${installFlowRuntimePresent ? "OK" : "absent (standalone/global install)"} Install-flow runtime root`);
+  if (!installedSurfaces.length && !partialSurfaces.length) {
+    console.log("No marketplace surface installed - standalone CLI mode (drax runs headless via codex exec).");
+  }
   const failures = [
-    ...(!runtimePresent ? ["persistent runtime is missing"] : []),
+    ...(!runtimePresent ? ["bundled runtime assets are missing or corrupt"] : []),
     ...partialSurfaces.map((surface) => `${surface} is partial`),
-    ...(!installedSurfaces.length ? ["no integration surface is fully installed"] : []),
   ];
   for (const [label, binary, versionArg] of [
     ["Codex CLI", codexBinary, "--version"],
@@ -313,7 +323,7 @@ function doctor(): void {
   console.log(
     failures.length
       ? `Drax install: FAILED - ${failures.join("; ")}`
-      : `Drax install: OK (${installedSurfaces.join(", ")})`,
+      : `Drax install: OK (${installedSurfaces.length ? installedSurfaces.join(", ") : "standalone CLI"})`,
   );
   process.exitCode = failures.length ? 1 : 0;
 }
