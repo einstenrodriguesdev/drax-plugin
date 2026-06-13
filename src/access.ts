@@ -36,7 +36,7 @@ const billingIntervals = new Set<BillingInterval>(["monthly", "annual"]);
 // Production Ed25519 public key. The matching private key lives only on the drax-api licensing server.
 const DRAX_PRODUCTION_PUBLIC_KEY = "bqpUTfuMJBHnIbSXZX16jyj9ug7njEFVaQBw4iTGbWE=";
 // Licensing server that confirms revocation / live state. Overridable for self-hosters and tests.
-const DRAX_VALIDATION_URL = "https://api.conclave-company.com/v1/access/validate";
+const DRAX_VALIDATION_URL = "https://api.draxbusiness.cloud/v1/access/validate";
 const DRAX_VALIDATION_TIMEOUT_MS = 8000;
 
 function isRecord(value: unknown): value is Record<string, unknown> {

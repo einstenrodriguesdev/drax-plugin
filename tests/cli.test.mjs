@@ -111,6 +111,19 @@ function withoutAccessEnv() {
   return env;
 }
 
+function writeDoctorMarker(home, relativePath) {
+  const target = path.join(home, relativePath);
+  mkdirSync(path.dirname(target), { recursive: true });
+  writeFileSync(target, "test marker\n", "utf8");
+}
+
+function runDoctor(home) {
+  return spawnSync(process.execPath, [path.resolve("dist/cli.js"), "doctor"], {
+    encoding: "utf8",
+    env: { ...process.env, HOME: home, DRAX_CODEX_BIN: path.join(home, "missing-codex") },
+  });
+}
+
 function initGitRepo(directory) {
   writeFileSync(path.join(directory, "README.md"), "# Test product\n", "utf8");
   assert.equal(spawnSync("git", ["init"], { cwd: directory, encoding: "utf8" }).status, 0);
@@ -287,7 +300,7 @@ test("the bare drax command starts founder intelligence intake", () => {
     const prompt = readFileSync(output, "utf8");
     assert.match(
       prompt,
-      /The first response must be only this question:\nDrax is activated\. Before we decide what to build, tell me who you are and what you are building\./,
+      /The first response must be only this question:\nDrax is activated\. Here's the idea: I'm a self-hosted, autonomous organic-marketing system/,
     );
     assert.match(prompt, /Phase 1 is Recognition: free text only, no visible choice menus/);
     assert.match(prompt, /read repository evidence before asking for repo facts/);
@@ -417,6 +430,56 @@ test("installer preserves a persistent working launcher", () => {
   } finally {
     rmSync(home, { recursive: true, force: true });
   }
+});
+
+test("doctor passes with runtime and only the Codex surface installed", (t) => {
+  const home = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-codex-"));
+  t.after(() => rmSync(home, { recursive: true, force: true }));
+  for (const marker of [
+    "plugins/drax/.codex-plugin/plugin.json",
+    "plugins/drax/skills/drax/SKILL.md",
+    ".agents/plugins/marketplace.json",
+    ".local/share/drax-plugin/dist/cli.js",
+  ]) {
+    writeDoctorMarker(home, marker);
+  }
+
+  const result = runDoctor(home);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /MISSING Claude command/);
+  assert.match(result.stdout, /MISSING \(optional\) Shell launcher/);
+  assert.match(result.stdout, /Drax install: OK \(Codex surface\)/);
+});
+
+test("doctor fails when an integration surface is partial", (t) => {
+  const home = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-partial-"));
+  t.after(() => rmSync(home, { recursive: true, force: true }));
+  writeDoctorMarker(home, "plugins/drax/.codex-plugin/plugin.json");
+  writeDoctorMarker(home, ".local/share/drax-plugin/dist/cli.js");
+
+  const result = runDoctor(home);
+
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stdout, /Drax install: FAILED - .*Codex surface is partial/);
+});
+
+test("doctor fails when the persistent runtime is missing", (t) => {
+  const home = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-runtime-"));
+  t.after(() => rmSync(home, { recursive: true, force: true }));
+  for (const marker of [
+    "plugins/drax/.codex-plugin/plugin.json",
+    "plugins/drax/skills/drax/SKILL.md",
+    ".agents/plugins/marketplace.json",
+  ]) {
+    writeDoctorMarker(home, marker);
+  }
+
+  const result = runDoctor(home);
+
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stdout, /MISSING Persistent runtime/);
+  assert.match(result.stdout, /Drax install: FAILED - persistent runtime is missing/);
 });
 
 test("init copies baseline artifacts into a workspace", () => {

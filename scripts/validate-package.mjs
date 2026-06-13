@@ -25,6 +25,7 @@ const required = [
   "templates/EXECUTION_STATE.md",
   "templates/EXECUTION_STATE.json",
   "templates/workers/analytics-attribution-specialist.md",
+  "templates/workers/claims-quality-reviewer.md",
   "templates/workers/content-strategist.md",
   "templates/workers/copywriter-performance.md",
   "templates/workers/marketing-automation-specialist.md",

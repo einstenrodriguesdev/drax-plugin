@@ -18,12 +18,32 @@ const ARTIFACTS = [
   "EXECUTION_STATE.md",
 ];
 
+const TOTAL_BUDGET = 9000;
+const PER_ARTIFACT_FLOOR = 500;
+const PER_ARTIFACT_CAP = 1600;
+
 function safeRead(cwd, name) {
-  const target = path.resolve(cwd, name);
-  if (path.dirname(target) !== cwd || !fs.existsSync(target)) return null;
-  const stat = fs.statSync(target);
-  if (!stat.isFile() || stat.size > 512_000) return null;
-  return fs.readFileSync(target, "utf8").slice(0, 1600).trim();
+  let fd;
+  let content = null;
+  try {
+    const target = path.resolve(cwd, name);
+    if (path.dirname(target) !== cwd) return null;
+    const stat = fs.lstatSync(target);
+    if (stat.isSymbolicLink() || !stat.isFile() || stat.size > 512_000) return null;
+    fd = fs.openSync(target, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW);
+    content = fs.readFileSync(fd, "utf8").slice(0, 1600).trim();
+  } catch {
+    return null;
+  } finally {
+    if (fd !== undefined) {
+      try {
+        fs.closeSync(fd);
+      } catch {
+        content = null;
+      }
+    }
+  }
+  return content;
 }
 
 function main() {
@@ -32,15 +52,44 @@ function main() {
   const cwd = path.resolve(event.cwd || process.cwd());
   const artifacts = ARTIFACTS.flatMap((name) => {
     const content = safeRead(cwd, name);
-    return content ? [`--- ${name} ---\n${content}`] : [];
+    return content ? [{ name, content }] : [];
   });
-  const context = [
+  const staticContext = [
     "Drax v1.0.0 organic automation runtime is active.",
     "Target user: a founder with an existing product who wants a measured organic traffic system.",
     "Required baseline: founder/product context, language strategy, stack/security decision, 90-post plan, trigger plan, worker routing, distribution, measurement, and execution state.",
     "Publishing defaults to dry-run. Live posting, paid spend, and browser automation require explicit approval.",
-    artifacts.length ? artifacts.join("\n\n") : "No Drax organic-growth artifacts were found in this workspace.",
-  ].join("\n\n").slice(0, 9000);
+  ].join("\n\n");
+  let context = [staticContext, "No Drax organic-growth artifacts were found in this workspace."].join("\n\n");
+
+  if (artifacts.length) {
+    const prioritized = [
+      ...artifacts.filter(({ name }) => name === "EXECUTION_STATE.md"),
+      ...artifacts.filter(({ name }) => name !== "EXECUTION_STATE.md"),
+    ];
+    const remainingBudget = TOTAL_BUDGET - staticContext.length;
+    const perArtifactBudget = Math.min(
+      PER_ARTIFACT_CAP,
+      Math.max(PER_ARTIFACT_FLOOR, Math.floor(remainingBudget / prioritized.length)),
+    );
+    const included = prioritized.map(({ name, content }) => ({
+      name,
+      section: `--- ${name} ---\n${content.slice(0, perArtifactBudget).trim()}`,
+    }));
+    const omitted = [];
+
+    const assembleContext = () => [
+      staticContext,
+      ...included.map(({ section }) => section),
+      ...(omitted.length ? [`[Context truncated: omitted ${omitted.join(", ")}]`] : []),
+    ].join("\n\n");
+
+    context = assembleContext();
+    while (context.length > TOTAL_BUDGET && included.length) {
+      omitted.push(included.pop().name);
+      context = assembleContext();
+    }
+  }
 
   process.stdout.write(JSON.stringify({
     hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: context },

@@ -265,26 +265,44 @@ function install(target: string): void {
 
 function doctor(): void {
   const codexBinary = process.env.DRAX_CODEX_BIN || "codex";
-  const checks = [
-    ["Codex plugin", path.join(home, "plugins", "drax", ".codex-plugin", "plugin.json")],
-    ["Codex skill", path.join(home, "plugins", "drax", "skills", "drax", "SKILL.md")],
-    ["Personal marketplace", path.join(home, ".agents", "plugins", "marketplace.json")],
-    ["Claude command", path.join(home, ".claude", "commands", "drax.md")],
-    ["Shell launcher", path.join(home, ".local", "bin", "drax")],
-    ["Persistent runtime", path.join(home, ".local", "share", "drax-plugin", "dist", "cli.js")],
+  const surfaces = [
+    ["Codex surface", [
+      ["Codex plugin", path.join(home, "plugins", "drax", ".codex-plugin", "plugin.json")],
+      ["Codex skill", path.join(home, "plugins", "drax", "skills", "drax", "SKILL.md")],
+      ["Personal marketplace", path.join(home, ".agents", "plugins", "marketplace.json")],
+    ]],
+    ["Claude surface", [
+      ["Claude command", path.join(home, ".claude", "commands", "drax.md")],
+    ]],
   ] as const;
-  let ok = true;
-  for (const [label, target] of checks) {
-    const present = existsSync(target);
-    console.log(`${present ? "OK" : "MISSING"} ${label}`);
-    ok &&= present;
+  const installedSurfaces: string[] = [];
+  const partialSurfaces: string[] = [];
+  for (const [surface, markers] of surfaces) {
+    let presentCount = 0;
+    for (const [label, target] of markers) {
+      const present = existsSync(target);
+      console.log(`${present ? "OK" : "MISSING"} ${label}`);
+      if (present) presentCount += 1;
+    }
+    if (presentCount === markers.length) installedSurfaces.push(surface);
+    else if (presentCount > 0) partialSurfaces.push(surface);
   }
-  for (const [label, binary] of [
-    ["Codex CLI", codexBinary],
-    ["Python renderer runtime (social images and video)", "python3"],
-    ["FFmpeg social video renderer runtime", "ffmpeg"],
+  const launcherPresent = existsSync(path.join(home, ".local", "bin", "drax"));
+  console.log(`${launcherPresent ? "OK" : "MISSING (optional)"} Shell launcher`);
+  const runtimePresent = existsSync(path.join(home, ".local", "share", "drax-plugin", "dist", "cli.js"));
+  console.log(`${runtimePresent ? "OK" : "MISSING"} Persistent runtime`);
+  const failures = [
+    ...(!runtimePresent ? ["persistent runtime is missing"] : []),
+    ...partialSurfaces.map((surface) => `${surface} is partial`),
+    ...(!installedSurfaces.length ? ["no integration surface is fully installed"] : []),
+  ];
+  for (const [label, binary, versionArg] of [
+    ["Codex CLI", codexBinary, "--version"],
+    ["Python renderer runtime (social images and video)", "python3", "--version"],
+    // ffmpeg uses single-dash `-version`; `--version` exits non-zero and false-flags it missing.
+    ["FFmpeg social video renderer runtime", "ffmpeg", "-version"],
   ] as const) {
-    const present = spawnSync(binary, ["--version"], { stdio: "ignore" }).status === 0;
+    const present = spawnSync(binary, [versionArg], { stdio: "ignore" }).status === 0;
     console.log(`${present ? "OK" : "OPTIONAL-MISSING"} ${label}`);
   }
   const pillowPresent = spawnSync("python3", ["-c", "import PIL"], { stdio: "ignore" }).status === 0;
@@ -292,7 +310,12 @@ function doctor(): void {
   const playwrightPresent = spawnSync("node", ["-e", "require.resolve('playwright')"], { stdio: "ignore" }).status === 0;
   console.log(`${playwrightPresent ? "OK" : "OPTIONAL-MISSING"} Playwright social posting library`);
   console.log(`${process.env.DRAX_ENV_PATH ? "CONFIGURED" : "UNSET"} External environment reference`);
-  process.exitCode = ok ? 0 : 1;
+  console.log(
+    failures.length
+      ? `Drax install: FAILED - ${failures.join("; ")}`
+      : `Drax install: OK (${installedSurfaces.join(", ")})`,
+  );
+  process.exitCode = failures.length ? 1 : 0;
 }
 
 function replacePlaceholders(content: string, values: Record<string, string>): string {
