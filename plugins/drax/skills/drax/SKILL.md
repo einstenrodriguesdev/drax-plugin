@@ -18,6 +18,16 @@ The operating goal is narrow:
 - run the daily content clock with a manual trigger fallback
 - measure results and revise the system from evidence
 
+## Command Router (check this first)
+
+This skill ships deterministic command scripts in the `commands/` directory next to this `SKILL.md`. Before doing anything else, inspect the exact text the user used to invoke the skill and route fixed commands to their script:
+
+- If the argument is `help`, `--help`, or `commands`: run `node "<SKILL_DIR>/commands/drax-help.mjs"`, where `<SKILL_DIR>` is the directory that contains this `SKILL.md`. Print the script's stdout verbatim, then stop.
+- If the argument is `map`, `tree`, or `sectors`: run `node "<SKILL_DIR>/commands/drax-map.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
+- For any other invocation, including a bare `$drax` with no argument, skip this router and continue with Mode Selection below.
+
+These are real commands: the output is produced by the script, not by you. Never paraphrase, regenerate, reorder, or "improve" it. If a script exits non-zero, show its error output verbatim and stop.
+
 ## Mode Selection
 
 When invoked without a substantive task, begin Founder Intelligence Intake immediately. The first response must be only:

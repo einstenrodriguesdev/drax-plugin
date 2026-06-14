@@ -46,10 +46,31 @@ function safeRead(cwd, name) {
   return content;
 }
 
+function isDraxWorkspace(cwd) {
+  try {
+    if (fs.existsSync(path.join(cwd, ".drax"))) return true;
+    if (fs.existsSync(path.join(cwd, "EXECUTION_STATE.json"))) return true;
+    for (const name of ARTIFACTS) {
+      if (fs.existsSync(path.join(cwd, name))) return true;
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
 function main() {
   const raw = fs.readFileSync(0, "utf8").trim();
   const event = raw ? JSON.parse(raw) : {};
   const cwd = path.resolve(event.cwd || process.cwd());
+
+  // Scoped activation: outside a real Drax workspace the hook is a no-op, so
+  // unrelated Codex sessions are never injected with Drax context.
+  if (!isDraxWorkspace(cwd)) {
+    process.stdout.write(JSON.stringify({}));
+    return;
+  }
+
   const artifacts = ARTIFACTS.flatMap((name) => {
     const content = safeRead(cwd, name);
     return content ? [{ name, content }] : [];
