@@ -57,15 +57,26 @@ test("session hook refuses a symlinked founder profile", (t) => {
   assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /TOPSECRET_DO_NOT_LEAK/);
 });
 
-test("session hook reports when no artifacts exist", (t) => {
+test("session hook reports when a marked workspace has no artifacts", (t) => {
   const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-session-start-empty-"));
   t.after(() => rmSync(workspace, { recursive: true, force: true }));
+  mkdirSync(path.join(workspace, ".drax"));
 
   const result = runHook(workspace);
 
   assert.equal(result.status, 0, result.stderr);
   const payload = JSON.parse(result.stdout);
   assert.match(payload.hookSpecificOutput.additionalContext, /No Drax organic-growth artifacts/);
+});
+
+test("session hook stays silent outside a Drax workspace", (t) => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-session-start-nonws-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+
+  const result = runHook(directory);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim(), "{}");
 });
 
 test("session hook prioritizes execution state and names omitted artifacts", (t) => {

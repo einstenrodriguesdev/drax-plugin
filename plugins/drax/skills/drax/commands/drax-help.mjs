@@ -2,12 +2,14 @@
 // Deterministic command. Prints the Drax command reference. No external deps.
 // Invoked by the `drax` skill when the user runs `$drax help`.
 
-const VERSION = "1.0.0";
+const VERSION = "1.0.1";
 
 const SKILL_COMMANDS = [
   ["$drax", "Start or resume the organic automation system: founder interview -> 12 baseline artifacts -> reviewable daily run."],
-  ["$drax map", "Show the installed system map: pipeline sectors, artifact status in this workspace, gates, and triggers."],
-  ["$drax help", "Show this command reference."],
+  ["$drax-map", "Show the installed system map: pipeline sectors, artifact status in this workspace, gates, and triggers."],
+  ["$drax-help", "Show this command reference."],
+  ["$drax map", "Alias for $drax-map."],
+  ["$drax help", "Alias for $drax-help."],
 ];
 
 const CLI_COMMANDS = [

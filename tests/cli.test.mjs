@@ -313,14 +313,34 @@ test("the bare drax command starts founder intelligence intake", () => {
 });
 
 test("session hook reads only known artifacts", () => {
-  const result = spawnSync(process.execPath, ["plugins/drax/hooks/session-start.mjs"], {
-    input: JSON.stringify({ cwd: process.cwd(), source: "startup" }),
-    encoding: "utf8",
-  });
-  assert.equal(result.status, 0);
-  const payload = JSON.parse(result.stdout);
-  assert.match(payload.hookSpecificOutput.additionalContext, /Publishing defaults to dry-run/);
-  assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /DRAX_CODEX_BIN/);
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-session-known-"));
+  try {
+    mkdirSync(path.join(workspace, ".drax"));
+    const result = spawnSync(process.execPath, [path.resolve("plugins/drax/hooks/session-start.mjs")], {
+      input: JSON.stringify({ cwd: workspace, source: "startup" }),
+      encoding: "utf8",
+    });
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.match(payload.hookSpecificOutput.additionalContext, /Publishing defaults to dry-run/);
+    assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /DRAX_CODEX_BIN/);
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test("session hook stays silent outside a Drax workspace", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-session-nonworkspace-"));
+  try {
+    const result = spawnSync(process.execPath, [path.resolve("plugins/drax/hooks/session-start.mjs")], {
+      input: JSON.stringify({ cwd: directory, source: "startup" }),
+      encoding: "utf8",
+    });
+    assert.equal(result.status, 0);
+    assert.equal(result.stdout.trim(), "{}");
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 test("runtime commands fail closed without an access token", () => {

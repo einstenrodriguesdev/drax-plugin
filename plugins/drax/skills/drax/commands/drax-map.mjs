@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const VERSION = "1.0.0";
+const VERSION = "1.0.1";
 
 const ARTIFACTS = [
   "FOUNDER_PROFILE.md",

@@ -26,6 +26,9 @@ This skill ships deterministic command scripts in the `commands/` directory next
 - If the argument is `map`, `tree`, or `sectors`: run `node "<SKILL_DIR>/commands/drax-map.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - For any other invocation, including a bare `$drax` with no argument, skip this router and continue with Mode Selection below.
 
+The plugin also exposes `$drax-help` and `$drax-map` as direct aliases. Their
+skills delegate to these same deterministic scripts.
+
 These are real commands: the output is produced by the script, not by you. Never paraphrase, regenerate, reorder, or "improve" it. If a script exits non-zero, show its error output verbatim and stop.
 
 ## Mode Selection
