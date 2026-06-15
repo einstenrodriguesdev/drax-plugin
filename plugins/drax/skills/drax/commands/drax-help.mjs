@@ -2,7 +2,7 @@
 // Deterministic command. Prints the Drax command reference. No external deps.
 // Invoked by the `drax` skill when the user runs `$drax help`.
 
-const VERSION = "1.0.1";
+const VERSION = "1.1.0";
 
 const SKILL_COMMANDS = [
   ["$drax", "Start or resume the organic automation system: founder interview -> 12 baseline artifacts -> reviewable daily run."],
@@ -28,6 +28,12 @@ const CLI_COMMANDS = [
   ["drax --version", "Print version."],
 ];
 
+const UPDATE_COMMANDS = [
+  ["codex plugin marketplace upgrade drax", "Refresh the Drax marketplace snapshot from its source (pulls the newest published build)."],
+  ["codex plugin add drax@drax", "Reinstall Drax from the refreshed snapshot so the new version becomes active."],
+  ["codex plugin list", "Confirm the active Drax version after the upgrade."],
+];
+
 function pad(s, n) {
   return s + " ".repeat(Math.max(0, n - s.length));
 }
@@ -47,6 +53,8 @@ const out = [
   block("In a Codex session (skill commands):", SKILL_COMMANDS),
   "",
   block("In a shell (CLI commands):", CLI_COMMANDS),
+  "",
+  block("Updating Drax (Codex-native plugin upgrade):", UPDATE_COMMANDS),
   "",
   "Activation: Drax only loads its context inside a Drax workspace (a folder with a",
   ".drax/ directory or the baseline artifacts). Other sessions stay clean.",

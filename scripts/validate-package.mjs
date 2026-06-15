@@ -78,6 +78,19 @@ for (const file of required) {
   if (!fs.existsSync(path.join(root, file))) errors.push(`Missing required file: ${file}`);
 }
 
+const orgChart = path.join(root, "plugins/drax/org/_org-chart.yaml");
+if (!fs.existsSync(orgChart)) errors.push("Missing required file: plugins/drax/org/_org-chart.yaml");
+for (const directory of ["plugins/drax/org/agents", "plugins/drax/org/skills", "plugins/drax/org/knowledge"]) {
+  const target = path.join(root, directory);
+  if (!fs.existsSync(target) || !fs.statSync(target).isDirectory()) {
+    errors.push(`Missing required directory: ${directory}`);
+    continue;
+  }
+  if (!fs.readdirSync(target).some((entry) => entry.endsWith(".md"))) {
+    errors.push(`Required directory contains no Markdown files: ${directory}`);
+  }
+}
+
 const pack = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { encoding: "utf8" }));
 for (const entry of pack[0]?.files ?? []) {
   if (forbidden.some((pattern) => pattern.test(entry.path))) errors.push(`Forbidden package file: ${entry.path}`);

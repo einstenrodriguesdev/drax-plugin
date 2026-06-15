@@ -1,0 +1,3185 @@
+version: 1
+sectors:
+  technology:
+    name: Technology
+    executive: cto
+    departments:
+      - engineering
+  product:
+    name: Product
+    executive: cpo
+    departments:
+      - product
+  design:
+    name: Design
+    executive: design-cto
+    departments:
+      - design
+  data:
+    name: Data
+    executive: cdo
+    departments:
+      - data
+  security-it:
+    name: Security & IT
+    executive: ciso
+    departments:
+      - security
+      - it
+  marketing:
+    name: Marketing
+    executive: cmo
+    departments:
+      - marketing
+      - creative
+  revenue:
+    name: Revenue
+    executive: cro
+    departments:
+      - sales
+      - revenue-operations
+      - customer-success
+      - support
+  finance:
+    name: Finance
+    executive: cfo
+    departments:
+      - finance
+  operations:
+    name: Operations
+    executive: coo
+    departments:
+      - operations
+  people:
+    name: People
+    executive: chro
+    departments:
+      - people
+  legal:
+    name: Legal
+    executive: clo
+    departments:
+      - legal
+agents:
+  account-executive:
+    file: agents/account-executive.md
+    department: sales
+    level: ic
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - document-dont-create.md
+      - positioning.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - marketing-brand-positioning.md
+      - sales-enterprise-frameworks.md
+      - sales-forecasting.md
+      - sales-negotiation.md
+      - sales-pipeline-management.md
+      - sales-qualification-frameworks.md
+    contextual_knowledge: []
+  affiliate-marketing-manager:
+    file: agents/affiliate-marketing-manager.md
+    department: marketing
+    level: manager
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - campaign-briefs.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - brand-communications-operations.md
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - partnership-channel-programs.md
+    contextual_knowledge: []
+  ai-engineer:
+    file: agents/ai-engineer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - jtbd-interview.md
+      - mvp-architecture.md
+      - stride-threat.md
+      - tech-debt-quadrant.md
+    contextual_skills: []
+    required_knowledge:
+      - ai-llm-cost-management.md
+      - ai-llm-evaluation.md
+      - ai-rag-pipeline-design.md
+      - engineering-security-backend.md
+      - engineering-system-design.md
+    contextual_knowledge: []
+  analytics-attribution-specialist:
+    file: agents/analytics-attribution-specialist.md
+    department: marketing
+    level: ic
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - ltv-cac-gate.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-measurement-framework.md
+      - analytics-tracking-plan.md
+      - marketing-attribution.md
+      - marketing-funnel-frameworks.md
+      - marketing-paid-traffic.md
+    contextual_knowledge: []
+  analytics-engineer:
+    file: agents/analytics-engineer.md
+    department: data
+    level: ic
+    reports_to: director-of-analytics
+    executive_owner: cdo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+    contextual_knowledge: []
+  android-developer:
+    file: agents/android-developer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-frontend-patterns.md
+      - engineering-mobile-release-governance.md
+      - engineering-reliability-operations.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  appointment-setter:
+    file: agents/appointment-setter.md
+    department: sales
+    level: ic
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - document-dont-create.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - marketing-brand-positioning.md
+      - sales-appointment-setting.md
+      - sales-pipeline-management.md
+      - sales-qualification-frameworks.md
+    contextual_knowledge: []
+  appsec-engineer:
+    file: agents/appsec-engineer.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  art-director:
+    file: agents/art-director.md
+    department: creative
+    level: manager
+    reports_to: creative-director
+    executive_owner: cmo
+    role_type: manager
+    operating_mode: managerial
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - content-mix.md
+      - document-dont-create.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - creative-brief-framework.md
+      - creative-campaign-architecture.md
+      - design-social-media-formats.md
+      - design-visual-systems.md
+      - marketing-brand-positioning.md
+      - marketing-content-strategy.md
+    contextual_knowledge: []
+  automation-receptionist:
+    file: agents/automation-receptionist.md
+    department: sales
+    level: operator
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: operator
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - document-dont-create.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - marketing-brand-positioning.md
+      - sales-appointment-setting.md
+      - sales-conversational-routing.md
+      - sales-pipeline-management.md
+      - sales-qualification-frameworks.md
+    contextual_knowledge: []
+  bdr:
+    file: agents/bdr.md
+    department: sales
+    level: senior_ic
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: senior_ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - channel-hypothesis.md
+      - document-dont-create.md
+      - ltv-cac-gate.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - marketing-funnel-frameworks.md
+      - sales-outbound-prospecting.md
+      - sales-pipeline-management.md
+      - sales-qualification-frameworks.md
+    contextual_knowledge: []
+  brand-strategist:
+    file: agents/brand-strategist.md
+    department: marketing
+    level: senior_ic
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: senior_ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - campaign-briefs.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - brand-communications-operations.md
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - partnership-channel-programs.md
+    contextual_knowledge: []
+  business-operations-analyst:
+    file: agents/business-operations-analyst.md
+    department: operations
+    level: ic
+    reports_to: director-of-operations
+    executive_owner: coo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - decision-briefs.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-close-controls.md
+      - finance-planning-analysis.md
+      - finance-saas-metrics.md
+      - operations-service-governance.md
+    contextual_knowledge: []
+  cdo:
+    file: agents/cdo.md
+    department: data
+    level: c_level
+    reports_to: ceo
+    executive_owner: cdo
+    role_type: c_level
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+    contextual_knowledge: []
+  ceo:
+    file: agents/ceo.md
+    department: executive
+    level: c_level
+    reports_to: chairman
+    executive_owner: ceo
+    role_type: c_level
+    operating_mode: strategic
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - EXECUTION_PLAN.md
+    required_skills:
+      - aha-moment.md
+      - channel-hypothesis.md
+      - jtbd-interview.md
+      - ltv-cac-gate.md
+      - luxury-acquisition.md
+      - mvp-architecture.md
+      - positioning.md
+      - stride-threat.md
+      - tech-debt-quadrant.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - operations-service-governance.md
+      - ops-cadence-okr.md
+      - strategy-fundraising-narrative.md
+      - strategy-product-market-fit.md
+    contextual_knowledge: []
+  cfo:
+    file: agents/cfo.md
+    department: finance
+    level: c_level
+    reports_to: ceo
+    executive_owner: cfo
+    role_type: c_level
+    operating_mode: strategic
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - FINANCE.md
+    required_skills:
+      - channel-hypothesis.md
+      - equity-vesting.md
+      - ltv-cac-gate.md
+      - safe-agreement.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-fundraising.md
+      - finance-planning-analysis.md
+      - finance-runway-management.md
+      - finance-saas-metrics.md
+      - strategy-fundraising-narrative.md
+    contextual_knowledge: []
+  chairman:
+    file: agents/chairman.md
+    department: executive
+    level: board
+    reports_to: founder_board
+    executive_owner: ceo
+    role_type: board
+    operating_mode: strategic
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - FOUNDER_DUE_DILIGENCE.md
+      - FOUNDER_PROFILE.md
+      - OBJECTIVE_CLARITY.md
+      - VISION.md
+    required_skills:
+      - jtbd-interview.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - ops-cadence-okr.md
+      - strategy-hiring-sequence.md
+      - strategy-market-timing.md
+      - strategy-product-market-fit.md
+    contextual_knowledge: []
+  chro:
+    file: agents/chro.md
+    department: people
+    level: c_level
+    reports_to: ceo
+    executive_owner: chro
+    role_type: c_level
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - capability-maps.md
+      - structured-interviewing.md
+    contextual_skills: []
+    required_knowledge:
+      - people-compensation-performance.md
+      - people-learning-development.md
+      - people-talent-acquisition.md
+      - strategy-hiring-sequence.md
+    contextual_knowledge: []
+  ciso:
+    file: agents/ciso.md
+    department: security
+    level: c_level
+    reports_to: ceo
+    executive_owner: ciso
+    role_type: c_level
+    operating_mode: strategic
+    maturity: shallow
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - SECURITY.md
+    required_skills: []
+    contextual_skills: []
+    required_knowledge: []
+    contextual_knowledge: []
+  clo:
+    file: agents/clo.md
+    department: legal
+    level: c_level
+    reports_to: ceo
+    executive_owner: clo
+    role_type: c_level
+    operating_mode: strategic
+    maturity: shallow
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - COMMERCIAL.md
+    required_skills: []
+    contextual_skills: []
+    required_knowledge: []
+    contextual_knowledge: []
+  cloud-architect:
+    file: agents/cloud-architect.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  cmo:
+    file: agents/cmo.md
+    department: marketing
+    level: c_level
+    reports_to: ceo
+    executive_owner: cmo
+    role_type: c_level
+    operating_mode: strategic
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - GTM.md
+    required_skills:
+      - channel-hypothesis.md
+      - jtbd-interview.md
+      - ltv-cac-gate.md
+      - luxury-acquisition.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - marketing-funnel-frameworks.md
+      - marketing-paid-traffic.md
+    contextual_knowledge: []
+  cold-outreach-specialist:
+    file: agents/cold-outreach-specialist.md
+    department: sales
+    level: ic
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - document-dont-create.md
+      - ltv-cac-gate.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - cold-email-copywriting.md
+      - cold-email-infrastructure.md
+      - marketing-brand-positioning.md
+      - marketing-funnel-frameworks.md
+      - sales-outbound-prospecting.md
+    contextual_knowledge: []
+  community-manager:
+    file: agents/community-manager.md
+    department: marketing
+    level: manager
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: manager
+    operating_mode: managerial
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - channel-hypothesis.md
+      - document-dont-create.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - community-health-metrics.md
+      - community-platform-ops.md
+      - marketing-brand-positioning.md
+      - marketing-content-strategy.md
+      - marketing-funnel-frameworks.md
+    contextual_knowledge: []
+  compensation-benefits-manager:
+    file: agents/compensation-benefits-manager.md
+    department: people
+    level: manager
+    reports_to: director-of-talent-acquisition
+    executive_owner: chro
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - capability-maps.md
+      - structured-interviewing.md
+    contextual_skills: []
+    required_knowledge:
+      - people-compensation-performance.md
+      - people-learning-development.md
+      - people-talent-acquisition.md
+      - strategy-hiring-sequence.md
+    contextual_knowledge: []
+  compliance-analyst:
+    file: agents/compliance-analyst.md
+    department: legal
+    level: ic
+    reports_to: director-of-legal-contracts
+    executive_owner: clo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - issue-list-redlining.md
+    contextual_skills: []
+    required_knowledge:
+      - legal-contract-lifecycle.md
+      - legal-employment-law.md
+      - legal-startup-structure.md
+      - security-compliance-roadmap.md
+    contextual_knowledge: []
+  content-strategist:
+    file: agents/content-strategist.md
+    department: marketing
+    level: senior_ic
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: senior_ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - content-mix.md
+      - jtbd-interview.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - content-editorial-planning.md
+      - content-measurement-attribution.md
+      - marketing-content-strategy.md
+      - marketing-funnel-frameworks.md
+      - seo-organic-strategy.md
+    contextual_knowledge: []
+  controller:
+    file: agents/controller.md
+    department: finance
+    level: ic
+    reports_to: director-of-fpa
+    executive_owner: cfo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - decision-briefs.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-close-controls.md
+      - finance-planning-analysis.md
+      - finance-saas-metrics.md
+      - operations-service-governance.md
+    contextual_knowledge: []
+  coo:
+    file: agents/coo.md
+    department: operations
+    level: c_level
+    reports_to: ceo
+    executive_owner: coo
+    role_type: c_level
+    operating_mode: strategic
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - OPERATING_CADENCE.md
+    required_skills:
+      - equity-vesting.md
+      - ltv-cac-gate.md
+      - safe-agreement.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-team-org.md
+      - operations-service-governance.md
+      - ops-cadence-okr.md
+      - ops-process-frameworks.md
+    contextual_knowledge: []
+  copywriter-performance:
+    file: agents/copywriter-performance.md
+    department: creative
+    level: ic
+    reports_to: creative-director
+    executive_owner: cmo
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - content-mix.md
+      - fogg-behavior.md
+      - jtbd-interview.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - copy-performance-hooks.md
+      - copy-voc-framework.md
+      - marketing-brand-positioning.md
+      - marketing-content-strategy.md
+      - marketing-copy-validation.md
+      - marketing-funnel-frameworks.md
+    contextual_knowledge: []
+  cpo:
+    file: agents/cpo.md
+    department: product
+    level: c_level
+    reports_to: ceo
+    executive_owner: ceo
+    role_type: c_level
+    operating_mode: strategic
+    maturity: mature
+    lifecycle: active
+    aliases:
+      - chief-product-officer
+    owns_outputs:
+      - PRODUCT_STRATEGY.md
+      - VERSION_PLAN.md
+      - COMMERCIAL_READINESS.md
+    required_skills:
+      - problem-framing.md
+      - jtbd-interview.md
+      - aha-moment.md
+    contextual_skills:
+      - fogg-behavior.md
+      - release-governance.md
+    required_knowledge:
+      - product-discovery.md
+      - product-pmf-signals.md
+      - product-delivery-governance.md
+      - product-ux-research.md
+      - ux-onboarding-patterns.md
+    contextual_knowledge:
+      - ux-conversion-design.md
+      - ux-usability-testing.md
+  creative-director:
+    file: agents/creative-director.md
+    department: creative
+    level: director
+    reports_to: cmo
+    executive_owner: cmo
+    role_type: director
+    operating_mode: managerial
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - content-mix.md
+      - document-dont-create.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - creative-brief-framework.md
+      - creative-campaign-architecture.md
+      - design-visual-systems.md
+      - marketing-brand-positioning.md
+      - marketing-content-strategy.md
+      - marketing-funnel-frameworks.md
+    contextual_knowledge: []
+  cro-specialist:
+    file: agents/cro-specialist.md
+    department: marketing
+    level: ic
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - channel-hypothesis.md
+      - fogg-behavior.md
+      - ltv-cac-gate.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-measurement-framework.md
+      - cro-experimentation-framework.md
+      - cro-research-heuristics.md
+      - marketing-funnel-frameworks.md
+      - marketing-paid-traffic.md
+      - ux-conversion-design.md
+      - ux-onboarding-patterns.md
+    contextual_knowledge: []
+  cro:
+    file: agents/cro.md
+    department: sales
+    level: c_level
+    reports_to: ceo
+    executive_owner: cro
+    role_type: c_level
+    operating_mode: strategic
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - REVENUE.md
+    required_skills:
+      - channel-hypothesis.md
+      - ltv-cac-gate.md
+      - luxury-acquisition.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-forecasting.md
+      - sales-lifecycle-governance.md
+      - sales-pipeline-management.md
+      - sales-qualification-frameworks.md
+      - sales-territory-capacity-planning.md
+    contextual_knowledge: []
+  cto:
+    file: agents/cto.md
+    department: engineering
+    level: c_level
+    reports_to: ceo
+    executive_owner: cto
+    role_type: c_level
+    operating_mode: strategic
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - TECH.md
+    required_skills:
+      - aha-moment.md
+      - mvp-architecture.md
+      - stride-threat.md
+      - tech-debt-quadrant.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-architecture-decisions.md
+      - engineering-observability.md
+      - engineering-platform-governance.md
+      - engineering-security-backend.md
+      - engineering-system-design.md
+    contextual_knowledge: []
+  customer-success-manager:
+    file: agents/customer-success-manager.md
+    department: customer-success
+    level: manager
+    reports_to: director-of-customer-success
+    executive_owner: vp-customer-success
+    role_type: manager
+    operating_mode: managerial
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - document-dont-create.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - customer-health-scoring.md
+      - customer-onboarding-implementation.md
+      - customer-success-management.md
+      - marketing-brand-positioning.md
+    contextual_knowledge: []
+  customer-training-specialist:
+    file: agents/customer-training-specialist.md
+    department: customer-success
+    level: ic
+    reports_to: director-of-customer-success
+    executive_owner: vp-customer-success
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - customer-handoff.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - customer-health-scoring.md
+      - customer-success-management.md
+      - support-escalation-management.md
+      - support-incident-triage.md
+      - support-knowledge-operations.md
+    contextual_knowledge: []
+  data-analyst:
+    file: agents/data-analyst.md
+    department: data
+    level: ic
+    reports_to: director-of-analytics
+    executive_owner: cdo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+    contextual_knowledge: []
+  data-engineer:
+    file: agents/data-engineer.md
+    department: data
+    level: ic
+    reports_to: director-of-analytics
+    executive_owner: cdo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+    contextual_knowledge: []
+  data-enrichment-specialist:
+    file: agents/data-enrichment-specialist.md
+    department: sales
+    level: ic
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - document-dont-create.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-crm-data-hygiene.md
+      - sales-data-enrichment.md
+      - sales-osint-lead-intelligence.md
+      - sales-outbound-prospecting.md
+    contextual_knowledge: []
+  data-scientist:
+    file: agents/data-scientist.md
+    department: data
+    level: ic
+    reports_to: director-of-analytics
+    executive_owner: cdo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - ai-llm-evaluation.md
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+      - mlops-lifecycle.md
+    contextual_knowledge: []
+  dba:
+    file: agents/dba.md
+    department: data
+    level: ic
+    reports_to: director-of-analytics
+    executive_owner: cdo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+    contextual_knowledge: []
+  design-cto:
+    file: agents/design-cto.md
+    department: design
+    level: c_level
+    reports_to: cpo
+    executive_owner: cpo
+    role_type: c_level
+    operating_mode: strategic
+    maturity: shallow
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - PRODUCT.md
+    required_skills: []
+    contextual_skills: []
+    required_knowledge: []
+    contextual_knowledge: []
+  devops-engineer:
+    file: agents/devops-engineer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - mvp-architecture.md
+      - stride-threat.md
+      - tech-debt-quadrant.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-devops-cicd.md
+      - engineering-devops-iac.md
+      - engineering-devops-kubernetes.md
+      - engineering-full-stack-patterns.md
+      - engineering-observability.md
+      - engineering-security-backend.md
+    contextual_knowledge: []
+  devsecops-engineer:
+    file: agents/devsecops-engineer.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  digital-forensics-analyst:
+    file: agents/digital-forensics-analyst.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  director-of-analytics:
+    file: agents/director-of-analytics.md
+    department: data
+    level: director
+    reports_to: vp-data
+    executive_owner: cdo
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+    contextual_knowledge: []
+  director-of-compliance:
+    file: agents/director-of-compliance.md
+    department: legal
+    level: director
+    reports_to: clo
+    executive_owner: clo
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - issue-list-redlining.md
+    contextual_skills: []
+    required_knowledge:
+      - legal-contract-lifecycle.md
+      - legal-employment-law.md
+      - legal-startup-structure.md
+      - security-compliance-roadmap.md
+    contextual_knowledge: []
+  director-of-customer-success:
+    file: agents/director-of-customer-success.md
+    department: customer-success
+    level: director
+    reports_to: vp-customer-success
+    executive_owner: vp-customer-success
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - customer-handoff.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - customer-health-scoring.md
+      - customer-onboarding-implementation.md
+      - customer-success-management.md
+      - support-escalation-management.md
+      - support-incident-triage.md
+      - support-knowledge-operations.md
+    contextual_knowledge: []
+  director-of-data-science:
+    file: agents/director-of-data-science.md
+    department: data
+    level: director
+    reports_to: vp-data
+    executive_owner: cdo
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - ai-llm-evaluation.md
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+      - mlops-lifecycle.md
+    contextual_knowledge: []
+  director-of-demand-generation:
+    file: agents/director-of-demand-generation.md
+    department: marketing
+    level: director
+    reports_to: vp-marketing
+    executive_owner: cmo
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - campaign-briefs.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - brand-communications-operations.md
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - partnership-channel-programs.md
+    contextual_knowledge: []
+  director-of-engineering:
+    file: agents/director-of-engineering.md
+    department: engineering
+    level: director
+    reports_to: vp-engineering
+    executive_owner: cto
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  director-of-fpa:
+    file: agents/director-of-fpa.md
+    department: finance
+    level: director
+    reports_to: vp-finance
+    executive_owner: cfo
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - decision-briefs.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-close-controls.md
+      - finance-planning-analysis.md
+      - finance-saas-metrics.md
+      - operations-service-governance.md
+    contextual_knowledge: []
+  director-of-l-and-d:
+    file: agents/director-of-l-and-d.md
+    department: people
+    level: director
+    reports_to: chro
+    executive_owner: chro
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - capability-maps.md
+      - structured-interviewing.md
+    contextual_skills: []
+    required_knowledge:
+      - people-compensation-performance.md
+      - people-learning-development.md
+      - people-talent-acquisition.md
+      - strategy-hiring-sequence.md
+    contextual_knowledge: []
+  director-of-legal-contracts:
+    file: agents/director-of-legal-contracts.md
+    department: legal
+    level: director
+    reports_to: clo
+    executive_owner: clo
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - issue-list-redlining.md
+    contextual_skills: []
+    required_knowledge:
+      - legal-contract-lifecycle.md
+      - legal-employment-law.md
+      - legal-startup-structure.md
+      - security-compliance-roadmap.md
+    contextual_knowledge: []
+  director-of-marketing-operations:
+    file: agents/director-of-marketing-operations.md
+    department: marketing
+    level: director
+    reports_to: vp-marketing
+    executive_owner: cmo
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - campaign-briefs.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - brand-communications-operations.md
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - partnership-channel-programs.md
+    contextual_knowledge: []
+  director-of-operations:
+    file: agents/director-of-operations.md
+    department: operations
+    level: director
+    reports_to: coo
+    executive_owner: coo
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - decision-briefs.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-close-controls.md
+      - finance-planning-analysis.md
+      - finance-saas-metrics.md
+      - operations-service-governance.md
+    contextual_knowledge: []
+  director-of-product:
+    file: agents/director-of-product.md
+    department: product
+    level: director
+    reports_to: vp-product
+    executive_owner: cpo
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - problem-framing.md
+    contextual_skills: []
+    required_knowledge:
+      - product-delivery-governance.md
+      - product-discovery.md
+      - product-pmf-signals.md
+      - product-ux-research.md
+      - ux-usability-testing.md
+    contextual_knowledge: []
+  director-of-sales:
+    file: agents/director-of-sales.md
+    department: sales
+    level: director
+    reports_to: vp-sales
+    executive_owner: cro
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - positioning.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-automation-workflows.md
+      - sales-forecasting.md
+      - sales-lifecycle-governance.md
+      - sales-performance-analytics.md
+      - sales-pipeline-management.md
+      - sales-territory-capacity-planning.md
+    contextual_knowledge: []
+  director-of-security-engineering:
+    file: agents/director-of-security-engineering.md
+    department: security
+    level: director
+    reports_to: ciso
+    executive_owner: ciso
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  director-of-talent-acquisition:
+    file: agents/director-of-talent-acquisition.md
+    department: people
+    level: director
+    reports_to: chro
+    executive_owner: chro
+    role_type: director
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - capability-maps.md
+      - structured-interviewing.md
+    contextual_skills: []
+    required_knowledge:
+      - people-compensation-performance.md
+      - people-learning-development.md
+      - people-talent-acquisition.md
+      - strategy-hiring-sequence.md
+    contextual_knowledge: []
+  email-marketing-manager:
+    file: agents/email-marketing-manager.md
+    department: marketing
+    level: manager
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: manager
+    operating_mode: managerial
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - channel-hypothesis.md
+      - fogg-behavior.md
+      - ltv-cac-gate.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - email-deliverability.md
+      - email-lifecycle-automation.md
+      - email-metrics-post-mpp.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - marketing-funnel-frameworks.md
+    contextual_knowledge: []
+  embedded-engineer:
+    file: agents/embedded-engineer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-frontend-patterns.md
+      - engineering-mobile-release-governance.md
+      - engineering-reliability-operations.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  engineering-manager:
+    file: agents/engineering-manager.md
+    department: engineering
+    level: manager
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  fpa-analyst:
+    file: agents/fpa-analyst.md
+    department: finance
+    level: ic
+    reports_to: director-of-fpa
+    executive_owner: cfo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - decision-briefs.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-close-controls.md
+      - finance-planning-analysis.md
+      - finance-saas-metrics.md
+      - operations-service-governance.md
+    contextual_knowledge: []
+  full-stack-developer:
+    file: agents/full-stack-developer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - fogg-behavior.md
+      - jtbd-interview.md
+      - mvp-architecture.md
+      - tech-debt-quadrant.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-architecture-decisions.md
+      - engineering-full-stack-patterns.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  growth-engineer:
+    file: agents/growth-engineer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  hr-business-partner:
+    file: agents/hr-business-partner.md
+    department: people
+    level: ic
+    reports_to: director-of-talent-acquisition
+    executive_owner: chro
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - capability-maps.md
+      - structured-interviewing.md
+    contextual_skills: []
+    required_knowledge:
+      - people-compensation-performance.md
+      - people-learning-development.md
+      - people-talent-acquisition.md
+      - strategy-hiring-sequence.md
+    contextual_knowledge: []
+  hr:
+    file: agents/hr.md
+    department: people
+    level: support
+    reports_to: director-of-talent-acquisition
+    executive_owner: chro
+    role_type: support
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills: []
+    contextual_skills: []
+    required_knowledge:
+      - INDEX.md
+    contextual_knowledge: []
+  incident-responder:
+    file: agents/incident-responder.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  influencer-marketing-manager:
+    file: agents/influencer-marketing-manager.md
+    department: marketing
+    level: manager
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - campaign-briefs.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - brand-communications-operations.md
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - partnership-channel-programs.md
+    contextual_knowledge: []
+  ios-developer:
+    file: agents/ios-developer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-frontend-patterns.md
+      - engineering-mobile-release-governance.md
+      - engineering-reliability-operations.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  it-manager:
+    file: agents/it-manager.md
+    department: it
+    level: manager
+    reports_to: it-manager
+    executive_owner: coo
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - decision-briefs.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-close-controls.md
+      - finance-planning-analysis.md
+      - finance-saas-metrics.md
+      - operations-service-governance.md
+    contextual_knowledge: []
+  l-and-d-specialist:
+    file: agents/l-and-d-specialist.md
+    department: people
+    level: ic
+    reports_to: director-of-talent-acquisition
+    executive_owner: chro
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - capability-maps.md
+      - structured-interviewing.md
+    contextual_skills: []
+    required_knowledge:
+      - people-compensation-performance.md
+      - people-learning-development.md
+      - people-talent-acquisition.md
+      - strategy-hiring-sequence.md
+    contextual_knowledge: []
+  legal-counsel:
+    file: agents/legal-counsel.md
+    department: legal
+    level: ic
+    reports_to: director-of-legal-contracts
+    executive_owner: clo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - issue-list-redlining.md
+    contextual_skills: []
+    required_knowledge:
+      - legal-contract-lifecycle.md
+      - legal-employment-law.md
+      - legal-startup-structure.md
+      - security-compliance-roadmap.md
+    contextual_knowledge: []
+  llm-engineer:
+    file: agents/llm-engineer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - ai-llm-evaluation.md
+      - ai-rag-pipeline-design.md
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+      - mlops-lifecycle.md
+    contextual_knowledge: []
+  malware-analyst:
+    file: agents/malware-analyst.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  marketing-automation-specialist:
+    file: agents/marketing-automation-specialist.md
+    department: revenue-operations
+    level: manager
+    reports_to: vp-revops
+    executive_owner: cro
+    role_type: manager
+    operating_mode: managerial
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - channel-hypothesis.md
+      - fogg-behavior.md
+      - ltv-cac-gate.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-tracking-plan.md
+      - automation-lead-scoring.md
+      - automation-nurture-architecture.md
+      - email-lifecycle-automation.md
+      - marketing-attribution.md
+      - marketing-funnel-frameworks.md
+    contextual_knowledge: []
+  ml-engineer:
+    file: agents/ml-engineer.md
+    department: data
+    level: ic
+    reports_to: director-of-analytics
+    executive_owner: cdo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - ai-llm-evaluation.md
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+      - mlops-lifecycle.md
+    contextual_knowledge: []
+  mobile-developer:
+    file: agents/mobile-developer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-frontend-patterns.md
+      - engineering-mobile-release-governance.md
+      - engineering-reliability-operations.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  motion-designer:
+    file: agents/motion-designer.md
+    department: creative
+    level: ic
+    reports_to: creative-director
+    executive_owner: cmo
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - content-mix.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - design-visual-systems.md
+      - marketing-brand-positioning.md
+      - marketing-content-strategy.md
+      - motion-content-templates.md
+      - motion-remotion-patterns.md
+    contextual_knowledge: []
+  network-engineer:
+    file: agents/network-engineer.md
+    department: it
+    level: ic
+    reports_to: it-manager
+    executive_owner: coo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  onboarding-specialist:
+    file: agents/onboarding-specialist.md
+    department: customer-success
+    level: ic
+    reports_to: director-of-customer-success
+    executive_owner: vp-customer-success
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - document-dont-create.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - customer-health-scoring.md
+      - customer-onboarding-implementation.md
+      - customer-success-management.md
+      - marketing-brand-positioning.md
+    contextual_knowledge: []
+  operations-manager:
+    file: agents/operations-manager.md
+    department: operations
+    level: manager
+    reports_to: director-of-operations
+    executive_owner: coo
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - decision-briefs.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-close-controls.md
+      - finance-planning-analysis.md
+      - finance-saas-metrics.md
+      - operations-service-governance.md
+    contextual_knowledge: []
+  osint-specialist:
+    file: agents/osint-specialist.md
+    department: sales
+    level: ic
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - document-dont-create.md
+      - jtbd-interview.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - marketing-brand-positioning.md
+      - sales-osint-lead-intelligence.md
+      - sales-outbound-prospecting.md
+      - sales-qualification-frameworks.md
+    contextual_knowledge: []
+  outbound-performance-analyst:
+    file: agents/outbound-performance-analyst.md
+    department: revenue-operations
+    level: ic
+    reports_to: vp-revops
+    executive_owner: cro
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - document-dont-create.md
+      - ltv-cac-gate.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-appointment-setting.md
+      - sales-data-enrichment.md
+      - sales-outbound-prospecting.md
+      - sales-performance-analytics.md
+      - sales-pipeline-management.md
+    contextual_knowledge: []
+  paralegal:
+    file: agents/paralegal.md
+    department: legal
+    level: ic
+    reports_to: director-of-legal-contracts
+    executive_owner: clo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - issue-list-redlining.md
+    contextual_skills: []
+    required_knowledge:
+      - legal-contract-lifecycle.md
+      - legal-employment-law.md
+      - legal-startup-structure.md
+      - security-compliance-roadmap.md
+    contextual_knowledge: []
+  penetration-tester:
+    file: agents/penetration-tester.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  performance-creative:
+    file: agents/performance-creative.md
+    department: creative
+    level: ic
+    reports_to: creative-director
+    executive_owner: cmo
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - content-mix.md
+      - document-dont-create.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - creative-brief-framework.md
+      - creative-campaign-architecture.md
+      - design-social-media-formats.md
+      - design-visual-systems.md
+      - marketing-brand-positioning.md
+      - marketing-paid-traffic.md
+    contextual_knowledge: []
+  performance-tester:
+    file: agents/performance-tester.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  platform-engineer:
+    file: agents/platform-engineer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  podcast-producer:
+    file: agents/podcast-producer.md
+    department: creative
+    level: ic
+    reports_to: creative-director
+    executive_owner: cmo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - campaign-briefs.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - brand-communications-operations.md
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - partnership-channel-programs.md
+    contextual_knowledge: []
+  pr-manager:
+    file: agents/pr-manager.md
+    department: marketing
+    level: ic
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - campaign-briefs.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - brand-communications-operations.md
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - partnership-channel-programs.md
+    contextual_knowledge: []
+  procurement-manager:
+    file: agents/procurement-manager.md
+    department: operations
+    level: manager
+    reports_to: director-of-operations
+    executive_owner: coo
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - decision-briefs.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-close-controls.md
+      - finance-planning-analysis.md
+      - finance-saas-metrics.md
+      - operations-service-governance.md
+    contextual_knowledge: []
+  product-manager:
+    file: agents/product-manager.md
+    department: product
+    level: manager
+    reports_to: director-of-product
+    executive_owner: cpo
+    role_type: manager
+    operating_mode: managerial
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - channel-hypothesis.md
+      - fogg-behavior.md
+      - jtbd-interview.md
+      - ltv-cac-gate.md
+      - mvp-architecture.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - product-discovery.md
+      - product-pmf-signals.md
+      - strategy-product-market-fit.md
+      - ux-onboarding-patterns.md
+    contextual_knowledge: []
+  purple-team-lead:
+    file: agents/purple-team-lead.md
+    department: security
+    level: lead
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: lead
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  qa-engineer:
+    file: agents/qa-engineer.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - jtbd-interview.md
+      - mvp-architecture.md
+      - tech-debt-quadrant.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-backend-patterns.md
+      - engineering-qa-strategy.md
+      - engineering-security-backend.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  red-team-operator:
+    file: agents/red-team-operator.md
+    department: security
+    level: operator
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: operator
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  revops-manager:
+    file: agents/revops-manager.md
+    department: revenue-operations
+    level: manager
+    reports_to: vp-revops
+    executive_owner: cro
+    role_type: manager
+    operating_mode: managerial
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - document-dont-create.md
+      - ltv-cac-gate.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - customer-health-scoring.md
+      - sales-crm-data-hygiene.md
+      - sales-data-enrichment.md
+      - sales-forecasting.md
+      - sales-lifecycle-governance.md
+      - sales-performance-analytics.md
+      - sales-pipeline-management.md
+      - sales-territory-capacity-planning.md
+    contextual_knowledge: []
+  sales-automation-specialist:
+    file: agents/sales-automation-specialist.md
+    department: revenue-operations
+    level: ic
+    reports_to: vp-revops
+    executive_owner: cro
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - positioning.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-automation-workflows.md
+      - sales-forecasting.md
+      - sales-lifecycle-governance.md
+      - sales-performance-analytics.md
+      - sales-pipeline-management.md
+      - sales-territory-capacity-planning.md
+    contextual_knowledge: []
+  sales-enablement-manager:
+    file: agents/sales-enablement-manager.md
+    department: sales
+    level: manager
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - call-review-scorecards.md
+      - positioning.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-automation-workflows.md
+      - sales-coaching-enablement.md
+      - sales-forecasting.md
+      - sales-lifecycle-governance.md
+      - sales-performance-analytics.md
+      - sales-pipeline-management.md
+      - sales-territory-capacity-planning.md
+    contextual_knowledge: []
+  sales-manager:
+    file: agents/sales-manager.md
+    department: sales
+    level: manager
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - positioning.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-automation-workflows.md
+      - sales-forecasting.md
+      - sales-lifecycle-governance.md
+      - sales-performance-analytics.md
+      - sales-pipeline-management.md
+      - sales-territory-capacity-planning.md
+    contextual_knowledge: []
+  sdet:
+    file: agents/sdet.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  sdr:
+    file: agents/sdr.md
+    department: sales
+    level: ic
+    reports_to: director-of-sales
+    executive_owner: cro
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - positioning.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-appointment-setting.md
+      - sales-automation-workflows.md
+      - sales-forecasting.md
+      - sales-lifecycle-governance.md
+      - sales-performance-analytics.md
+      - sales-pipeline-management.md
+      - sales-territory-capacity-planning.md
+    contextual_knowledge: []
+  security-engineer:
+    file: agents/security-engineer.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  senior-backend-engineer:
+    file: agents/senior-backend-engineer.md
+    department: engineering
+    level: senior_ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: senior_ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - fogg-behavior.md
+      - jtbd-interview.md
+      - mvp-architecture.md
+      - stride-threat.md
+      - tech-debt-quadrant.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-architecture-decisions.md
+      - engineering-backend-patterns.md
+      - engineering-full-stack-patterns.md
+      - engineering-security-backend.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  senior-frontend-engineer:
+    file: agents/senior-frontend-engineer.md
+    department: engineering
+    level: senior_ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: senior_ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - aha-moment.md
+      - fogg-behavior.md
+      - jtbd-interview.md
+      - mvp-architecture.md
+      - tech-debt-quadrant.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-architecture-decisions.md
+      - engineering-frontend-accessibility.md
+      - engineering-frontend-patterns.md
+      - engineering-frontend-performance.md
+      - engineering-full-stack-patterns.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  seo-manager:
+    file: agents/seo-manager.md
+    department: marketing
+    level: manager
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: manager
+    operating_mode: managerial
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - content-mix.md
+      - fogg-behavior.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - marketing-brand-positioning.md
+      - marketing-content-strategy.md
+      - marketing-funnel-frameworks.md
+      - seo-organic-strategy.md
+      - seo-technical-audit.md
+    contextual_knowledge: []
+  soc-analyst:
+    file: agents/soc-analyst.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  social-media-designer:
+    file: agents/social-media-designer.md
+    department: creative
+    level: ic
+    reports_to: creative-director
+    executive_owner: cmo
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - content-mix.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - design-social-media-formats.md
+      - design-visual-systems.md
+      - marketing-brand-positioning.md
+      - marketing-content-strategy.md
+    contextual_knowledge: []
+  social-media-manager:
+    file: agents/social-media-manager.md
+    department: marketing
+    level: manager
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: manager
+    operating_mode: managerial
+    maturity: shallow
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - GROWTH_PLAN.md
+    required_skills: []
+    contextual_skills: []
+    required_knowledge: []
+    contextual_knowledge: []
+  solutions-architect:
+    file: agents/solutions-architect.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  sre:
+    file: agents/sre.md
+    department: engineering
+    level: ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  staff-engineer:
+    file: agents/staff-engineer.md
+    department: engineering
+    level: senior_ic
+    reports_to: director-of-engineering
+    executive_owner: cto
+    role_type: senior_ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  support-engineer:
+    file: agents/support-engineer.md
+    department: support
+    level: support
+    reports_to: support-manager
+    executive_owner: vp-customer-success
+    role_type: support
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - customer-handoff.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - customer-health-scoring.md
+      - customer-success-management.md
+      - support-escalation-management.md
+      - support-incident-triage.md
+      - support-knowledge-operations.md
+    contextual_knowledge: []
+  support-manager:
+    file: agents/support-manager.md
+    department: support
+    level: manager
+    reports_to: support-manager
+    executive_owner: vp-customer-success
+    role_type: manager
+    operating_mode: managerial
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - customer-handoff.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - customer-health-scoring.md
+      - customer-success-management.md
+      - support-escalation-management.md
+      - support-incident-triage.md
+      - support-knowledge-operations.md
+    contextual_knowledge: []
+  support-specialist:
+    file: agents/support-specialist.md
+    department: support
+    level: support
+    reports_to: support-manager
+    executive_owner: vp-customer-success
+    role_type: support
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - customer-handoff.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - customer-health-scoring.md
+      - customer-success-management.md
+      - support-escalation-management.md
+      - support-incident-triage.md
+      - support-knowledge-operations.md
+    contextual_knowledge: []
+  sysadmin:
+    file: agents/sysadmin.md
+    department: it
+    level: ic
+    reports_to: it-manager
+    executive_owner: coo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  technical-recruiter:
+    file: agents/technical-recruiter.md
+    department: people
+    level: ic
+    reports_to: director-of-talent-acquisition
+    executive_owner: chro
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - capability-maps.md
+      - structured-interviewing.md
+    contextual_skills: []
+    required_knowledge:
+      - people-compensation-performance.md
+      - people-learning-development.md
+      - people-talent-acquisition.md
+      - strategy-hiring-sequence.md
+    contextual_knowledge: []
+  threat-intelligence-analyst:
+    file: agents/threat-intelligence-analyst.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
+  tpm:
+    file: agents/tpm.md
+    department: product
+    level: ic
+    reports_to: director-of-product
+    executive_owner: cpo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - problem-framing.md
+    contextual_skills: []
+    required_knowledge:
+      - product-delivery-governance.md
+      - product-discovery.md
+      - product-pmf-signals.md
+      - product-ux-research.md
+      - ux-usability-testing.md
+    contextual_knowledge: []
+  traffic-manager:
+    file: agents/traffic-manager.md
+    department: marketing
+    level: operator
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
+    role_type: operator
+    operating_mode: executional
+    maturity: shallow
+    lifecycle: active
+    aliases: []
+    owns_outputs:
+      - TRAFFIC_PLAN.md
+    required_skills: []
+    contextual_skills: []
+    required_knowledge: []
+    contextual_knowledge: []
+  ux-designer:
+    file: agents/ux-designer.md
+    department: design
+    level: ic
+    reports_to: design-cto
+    executive_owner: cpo
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - problem-framing.md
+    contextual_skills: []
+    required_knowledge:
+      - product-delivery-governance.md
+      - product-discovery.md
+      - product-pmf-signals.md
+      - product-ux-research.md
+      - ux-usability-testing.md
+    contextual_knowledge: []
+  video-editor:
+    file: agents/video-editor.md
+    department: creative
+    level: ic
+    reports_to: creative-director
+    executive_owner: cmo
+    role_type: ic
+    operating_mode: executional
+    maturity: mature
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - channel-hypothesis.md
+      - content-mix.md
+      - document-dont-create.md
+      - fogg-behavior.md
+    contextual_skills: []
+    required_knowledge:
+      - creative-brief-framework.md
+      - design-social-media-formats.md
+      - design-visual-systems.md
+      - marketing-content-strategy.md
+      - video-post-production-workflow.md
+      - video-retention-editing.md
+    contextual_knowledge: []
+  vp-brand-communications:
+    file: agents/vp-brand-communications.md
+    department: marketing
+    level: vp
+    reports_to: cmo
+    executive_owner: cmo
+    role_type: vp
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - campaign-briefs.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - brand-communications-operations.md
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - partnership-channel-programs.md
+    contextual_knowledge: []
+  vp-customer-success:
+    file: agents/vp-customer-success.md
+    department: customer-success
+    level: vp
+    reports_to: vp-customer-success
+    executive_owner: vp-customer-success
+    role_type: vp
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - customer-handoff.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - customer-health-scoring.md
+      - customer-onboarding-implementation.md
+      - customer-success-management.md
+      - support-escalation-management.md
+      - support-incident-triage.md
+      - support-knowledge-operations.md
+    contextual_knowledge: []
+  vp-data:
+    file: agents/vp-data.md
+    department: data
+    level: vp
+    reports_to: cdo
+    executive_owner: cdo
+    role_type: vp
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - experiment-review.md
+      - metric-contracts.md
+    contextual_skills: []
+    required_knowledge:
+      - analytics-measurement-framework.md
+      - data-quality-governance.md
+      - data-warehouse-architecture.md
+    contextual_knowledge: []
+  vp-engineering:
+    file: agents/vp-engineering.md
+    department: engineering
+    level: vp
+    reports_to: cto
+    executive_owner: cto
+    role_type: vp
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - release-governance.md
+    contextual_skills: []
+    required_knowledge:
+      - engineering-platform-governance.md
+      - engineering-reliability-operations.md
+      - engineering-system-design.md
+      - engineering-testing-strategy.md
+    contextual_knowledge: []
+  vp-finance:
+    file: agents/vp-finance.md
+    department: finance
+    level: vp
+    reports_to: cfo
+    executive_owner: cfo
+    role_type: vp
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - decision-briefs.md
+      - document-dont-create.md
+    contextual_skills: []
+    required_knowledge:
+      - finance-close-controls.md
+      - finance-planning-analysis.md
+      - finance-saas-metrics.md
+      - operations-service-governance.md
+    contextual_knowledge: []
+  vp-marketing:
+    file: agents/vp-marketing.md
+    department: marketing
+    level: vp
+    reports_to: cmo
+    executive_owner: cmo
+    role_type: vp
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - campaign-briefs.md
+      - positioning.md
+    contextual_skills: []
+    required_knowledge:
+      - brand-communications-operations.md
+      - content-editorial-planning.md
+      - marketing-attribution.md
+      - marketing-brand-positioning.md
+      - partnership-channel-programs.md
+    contextual_knowledge: []
+  vp-product:
+    file: agents/vp-product.md
+    department: product
+    level: vp
+    reports_to: cpo
+    executive_owner: cpo
+    role_type: vp
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - document-dont-create.md
+      - problem-framing.md
+    contextual_skills: []
+    required_knowledge:
+      - product-delivery-governance.md
+      - product-discovery.md
+      - product-pmf-signals.md
+      - product-ux-research.md
+      - ux-usability-testing.md
+    contextual_knowledge: []
+  vp-revops:
+    file: agents/vp-revops.md
+    department: revenue-operations
+    level: vp
+    reports_to: cro
+    executive_owner: cro
+    role_type: vp
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - positioning.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-automation-workflows.md
+      - sales-forecasting.md
+      - sales-lifecycle-governance.md
+      - sales-performance-analytics.md
+      - sales-pipeline-management.md
+      - sales-territory-capacity-planning.md
+    contextual_knowledge: []
+  vp-sales:
+    file: agents/vp-sales.md
+    department: sales
+    level: vp
+    reports_to: cro
+    executive_owner: cro
+    role_type: vp
+    operating_mode: strategic
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - positioning.md
+      - value-based-pricing.md
+    contextual_skills: []
+    required_knowledge:
+      - sales-automation-workflows.md
+      - sales-forecasting.md
+      - sales-lifecycle-governance.md
+      - sales-performance-analytics.md
+      - sales-pipeline-management.md
+      - sales-territory-capacity-planning.md
+    contextual_knowledge: []
+  vulnerability-analyst:
+    file: agents/vulnerability-analyst.md
+    department: security
+    level: ic
+    reports_to: director-of-security-engineering
+    executive_owner: ciso
+    role_type: ic
+    operating_mode: executional
+    maturity: generic
+    lifecycle: active
+    aliases: []
+    owns_outputs: []
+    required_skills:
+      - incident-command.md
+      - threat-modeling.md
+    contextual_skills: []
+    required_knowledge:
+      - security-application-engineering.md
+      - security-compliance-roadmap.md
+      - security-detection-response.md
+      - security-incident-response.md
+      - security-vulnerability-management.md
+    contextual_knowledge: []
