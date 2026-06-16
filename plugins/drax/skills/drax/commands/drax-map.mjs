@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.2";
+const FALLBACK_VERSION = "1.1.3";
 
 const ARTIFACTS = [
   "FOUNDER_PROFILE.md",
@@ -219,6 +219,9 @@ function agentColumns(agent, widths) {
   return `${agent.name.padEnd(widths.name)}  ${agent.level.padEnd(widths.level)}  [${agent.requiredSkills.length}]`;
 }
 
+const TREE_EMPTY_PREFIX = "\u00a0\u00a0\u00a0";
+const TREE_VERTICAL_PREFIX = "│\u00a0\u00a0";
+
 function renderSkillBranches(lines, agent, prefix) {
   const skills = agent.requiredSkills.map((skill) => skill.replace(/\.md$/, ""));
   for (const [skillIndex, skill] of skills.entries()) {
@@ -237,14 +240,14 @@ function renderAgentTree(lines, agents, departments, widths) {
     const departmentAgents = agents.filter((agent) => agent.department === department).sort(agentOrder);
     const departmentLast = departmentIndex === renderedDepartments.length - 1;
     const departmentConnector = departmentLast ? "└─ " : "├─ ";
-    const agentPrefix = departmentLast ? "   " : "│  ";
+    const agentPrefix = departmentLast ? TREE_EMPTY_PREFIX : TREE_VERTICAL_PREFIX;
 
     lines.push(`${departmentConnector}${department}`);
     for (const [agentIndex, agent] of departmentAgents.entries()) {
       const agentLast = agentIndex === departmentAgents.length - 1;
       const agentConnector = agentLast ? "└─ " : "├─ ";
       lines.push(`${agentPrefix}${agentConnector}${agentColumns(agent, widths)}`);
-      renderSkillBranches(lines, agent, `${agentPrefix}${agentLast ? "   " : "│  "}`);
+      renderSkillBranches(lines, agent, `${agentPrefix}${agentLast ? TREE_EMPTY_PREFIX : TREE_VERTICAL_PREFIX}`);
     }
   }
 }
@@ -279,7 +282,7 @@ function renderOrganization(lines, orgChart, agents, sectors) {
     const agentLast = index === apexAgents.length - 1;
     const connector = agentLast ? "└─ " : "├─ ";
     lines.push(`${connector}${agentColumns(agent, apexWidths)}`);
-    renderSkillBranches(lines, agent, agentLast ? "   " : "│  ");
+    renderSkillBranches(lines, agent, agentLast ? TREE_EMPTY_PREFIX : TREE_VERTICAL_PREFIX);
   }
   lines.push("");
   lines.push(`Sectors (${sectors.size}):`);
