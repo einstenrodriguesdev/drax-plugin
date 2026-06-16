@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.1";
+const FALLBACK_VERSION = "1.1.2";
 
 const ARTIFACTS = [
   "FOUNDER_PROFILE.md",
@@ -219,6 +219,14 @@ function agentColumns(agent, widths) {
   return `${agent.name.padEnd(widths.name)}  ${agent.level.padEnd(widths.level)}  [${agent.requiredSkills.length}]`;
 }
 
+function renderSkillBranches(lines, agent, prefix) {
+  const skills = agent.requiredSkills.map((skill) => skill.replace(/\.md$/, ""));
+  for (const [skillIndex, skill] of skills.entries()) {
+    const skillConnector = skillIndex === skills.length - 1 ? "└─ " : "├─ ";
+    lines.push(`${prefix}${skillConnector}${skill}`);
+  }
+}
+
 function renderAgentTree(lines, agents, departments, widths) {
   const selected = new Set(departments);
   const renderedDepartments = [...selected]
@@ -233,8 +241,10 @@ function renderAgentTree(lines, agents, departments, widths) {
 
     lines.push(`${departmentConnector}${department}`);
     for (const [agentIndex, agent] of departmentAgents.entries()) {
-      const agentConnector = agentIndex === departmentAgents.length - 1 ? "└─ " : "├─ ";
+      const agentLast = agentIndex === departmentAgents.length - 1;
+      const agentConnector = agentLast ? "└─ " : "├─ ";
       lines.push(`${agentPrefix}${agentConnector}${agentColumns(agent, widths)}`);
+      renderSkillBranches(lines, agent, `${agentPrefix}${agentLast ? "   " : "│  "}`);
     }
   }
 }
@@ -266,8 +276,10 @@ function renderOrganization(lines, orgChart, agents, sectors) {
   lines.push("");
   lines.push("Board & Office of the CEO");
   for (const [index, agent] of apexAgents.entries()) {
-    const connector = index === apexAgents.length - 1 ? "└─ " : "├─ ";
+    const agentLast = index === apexAgents.length - 1;
+    const connector = agentLast ? "└─ " : "├─ ";
     lines.push(`${connector}${agentColumns(agent, apexWidths)}`);
+    renderSkillBranches(lines, agent, agentLast ? "   " : "│  ");
   }
   lines.push("");
   lines.push(`Sectors (${sectors.size}):`);
@@ -276,7 +288,7 @@ function renderOrganization(lines, orgChart, agents, sectors) {
     lines.push(`  - ${sector.name} — exec ${sector.executive} — ${count} agents — ${sector.departments.join(", ")}`);
   }
   lines.push("");
-  lines.push("Org tree (sector › department › level › agent [skills]):");
+  lines.push("Org tree (sector › department › agent [skills] › skill):");
   for (const sector of sectors.values()) {
     const sectorAgents = agentsForDepartments(agents, sector.departments);
     lines.push(`${sector.name.toUpperCase()} · ${sector.executive} · ${sectorAgents.length} agents`);

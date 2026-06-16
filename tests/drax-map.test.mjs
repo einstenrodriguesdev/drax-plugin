@@ -14,17 +14,23 @@ test("drax map renders the bundled organization as a box-drawing tree and mechan
   const agentTotal = result.stdout.match(/agents: ([0-9]+) \| sectors: 11/);
   assert.ok(agentTotal);
   assert.equal(Number(agentTotal[1]), 134);
-  assert.match(result.stdout, /^Board & Office of the CEO\n├─ chairman[ \t]+board[ \t]+\[2\]\n└─ ceo[ \t]+c_level[ \t]+\[10\]$/m);
+  assert.match(result.stdout, /^Board & Office of the CEO$/m);
+  assert.match(result.stdout, /^├─ chairman[ \t]+board[ \t]+\[2\]$/m);
+  assert.match(result.stdout, /^└─ ceo[ \t]+c_level[ \t]+\[10\]$/m);
   assert.match(result.stdout, /Sectors \(11\):[\s\S]*Technology — exec cto — 23 agents — engineering/);
   assert.match(result.stdout, /Revenue — exec cro — 26 agents — sales, revenue-operations, customer-success, support/);
-  assert.match(result.stdout, /Org tree \(sector › department › level › agent \[skills\]\):[\s\S]*TECHNOLOGY · cto · 23 agents/);
+  assert.match(result.stdout, /Org tree \(sector › department › agent \[skills\] › skill\):[\s\S]*TECHNOLOGY · cto · 23 agents/);
   assert.match(result.stdout, /├─ /);
   assert.match(result.stdout, /└─ /);
   assert.match(result.stdout, /│/);
-  const leafLines = result.stdout
+  const agentLines = result.stdout
     .split("\n")
     .filter((line) => /^(?:[│ ]{3})?[├└]─ [a-z0-9-]+ +[a-z_]+ +\[[0-9]+\]$/.test(line));
-  assert.equal(leafLines.length, Number(agentTotal[1]));
+  assert.equal(agentLines.length, Number(agentTotal[1]));
+  const skillLeaves = result.stdout
+    .split("\n")
+    .filter((line) => /^(?:[│ ]{3})+[├└]─ [a-z0-9-]+$/.test(line));
+  assert.ok(skillLeaves.length > agentLines.length, "skill names should render as child branches");
   assert.match(result.stdout, /\bseo-manager\b/);
   assert.match(result.stdout, /== MECHANISMS \/ PLATFORM ==/);
 });
