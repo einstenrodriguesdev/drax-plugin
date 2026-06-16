@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable organic automation system for a founder who already has a product.
 ---
 
-# Drax v1.1.6 Organic Automation Runtime
+# Drax v1.1.7 Organic Automation Runtime
 
-Drax v1.1.6 is for a founder who already has a product and wants to convert founder knowledge into a reliable organic traffic system.
+Drax v1.1.7 is for a founder who already has a product and wants to convert founder knowledge into a reliable organic traffic system.
 
 The operating goal is narrow:
 
