@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.3";
+const FALLBACK_VERSION = "1.1.4";
 
 const ARTIFACTS = [
   "FOUNDER_PROFILE.md",
@@ -219,8 +219,8 @@ function agentColumns(agent, widths) {
   return `${agent.name.padEnd(widths.name)}  ${agent.level.padEnd(widths.level)}  [${agent.requiredSkills.length}]`;
 }
 
-const TREE_EMPTY_PREFIX = "\u00a0\u00a0\u00a0";
-const TREE_VERTICAL_PREFIX = "│\u00a0\u00a0";
+const TREE_EMPTY_PREFIX = "   ";
+const TREE_VERTICAL_PREFIX = "│  ";
 
 function renderSkillBranches(lines, agent, prefix) {
   const skills = agent.requiredSkills.map((skill) => skill.replace(/\.md$/, ""));
@@ -440,4 +440,4 @@ if (requestedAgent) {
   renderMechanisms(lines, orgChart, workspace);
 }
 renderWorkspace(lines, workspace);
-process.stdout.write(`${lines.join("\n").trimEnd()}\n`);
+process.stdout.write(`\`\`\`\n${lines.join("\n").trimEnd()}\n\`\`\`\n`);

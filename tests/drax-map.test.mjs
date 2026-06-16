@@ -9,6 +9,8 @@ test("drax map renders the bundled organization as a box-drawing tree and mechan
   const result = spawnSync(process.execPath, [CMD], { encoding: "utf8" });
 
   assert.equal(result.status, 0, result.stderr);
+  assert.ok(result.stdout.startsWith("```\n"));
+  assert.ok(result.stdout.endsWith("\n```\n"));
   assert.match(result.stdout, /DRAX v/);
   assert.match(result.stdout, /== ORGANIZATION ==/);
   const agentTotal = result.stdout.match(/agents: ([0-9]+) \| sectors: 11/);
@@ -25,11 +27,11 @@ test("drax map renders the bundled organization as a box-drawing tree and mechan
   assert.match(result.stdout, /│/);
   const agentLines = result.stdout
     .split("\n")
-    .filter((line) => /^(?:[│ \u00a0]{3})?[├└]─ [a-z0-9-]+ +[a-z_]+ +\[[0-9]+\]$/.test(line));
+    .filter((line) => /^(?:[│ ]{3})?[├└]─ [a-z0-9-]+ +[a-z_]+ +\[[0-9]+\]$/.test(line));
   assert.equal(agentLines.length, Number(agentTotal[1]));
   const skillLeaves = result.stdout
     .split("\n")
-    .filter((line) => /^(?:[│ \u00a0]{3})+[├└]─ [a-z0-9-]+$/.test(line));
+    .filter((line) => /^(?:[│ ]{3})+[├└]─ [a-z0-9-]+$/.test(line));
   assert.ok(skillLeaves.length > agentLines.length, "skill names should render as child branches");
   assert.match(result.stdout, /\bseo-manager\b/);
   assert.match(result.stdout, /== MECHANISMS \/ PLATFORM ==/);
@@ -39,6 +41,8 @@ test("drax map agent detail prints real required skills", () => {
   const result = spawnSync(process.execPath, [CMD, "--agent", "seo-manager"], { encoding: "utf8" });
 
   assert.equal(result.status, 0, result.stderr);
+  assert.ok(result.stdout.startsWith("```\n"));
+  assert.ok(result.stdout.endsWith("\n```\n"));
   assert.match(result.stdout, /agent: seo-manager/);
   assert.match(result.stdout, /required skills:\n(?:  - .+\n)+/);
   assert.match(result.stdout, /required knowledge:\n(?:  - .+\n)+/);
