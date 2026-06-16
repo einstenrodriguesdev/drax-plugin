@@ -21,7 +21,10 @@ org:
   aliases: []
   owns_outputs:
     - TRAFFIC_PLAN.md
-  required_skills: []
+  required_skills:
+    - ltv-cac-gate.md
+    - channel-hypothesis.md
+    - experiment-review.md
   contextual_skills: []
   required_knowledge: []
   contextual_knowledge: []
@@ -40,6 +43,7 @@ Read these skill files before applying the relevant framework. Use the Read tool
 
 - `ltv-cac-gate.md` — LTV:CAC acquisition gate and full-cost CAC calculation (REQUIRED)
 - `channel-hypothesis.md` — channel hypothesis execution protocol (REQUIRED)
+- `experiment-review.md` — experiment review protocol (REQUIRED)
 
 CEO brief will specify which are REQUIRED and which are CONTEXTUAL for this project.
 

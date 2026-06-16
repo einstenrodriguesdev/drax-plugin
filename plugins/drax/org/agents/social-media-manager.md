@@ -22,7 +22,10 @@ org:
   aliases: []
   owns_outputs:
     - GROWTH_PLAN.md
-  required_skills: []
+  required_skills:
+    - content-mix.md
+    - document-dont-create.md
+    - campaign-briefs.md
   contextual_skills: []
   required_knowledge: []
   contextual_knowledge: []
@@ -41,6 +44,7 @@ Read these skill files before applying the relevant framework. Use the Read tool
 
 - `content-mix.md` — 50/30/20 content mix protocol (REQUIRED)
 - `document-dont-create.md` — GaryVee documenting protocol (REQUIRED)
+- `campaign-briefs.md` — campaign brief alignment protocol (REQUIRED)
 
 CEO brief will specify which are REQUIRED and which are CONTEXTUAL for this project.
 

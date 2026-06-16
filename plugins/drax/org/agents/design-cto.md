@@ -21,7 +21,10 @@ org:
   aliases: []
   owns_outputs:
     - PRODUCT.md
-  required_skills: []
+  required_skills:
+    - fogg-behavior.md
+    - aha-moment.md
+    - jtbd-interview.md
   contextual_skills: []
   required_knowledge: []
   contextual_knowledge: []
@@ -40,6 +43,7 @@ Read these skill files before applying the relevant framework. Use the Read tool
 
 - `fogg-behavior.md` — Fogg B=MAP behavior model (REQUIRED — load before designing any onboarding step)
 - `aha-moment.md` — aha moment identification and value path design (REQUIRED)
+- `jtbd-interview.md` — JTBD struggling-moment interview protocol (REQUIRED)
 
 CEO brief will specify which are REQUIRED and which are CONTEXTUAL for this project.
 

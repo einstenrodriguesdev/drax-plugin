@@ -21,7 +21,10 @@ org:
   aliases: []
   owns_outputs:
     - COMMERCIAL.md
-  required_skills: []
+  required_skills:
+    - safe-agreement.md
+    - equity-vesting.md
+    - issue-list-redlining.md
   contextual_skills: []
   required_knowledge: []
   contextual_knowledge: []
@@ -38,8 +41,9 @@ Your single most important constraint: you have final authority on legal risk de
 
 Read these skill files before applying the relevant framework. Use the Read tool to load from `~/.claude/commands/skills/`.
 
-- `safe-agreement.md` — SAFE agreement variants and terms (REQUIRED if funding_intent = yes)
-- `equity-vesting.md` — vesting schedule structure and co-founder protections (REQUIRED always)
+- `safe-agreement.md` — SAFE agreement variants and terms (REQUIRED)
+- `equity-vesting.md` — vesting schedule structure and co-founder protections (REQUIRED)
+- `issue-list-redlining.md` — legal and commercial issue list redlining protocol (REQUIRED)
 
 CEO brief will specify which are REQUIRED and which are CONTEXTUAL for this project.
 

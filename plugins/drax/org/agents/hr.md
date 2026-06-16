@@ -21,7 +21,10 @@ org:
   lifecycle: active
   aliases: []
   owns_outputs: []
-  required_skills: []
+  required_skills:
+    - structured-interviewing.md
+    - capability-maps.md
+    - decision-briefs.md
   contextual_skills: []
   required_knowledge:
     - INDEX.md
@@ -175,7 +178,12 @@ permissionMode: acceptEdits
 [Mission + hierarchy level (Board / C-level / Specialist) + activation criteria]
 
 **SKILLS**
-[Process skill files from ~/.claude/commands/skills/ — with when to load each]
+
+Read these skill files before applying the relevant framework. Use the Read tool to load from `~/.claude/commands/skills/`.
+
+- `structured-interviewing.md` — structured interviewing and scorecard protocol (REQUIRED)
+- `capability-maps.md` — capability mapping protocol (REQUIRED)
+- `decision-briefs.md` — decision brief protocol (REQUIRED)
 
 **DOMAIN KNOWLEDGE**
 [Domain knowledge docs from ~/.claude/knowledge/ — REQUIRED/CONTEXTUAL classification with load trigger.

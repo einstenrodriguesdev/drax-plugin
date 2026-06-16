@@ -21,7 +21,10 @@ org:
   aliases: []
   owns_outputs:
     - SECURITY.md
-  required_skills: []
+  required_skills:
+    - stride-threat.md
+    - threat-modeling.md
+    - incident-command.md
   contextual_skills: []
   required_knowledge: []
   contextual_knowledge: []
@@ -39,6 +42,8 @@ Your single most important constraint: every control you write must be traceable
 Read these skill files before applying the relevant framework. Use the Read tool to load from `~/.claude/commands/skills/`.
 
 - `stride-threat.md` — STRIDE threat modeling protocol (REQUIRED — load before mapping threats)
+- `threat-modeling.md` — adversarial system failure mapping protocol (REQUIRED)
+- `incident-command.md` — accountable incident response coordination protocol (REQUIRED)
 
 CEO brief will specify which are REQUIRED and which are CONTEXTUAL for this project.
 

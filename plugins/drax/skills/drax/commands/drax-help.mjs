@@ -2,7 +2,7 @@
 // Deterministic command. Prints the Drax command reference. No external deps.
 // Invoked by the `drax` skill when the user runs `$drax help`.
 
-const VERSION = "1.1.4";
+const VERSION = "1.1.5";
 
 const SKILL_COMMANDS = [
   ["$drax", "Start or resume the organic automation system: founder interview -> 12 baseline artifacts -> reviewable daily run."],
@@ -12,20 +12,10 @@ const SKILL_COMMANDS = [
   ["$drax help", "Alias for $drax-help."],
 ];
 
-const CLI_COMMANDS = [
-  ["drax", "Start founder intelligence intake in Codex (same brain as $drax, from a shell)."],
-  ["drax init", "Copy the 12 baseline artifacts into the current workspace."],
-  ["drax blog init", "Generate a self-contained Astro editorial blog surface."],
-  ["drax cycle --dry-run", "Run the headless content cycle without publishing."],
-  ["drax cycle --publish", "Run the content cycle and write the blog artifact in the isolated clone."],
-  ["drax cycle cron", "Print the cron entry for the scheduled daily trigger."],
-  ["drax distribute --platform <p>", "Queue a social post draft from the latest publish record (add --confirm to post)."],
-  ["drax distribute login --platform <p>", "Open a browser once and save a Playwright session."],
-  ["drax status [--json]", "Show funnel layer health (generation, distribution, activation)."],
-  ["drax doctor", "Verify the local installation."],
-  ["drax prompt \"task\"", "Print a portable Drax prompt."],
-  ["drax install --target all", "Install Codex plugin, Claude command, and shell launcher."],
-  ["drax --version", "Print version."],
+const CLI_NOTE = [
+  "Standalone shell CLI:",
+  "  The standalone `drax ...` CLI is available only after a standalone install (`drax install`).",
+  "  It is not part of a Codex-only plugin session. Run `drax --help` in a shell for that surface.",
 ];
 
 const UPDATE_COMMANDS = [
@@ -52,7 +42,7 @@ const out = [
   "",
   block("In a Codex session (skill commands):", SKILL_COMMANDS),
   "",
-  block("In a shell (CLI commands):", CLI_COMMANDS),
+  ...CLI_NOTE,
   "",
   block("Updating Drax (Codex-native plugin upgrade):", UPDATE_COMMANDS),
   "",
