@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.0";
+const FALLBACK_VERSION = "1.1.1";
 
 const ARTIFACTS = [
   "FOUNDER_PROFILE.md",
@@ -208,22 +208,33 @@ function agentsForDepartments(agents, departments) {
   return [...agents.values()].filter((agent) => selected.has(agent.department));
 }
 
-function renderDepartmentTree(lines, agents, departments, indent = "    ") {
+function columnWidths(agentList) {
+  return {
+    name: Math.max(0, ...agentList.map((agent) => agent.name.length)),
+    level: Math.max(0, ...agentList.map((agent) => agent.level.length)),
+  };
+}
+
+function agentColumns(agent, widths) {
+  return `${agent.name.padEnd(widths.name)}  ${agent.level.padEnd(widths.level)}  [${agent.requiredSkills.length}]`;
+}
+
+function renderAgentTree(lines, agents, departments, widths) {
   const selected = new Set(departments);
-  for (const department of [...selected].sort()) {
-    const departmentAgents = agents.filter((agent) => agent.department === department);
-    if (!departmentAgents.length) continue;
-    lines.push(`${indent}${department}`);
-    const levels = new Map();
-    for (const agent of departmentAgents) {
-      if (!levels.has(agent.level)) levels.set(agent.level, []);
-      levels.get(agent.level).push(agent);
-    }
-    for (const level of [...levels.keys()].sort(levelOrder)) {
-      lines.push(`${indent}  ${level}`);
-      for (const agent of levels.get(level).sort((left, right) => left.name.localeCompare(right.name))) {
-        lines.push(`${indent}    - ${agent.name} [${agent.requiredSkills.length} skills]`);
-      }
+  const renderedDepartments = [...selected]
+    .sort()
+    .filter((department) => agents.some((agent) => agent.department === department));
+
+  for (const [departmentIndex, department] of renderedDepartments.entries()) {
+    const departmentAgents = agents.filter((agent) => agent.department === department).sort(agentOrder);
+    const departmentLast = departmentIndex === renderedDepartments.length - 1;
+    const departmentConnector = departmentLast ? "└─ " : "├─ ";
+    const agentPrefix = departmentLast ? "   " : "│  ";
+
+    lines.push(`${departmentConnector}${department}`);
+    for (const [agentIndex, agent] of departmentAgents.entries()) {
+      const agentConnector = agentIndex === departmentAgents.length - 1 ? "└─ " : "├─ ";
+      lines.push(`${agentPrefix}${agentConnector}${agentColumns(agent, widths)}`);
     }
   }
 }
@@ -245,16 +256,18 @@ function renderOrganization(lines, orgChart, agents, sectors) {
   const skills = markdownCount(path.join(orgDir, "skills"));
   const knowledge = markdownCount(path.join(orgDir, "knowledge"));
   const coveredDepartments = new Set([...sectors.values()].flatMap((sector) => sector.departments));
-  const apexAgents = [...agents.values()].filter((agent) => !coveredDepartments.has(agent.department)).sort(agentOrder);
+  const apexAgents = [...agents.values()].filter((agent) => agent.department === "executive").sort(agentOrder);
+  const apexWidths = columnWidths(apexAgents);
 
   lines.push(
     `agents: ${agents.size} | sectors: ${sectors.size} | departments: ${departments.size} | C-levels: ${cLevels.length} | directors: ${directors.length} | managers: ${managers.length} | ICs/specialists: ${specialists}`,
   );
   lines.push(`skills library: ${skills} | knowledge library: ${knowledge}`);
   lines.push("");
-  lines.push("Board & Office of the CEO:");
-  for (const agent of apexAgents) {
-    lines.push(`  - ${agent.name} [${agent.level}]`);
+  lines.push("Board & Office of the CEO");
+  for (const [index, agent] of apexAgents.entries()) {
+    const connector = index === apexAgents.length - 1 ? "└─ " : "├─ ";
+    lines.push(`${connector}${agentColumns(agent, apexWidths)}`);
   }
   lines.push("");
   lines.push(`Sectors (${sectors.size}):`);
@@ -263,16 +276,16 @@ function renderOrganization(lines, orgChart, agents, sectors) {
     lines.push(`  - ${sector.name} — exec ${sector.executive} — ${count} agents — ${sector.departments.join(", ")}`);
   }
   lines.push("");
-  lines.push("Org tree (sector → department → level → agent [n skills]):");
+  lines.push("Org tree (sector › department › level › agent [skills]):");
   for (const sector of sectors.values()) {
     const sectorAgents = agentsForDepartments(agents, sector.departments);
-    lines.push(`  ${sector.name.toUpperCase()}  (exec: ${sector.executive})`);
-    renderDepartmentTree(lines, sectorAgents, sector.departments);
+    lines.push(`${sector.name.toUpperCase()} · ${sector.executive} · ${sectorAgents.length} agents`);
+    renderAgentTree(lines, sectorAgents, sector.departments, columnWidths(sectorAgents));
   }
   const unassignedAgents = [...agents.values()].filter((agent) => agent.department !== "executive" && !coveredDepartments.has(agent.department));
   if (unassignedAgents.length) {
-    lines.push("  UNASSIGNED");
-    renderDepartmentTree(lines, unassignedAgents, [...new Set(unassignedAgents.map((agent) => agent.department))]);
+    lines.push(`UNASSIGNED · unassigned · ${unassignedAgents.length} agents`);
+    renderAgentTree(lines, unassignedAgents, [...new Set(unassignedAgents.map((agent) => agent.department))], columnWidths(unassignedAgents));
   }
   lines.push("");
 }
