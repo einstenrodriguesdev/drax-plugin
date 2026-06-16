@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.7";
+const FALLBACK_VERSION = "1.1.8";
 
 const ARTIFACTS = [
   "FOUNDER_PROFILE.md",
@@ -423,15 +423,30 @@ function renderAgentDetail(lines, orgChart, agents, name) {
   return true;
 }
 
+function writeMapDump(target, text) {
+  try {
+    fs.writeFileSync(target, `${text.trimEnd()}\n`, "utf8");
+  } catch {
+    // The stdout map is the primary output; the file dump is best-effort.
+  }
+}
+
 const { agent: requestedAgent, workspace } = parseArgs(process.argv.slice(2));
 const version = readVersion();
 const orgChart = locateOrgChart(workspace);
 const { agents, sectors } = orgChart ? parseOrgChart(fs.readFileSync(orgChart, "utf8")) : { agents: new Map(), sectors: new Map() };
+const mapPath = path.join(workspace, "DRAX_MAP.txt");
 const lines = [
   `DRAX v${version} — capability map`,
-  `org bundle: ${orgChart ? path.dirname(orgChart) : "not found"}`,
-  "",
 ];
+
+if (!requestedAgent) {
+  lines.push(`Full map (all ${agents.size} agents + their skills) written to: ${mapPath}`);
+  lines.push("Open that file if your terminal truncates the output below.");
+}
+
+lines.push(`org bundle: ${orgChart ? path.dirname(orgChart) : "not found"}`);
+lines.push("");
 
 if (requestedAgent) {
   renderAgentDetail(lines, orgChart, agents, requestedAgent);
@@ -440,4 +455,6 @@ if (requestedAgent) {
   renderMechanisms(lines, orgChart, workspace);
 }
 renderWorkspace(lines, workspace);
-process.stdout.write(`\`\`\`\n${lines.join("\n").trimEnd()}\n\`\`\`\n`);
+const report = lines.join("\n").trimEnd();
+if (!requestedAgent) writeMapDump(mapPath, report);
+process.stdout.write(`\`\`\`\n${report}\n\`\`\`\n`);

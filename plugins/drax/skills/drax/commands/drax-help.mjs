@@ -2,7 +2,7 @@
 // Deterministic command. Prints the Drax command reference. No external deps.
 // Invoked by the `drax` skill when the user runs `$drax help`.
 
-const VERSION = "1.1.7";
+const VERSION = "1.1.8";
 
 const SKILL_COMMANDS = [
   ["$drax", "Start or resume the organic automation system: founder interview -> 12 baseline artifacts -> reviewable daily run."],
@@ -37,19 +37,20 @@ function block(title, rows) {
 const out = [
   `DRAX v${VERSION} - command reference`,
   "",
-  "DRAX — a self-hosted company that runs itself.",
+  "DR△X is an enterprise operating architecture for agentic execution. It",
+  "maps AI onto the structure of a company, with executive direction,",
+  "departmental ownership, managerial coordination and specialist execution.",
   "",
-  "134 agents organized like a real enterprise — strategy, product, design,",
-  "marketing, sales, finance, security — each modeled on how a real employee",
-  "decides and acts. Hand it your product knowledge and the organization shapes",
-  "your brand and offer, turns it into articles, social posts, images and video,",
-  "and distributes them automatically to grow your audience organically — then",
-  "builds toward paid ads and scaling techniques on top.",
+  "Founder vision becomes organizational direction. That direction is",
+  "distributed across accountable domains such as strategy, product,",
+  "technology, marketing, revenue, finance, security, operations and legal,",
+  "each operating through scoped context, reviewable artifacts and reporting",
+  "paths.",
   "",
-  "The belief: anyone should be able to run the company they always dreamed of —",
-  "working for your success and for the customers you serve, 24/7, on any device.",
-  "Every move is reviewable and gate-checked: it researches, drafts and dry-runs;",
-  "you approve what goes live.",
+  "The result is coherent enterprise execution: plans, workflows, product",
+  "decisions, content systems, distribution loops, financial models,",
+  "compliance records and investor readiness produced from the same",
+  "organizational substrate.",
   "",
   block("In a Codex session (skill commands):", SKILL_COMMANDS),
   "",
