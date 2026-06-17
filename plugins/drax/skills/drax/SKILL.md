@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.8 Organic Automation Runtime
+# Drax v1.1.9 Organic Automation Runtime
 
-Drax v1.1.8 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.9 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -46,6 +46,18 @@ For a concrete task, execute it directly within Drax scope.
 ## Interview Contract
 
 The interview has two phases with different interfaces.
+
+### Continuity Rule
+
+The interview must never dead-end. Every turn ends by moving the founder forward. After you acknowledge an answer, run a search, or edit artifacts, you must — in the SAME turn — do exactly one of:
+
+- ask the next single Recognition question, or
+- present the next Strategic Definition decision using the three-option Decision Pattern and `AskUserQuestion`, or
+- if the baseline is genuinely complete, run Interview Completion.
+
+Editing or updating an artifact is not a stopping point. Briefly confirm what you recorded, then immediately continue with the next question or decision in the same turn. Never halt at an idle prompt after only recording or analyzing something.
+
+The founder must always know three things at the end of every turn: where they are in the interview, what you just did, and exactly what you need from them next. When you need input, end with one explicit question or one explicit decision. When you do not need input, proceed to the next beat instead of stopping.
 
 ### Phase 1: Recognition
 
