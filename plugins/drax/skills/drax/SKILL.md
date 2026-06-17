@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.9 Organic Automation Runtime
+# Drax v1.1.10 Organic Automation Runtime
 
-Drax v1.1.9 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.10 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -33,7 +33,28 @@ These are real commands: the output is produced by the script, not by you. Never
 
 ## Mode Selection
 
-When invoked without a substantive task, begin the founder interview as the Chairman. The interview is a human conversation, one question at a time — never a wall of text, and never a choice menu in the opening. The first response must be only this welcome and the first question:
+When invoked without a substantive task, begin the founder interview as the Chairman,
+but first check whether this workspace already holds an in-progress interview (see
+Resume Detection) and resume it if so; otherwise open a fresh interview with the
+welcome below.
+
+### Resume Detection
+
+Before emitting the opening welcome, make exactly one inspection of the current
+workspace for an existing interview: the presence of an `EXECUTION_STATE.md` (or the
+baseline artifacts / a `.drax/` workspace). This single check is the only inspection
+allowed before the first response.
+
+- No existing state — this is a fresh start. Your first response must be only the
+  welcome and the name question below: no tool calls, no file reads, no summary first.
+- Existing state found — this is a resume. Read `EXECUTION_STATE.md` and the artifacts
+  it references. Do NOT ask the founder's name again and do NOT restart Recognition
+  from the top. Your first response must, in a single turn: greet the founder by name
+  from `FOUNDER_PROFILE.md`; state briefly (2-4 lines) what is already settled and
+  what is still open; note they can say "start over" to begin a fresh interview; then,
+  per the Continuity Rule, immediately ask the next single open question or decision
+  recorded in `EXECUTION_STATE.md`. Never re-ask anything already answered in the
+  artifacts.
 
 Welcome to DRAX.
 

@@ -269,7 +269,7 @@ function writeFakeCycleCodex(directory, articleBody) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.9");
+  assert.equal(result.stdout.trim(), "1.1.10");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -300,10 +300,11 @@ test("the bare drax command starts founder intelligence intake", () => {
     const prompt = readFileSync(output, "utf8");
     assert.match(
       prompt,
-      /The first response must be only this question:\nWelcome to DRAX\.\n\nI'm the Chairman/,
+      /When there is no in-progress interview, the first response must be only this question:\nWelcome to DRAX\.\n\nI'm the Chairman/,
     );
     assert.match(prompt, /Phase 1 is Recognition: free text only, no visible choice menus/);
     assert.match(prompt, /Never dead-end the interview/);
+    assert.match(prompt, /resume instead of cold-starting/);
     assert.match(prompt, /read repository evidence before asking for repo facts/);
     assert.match(prompt, /AskUserQuestion/);
     assert.match(prompt, /scope decisions to the local blog surface only/);

@@ -2,7 +2,7 @@
 // Deterministic command. Prints the Drax command reference. No external deps.
 // Invoked by the `drax` skill when the user runs `$drax help`.
 
-const VERSION = "1.1.9";
+const VERSION = "1.1.10";
 
 const SKILL_COMMANDS = [
   ["$drax", "Start or resume the organic automation system: founder interview -> 12 baseline artifacts -> reviewable daily run."],
@@ -10,6 +10,14 @@ const SKILL_COMMANDS = [
   ["$drax-help", "Show this command reference."],
   ["$drax map", "Alias for $drax-map."],
   ["$drax help", "Alias for $drax-help."],
+];
+
+const RESUME_NOTE = [
+  "Resuming an interview:",
+  "  Run $drax in a workspace that already has the baseline artifacts and DRAX",
+  "  resumes where you stopped: it reads EXECUTION_STATE.md, confirms what is",
+  "  already settled and what is still open, and continues with the next open",
+  "  decision instead of asking your name again. Say \"start over\" to begin fresh.",
 ];
 
 const CLI_NOTE = [
@@ -53,6 +61,8 @@ const out = [
   "organizational substrate.",
   "",
   block("In a Codex session (skill commands):", SKILL_COMMANDS),
+  "",
+  ...RESUME_NOTE,
   "",
   ...CLI_NOTE,
   "",
