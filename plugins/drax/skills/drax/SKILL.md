@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.14 Organic Automation Runtime
+# Drax v1.1.15 Organic Automation Runtime
 
-Drax v1.1.14 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.15 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -242,10 +242,25 @@ Use the vendored V1 worker definitions in `templates/workers/` for customer inst
 - social visual assets: `templates/workers/social-media-designer.md`
 - motion/video finishing: `templates/workers/video-editor.md` or `templates/workers/motion-designer.md`
 - SEO: `templates/workers/seo-manager.md`
+- editorial/claims review: `templates/workers/claims-quality-reviewer.md`
 - measurement: `templates/workers/analytics-attribution-specialist.md`
 - browser workflow testing: `templates/workers/marketing-automation-specialist.md`
 
 Do not invent new workers casually. New-role creation through the internal Conclave HR protocol is DRAX-internal only and is not part of the customer V1 runtime. Customer installs must not depend on the private Conclave source library.
+
+### Theme Creation Orchestration
+
+The 90-theme editorial plan is produced through the official org chain, not improvised by the Chairman. Accountability runs Chairman -> C-level -> Director -> Specialists:
+
+- Chairman: authorizes the theme-planning job, sets the objective, and owns the final approval gate.
+- CMO (C-level): frames the content mandate from positioning, audience priority, and the founder's objective.
+- Director of Marketing Operations (Director): decomposes the plan into the specialist workstream, assigns owners, and runs the review cadence.
+- Specialists execute in sequence:
+  1. Content strategist (`templates/workers/content-strategist.md`): runs an SME interview before writing. Using the jtbd-interview and Voice-of-Customer technique, the strategist interviews the founder as the primary subject-matter expert — and any relevant specialist for technical or proof topics — to extract real material instead of inventing generic topics. The strategist then writes the full 90 themes in the 30/30/20/10 split, each theme one reusable content idea that yields one coupled create-once-publish-everywhere unit.
+  2. SEO (`templates/workers/seo-manager.md`): maps keyword, search and answer intent, and GEO metadata onto each theme.
+  3. Editorial/claims review (`templates/workers/claims-quality-reviewer.md`): renders an independent pass or fail on factual support and brand-safety; it gates, it never rewrites.
+
+`NINETY_POST_PLAN.md` flips to `ready` only after this chain completes and the review passes. In the interview, the Chairman gathers the founder's subject-matter input and routes theme creation through this chain; he never fabricates 90 themes alone.
 
 ## Rendering Modes
 
