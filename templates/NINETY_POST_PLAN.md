@@ -4,7 +4,7 @@ Status: draft
 Owner: content strategy
 Last reviewed:
 
-The system must generate exactly 90 posts/classes before daily posting starts. The plan is allowed to change, but changes are recorded here before the calendar is updated.
+The system must generate exactly 90 themes before daily posting starts. The plan is allowed to change, but changes are recorded here before the calendar is updated.
 
 ## Planning Inputs
 
@@ -27,12 +27,12 @@ Recommended default for 90 posts:
 
 Adjust only when the founder's product, buyer, or language strategy demands it.
 
-## Class Plan
+## Theme Plan
 
-| # | Block | Class title | Hook | Language | Buyer stage | Source/proof | Main asset | Derivatives | CTA | Status |
+| # | Block | Theme title | Hook | Language | Buyer stage | Source/proof | Main asset | Derivatives | CTA | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
 
 ## Change Log
 
-| Date | Class # | Change | Reason | Owner |
+| Date | Theme # | Change | Reason | Owner |
 |---|---|---|---|---|

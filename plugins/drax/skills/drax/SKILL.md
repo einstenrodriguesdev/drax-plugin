@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.13 Organic Automation Runtime
+# Drax v1.1.14 Organic Automation Runtime
 
-Drax v1.1.13 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.14 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -13,7 +13,7 @@ The operating goal is narrow:
 - capture the current product, stack, market, constraints, and objectives
 - define language and audience priority first
 - choose the safest stack and automation posture for the current phase
-- generate a 90-post/class editorial plan
+- generate a 90-theme editorial plan
 - produce article, SVG/carousel, short-video, audio, metadata, and publishing manifests
 - run the daily content clock with a manual trigger fallback
 - measure results and revise the system from evidence
@@ -79,6 +79,8 @@ The interview must never dead-end. Every turn ends by moving the founder forward
 Editing or updating an artifact is not a stopping point. Briefly confirm what you recorded, then immediately continue with the next question or decision in the same turn. Never halt at an idle prompt after only recording or analyzing something.
 
 The founder must always know three things at the end of every turn: where they are in the interview, what you just did, and exactly what you need from them next. When you need input, end with one explicit question or one explicit decision. When you do not need input, proceed to the next beat instead of stopping.
+
+If the founder steps off the flow — asks a clarifying question, challenges a term, or makes a side comment — answer it directly and completely first, then in the SAME turn return to the interview by re-asking the exact last pending question so the founder never loses their place. A digression is answered, not followed: always come back to the open question.
 
 ### Phase 1: Recognition
 
@@ -150,7 +152,7 @@ An artifact may carry `Status: ready` only when its mastery conditions are met. 
 Two artifacts gate unattended posting and must never be marked `ready` prematurely:
 
 - `FOUNDER_PROFILE.md`: not `ready` until **Banned claims** and **Topics not to publish** are filled in the founder's own words, plus approved claims and voice. An empty or placeholder voice/boundaries section means the autonomous poster has no brand-safety guardrail; treat that as a blocking gap, never as `ready`.
-- `NINETY_POST_PLAN.md`: not `ready` until the Class Plan holds the full 90 classes in the 30/30/20/10 split (30 problem/education, 30 product/proof, 20 operational/tutorial, 10 conversion/objection). A partial seed stays `draft` (or `seeded`); a small bootstrap of a few classes is not a passed planning gate.
+- `NINETY_POST_PLAN.md`: not `ready` until the Theme Plan holds the full 90 themes in the 30/30/20/10 split (30 problem/education, 30 product/proof, 20 operational/tutorial, 10 conversion/objection). Each theme is one reusable content idea, not a lesson — it yields one coupled unit (one blog post, one short video, one carousel). A partial seed stays `draft` (or `seeded`); a small bootstrap of a few themes is not a passed planning gate.
 
 When reporting interview completion, list any artifact still `draft` with the specific missing field, and state plainly that daily posting is not cleared until `FOUNDER_PROFILE.md` and `NINETY_POST_PLAN.md` are both `ready`.
 
@@ -223,7 +225,7 @@ Use capabilities and explicit worker routes, not a large collection of overlappi
 2. Language: select primary and secondary language markets before content planning.
 3. Stack: decide isolated environment, hosting, database/state, connection readiness, logging, and security controls.
 4. Strategy: define content pillars, channel hypotheses, conversion paths, and falsifiable targets.
-5. Editorial: create the 90-post/class plan, source-backed briefs, and a calendar.
+5. Editorial: create the 90-theme plan, source-backed briefs, and a calendar.
 6. Production: prepare article, SVG/carousel, video, audio, metadata, and deliverable manifests.
 7. Distribution: queue approved assets for the active version surface.
 8. Triggering: run a daily clock trigger and a manual trigger, both with idempotency.
