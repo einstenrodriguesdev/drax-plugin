@@ -1,0 +1,320 @@
+#!/usr/bin/env node
+// Deterministic command. Introspects the real Drax cycle pipeline and current workspace state.
+
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const commandFile = fileURLToPath(import.meta.url);
+const commandDir = path.dirname(commandFile);
+const pluginRoot = path.resolve(commandDir, "../../..");
+const packageRoot = path.resolve(pluginRoot, "../..");
+const FALLBACK_VERSION = "1.1.20";
+const PAGE_LINES = 46;
+const DEFAULT_RUN_DIRECTORY = ".drax/runs";
+
+const BASELINE_ARTIFACTS = [
+  "FOUNDER_BRAND_BRIEF.md",
+  "BOARD_MANDATE.md",
+  "VISION_AND_STRATEGY.md",
+  "POSITIONING_STATEMENT.md",
+  "MARKET_LOCALIZATION_STRATEGY.md",
+  "TECH_DECISION_RECORD.md",
+  "GTM_STRATEGY.md",
+  "CONTENT_STRATEGY.md",
+  "EDITORIAL_CALENDAR.md",
+  "CHANNEL_PLAN.md",
+  "AUTOMATION_RUNBOOK.md",
+  "RESPONSIBILITY_MATRIX.md",
+  "MEASUREMENT_FRAMEWORK.md",
+  "EXECUTION_STATE.md",
+];
+
+const PIPELINE = [
+  {
+    evidenceStage: "content-strategist",
+    envStage: "content-strategist",
+    role: "content-strategist",
+    roleFile: "content-strategist.md",
+    reads: "founder-artifacts",
+    creates: ["sector/01-content-brief.md"],
+    gate: "artifact-exists (non-empty, else run aborts)",
+  },
+  {
+    evidenceStage: "seo-manager",
+    envStage: "seo-manager",
+    role: "seo-manager",
+    roleFile: "seo-manager.md",
+    reads: "founder artifacts + sector/01-content-brief.md",
+    creates: ["sector/02-seo-brief.md"],
+    gate: "artifact-exists (non-empty, else run aborts)",
+  },
+  {
+    evidenceStage: "copywriter-performance",
+    envStage: "copywriter",
+    role: "copywriter-performance",
+    roleFile: "copywriter-performance.md",
+    reads: "sector/01-content-brief.md + sector/02-seo-brief.md",
+    creates: ["article.md", "content-package.json"],
+    gate: "article + content-package non-empty",
+  },
+  {
+    evidenceStage: "claims/quality-review",
+    envStage: "review",
+    role: "claims/quality-review",
+    roleFile: "claims-quality-reviewer.md",
+    reads: "article.md + sector/01-content-brief.md + sector/02-seo-brief.md",
+    creates: ["sector/04-review.md"],
+    gate: "VERDICT: PASS regex (else run aborts)",
+  },
+];
+
+function parseArgs(args) {
+  let workspace = null;
+  let page = 1;
+  for (const arg of args) {
+    if (arg.startsWith("--")) continue;
+    if (/^[0-9]+$/.test(arg)) {
+      page = Number(arg);
+      continue;
+    }
+    if (!workspace) workspace = arg;
+  }
+  return { workspace: path.resolve(workspace || process.cwd()), page };
+}
+
+function readVersion() {
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, ".codex-plugin", "plugin.json"), "utf8"));
+    return manifest.version || FALLBACK_VERSION;
+  } catch {
+    return FALLBACK_VERSION;
+  }
+}
+
+function firstExistingDirectory(candidates) {
+  return candidates.find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) || null;
+}
+
+function firstExistingFile(candidates) {
+  return candidates.find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile()) || null;
+}
+
+function resolveWorkspacePath(workspace, value) {
+  return path.isAbsolute(value) ? path.resolve(value) : path.resolve(workspace, value);
+}
+
+function roots(workspace) {
+  return [...new Set([packageRoot, pluginRoot, workspace, process.cwd()])];
+}
+
+function locateTemplates(workspace) {
+  return firstExistingDirectory(
+    roots(workspace).flatMap((root) => [path.join(root, "templates"), path.join(root, "plugins/drax/templates")]),
+  );
+}
+
+function roleFileStatus(templatesRoot, roleFile) {
+  const target = templatesRoot ? firstExistingFile([path.join(templatesRoot, "workers", roleFile)]) : null;
+  return target ? "found" : "MISSING";
+}
+
+function isWorkspace(workspace) {
+  if (fs.existsSync(path.join(workspace, ".drax"))) return true;
+  if (fs.existsSync(path.join(workspace, "EXECUTION_STATE.json"))) return true;
+  return BASELINE_ARTIFACTS.some((file) => fs.existsSync(path.join(workspace, file)));
+}
+
+function readJson(file) {
+  try {
+    return { ok: true, value: JSON.parse(fs.readFileSync(file, "utf8")) };
+  } catch {
+    return { ok: false, value: null };
+  }
+}
+
+function arrayCount(value) {
+  return Array.isArray(value) ? value.length : 0;
+}
+
+function valueOrNeedsDecision(value) {
+  return typeof value === "string" && value.trim() ? value : "NEEDS_DECISION";
+}
+
+function collectJsonFiles(directory) {
+  const files = [];
+  function visit(current) {
+    let entries = [];
+    try {
+      entries = fs.readdirSync(current, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const target = path.join(current, entry.name);
+      if (entry.isDirectory()) visit(target);
+      if (entry.isFile() && entry.name.endsWith(".json")) {
+        try {
+          files.push({ path: target, mtimeMs: fs.statSync(target).mtimeMs });
+        } catch {
+          // Ignore files that disappear during inspection.
+        }
+      }
+    }
+  }
+  visit(directory);
+  return files.sort((left, right) => right.mtimeMs - left.mtimeMs || right.path.localeCompare(left.path));
+}
+
+function latestRunManifest(workspace, state) {
+  const runDirectory =
+    state?.ok && state.value?.config && typeof state.value.config.runDirectory === "string"
+      ? state.value.config.runDirectory
+      : DEFAULT_RUN_DIRECTORY;
+  const runRoot = resolveWorkspacePath(workspace, runDirectory);
+  const [latest] = collectJsonFiles(runRoot);
+  if (!latest) return { status: "none", manifest: null };
+
+  const parsed = readJson(latest.path);
+  if (!parsed.ok || !parsed.value || typeof parsed.value !== "object") return { status: "unreadable", manifest: null };
+  return { status: "ok", manifest: parsed.value };
+}
+
+function latestEvidenceStages(latest) {
+  const sector = latest?.manifest && Array.isArray(latest.manifest.sector) ? latest.manifest.sector : [];
+  return new Set(
+    sector
+      .filter((entry) => entry && typeof entry === "object" && typeof entry.stage === "string" && typeof entry.sha256 === "string")
+      .map((entry) => entry.stage),
+  );
+}
+
+function renderHeader(lines, version) {
+  lines.push(`DRAX v${version} — orchestration introspection ($drax-orq)`);
+  lines.push("Read from the real cycle engine and this workspace's live state.");
+  lines.push("Generated by code; no aspirational orchestration is narrated here.");
+  lines.push("");
+}
+
+function renderPipeline(lines, workspace, latest) {
+  const templatesRoot = locateTemplates(workspace);
+  const evidenceStages = latestEvidenceStages(latest);
+
+  lines.push("== PIPELINE (what actually runs) ==");
+  lines.push("Founder Official Run · sector: organic-content");
+  lines.push("Each stage is one codex exec subprocess with the role .md pasted into the prompt.");
+  lines.push("Real code gates run between stages.");
+  for (const [index, stage] of PIPELINE.entries()) {
+    const connector = index === PIPELINE.length - 1 ? "└─ " : "├─ ";
+    const prefix = index === PIPELINE.length - 1 ? "   " : "│  ";
+    const reads = stage.reads === "founder-artifacts" ? `${BASELINE_ARTIFACTS.length} founder artifacts` : stage.reads;
+    const live = evidenceStages.has(stage.evidenceStage) ? "DONE (sha256 recorded)" : "—";
+    lines.push(`${connector}[${index + 1}] ${stage.evidenceStage}`);
+    lines.push(`${prefix}owner: ${stage.roleFile} (role file: ${roleFileStatus(templatesRoot, stage.roleFile)})`);
+    lines.push(`${prefix}reads: ${reads}`);
+    lines.push(`${prefix}creates: ${stage.creates.join(" + ")}`);
+    lines.push(`${prefix}gate: ${stage.gate}`);
+    lines.push(`${prefix}live: ${live}`);
+  }
+  lines.push("After the sector, a SHA-256 evidence chain is written into content-package.json.");
+  lines.push("A run manifest is recorded, then publish runs (gated, dry-run by default).");
+  lines.push("");
+}
+
+function renderLiveState(lines, workspace, detected, state, latest) {
+  lines.push("== LIVE STATE (this workspace) ==");
+  if (!detected) {
+    lines.push(`workspace: ${workspace} (not a Drax workspace — no live run to introspect)`);
+    lines.push("");
+    return;
+  }
+
+  lines.push(`workspace: ${workspace} (Drax workspace)`);
+  if (!state.ok) {
+    lines.push("EXECUTION_STATE.json: present but unreadable");
+    lines.push("current phase: NEEDS_DECISION");
+    lines.push("publishing mode: NEEDS_DECISION");
+    lines.push("video engine: NEEDS_DECISION");
+    lines.push("active version: NEEDS_DECISION");
+    lines.push("next post index: NEEDS_DECISION");
+    lines.push("last run id: NEEDS_DECISION");
+    lines.push("last published at: NEEDS_DECISION");
+    lines.push("next gate: NEEDS_DECISION");
+    lines.push("completed: 0");
+    lines.push("in progress: 0");
+    lines.push("blocked: none");
+  } else {
+    const value = state.value ?? {};
+    lines.push("EXECUTION_STATE.json: readable");
+    lines.push(`current phase: ${valueOrNeedsDecision(value.currentPhase)}`);
+    lines.push(`publishing mode: ${valueOrNeedsDecision(value.publishingMode)}`);
+    lines.push(`video engine: ${valueOrNeedsDecision(value.videoEngine)}`);
+    lines.push(`active version: ${valueOrNeedsDecision(value.activeVersion)}`);
+    lines.push(`next post index: ${Number.isInteger(value.nextPostIndex) ? value.nextPostIndex : "NEEDS_DECISION"}`);
+    lines.push(`last run id: ${value.lastRunId || "none"}`);
+    lines.push(`last published at: ${value.lastPublishedAt || "none"}`);
+    lines.push(`next gate: ${valueOrNeedsDecision(value.nextGate)}`);
+    lines.push(`completed: ${arrayCount(value.completed)}`);
+    lines.push(`in progress: ${arrayCount(value.inProgress)}`);
+    lines.push(`blocked: ${arrayCount(value.blocked) || "none"}`);
+  }
+
+  if (latest.status === "ok") {
+    const sector = Array.isArray(latest.manifest.sector) ? latest.manifest.sector : [];
+    const runId = valueOrNeedsDecision(latest.manifest.runId);
+    const status = valueOrNeedsDecision(latest.manifest.status);
+    lines.push(`latest run: ${runId} · status ${status} · ${sector.length}/4 stages with sha256 evidence`);
+  } else if (latest.status === "unreadable") {
+    lines.push("latest run: present but unreadable");
+  } else {
+    lines.push("latest run: none recorded");
+  }
+  lines.push("");
+}
+
+function renderAuthority(lines) {
+  lines.push("== AUTHORITY MODEL (honest) ==");
+  lines.push("ENFORCED IN CODE (fail-closed):");
+  lines.push("- single concurrent cycle (flock OS lock)");
+  lines.push("- artifact-exists gate");
+  lines.push("- VERDICT: PASS gate");
+  lines.push("- SHA-256 evidence chain");
+  lines.push("- Ed25519 access-token gate (runtime refuses without a valid token)");
+  lines.push("");
+  lines.push("NOT ENFORCED IN CODE (today):");
+  lines.push("- per-agent token budget (none)");
+  lines.push("- per-agent timeout (no kill if a stage loops/stalls)");
+  lines.push("- C-level kill of a runaway specialist (no supervision tree; stages are codex exec subprocesses, not governed objects)");
+  lines.push("- dynamic org routing (the 4 stages are hardcoded, not chosen at runtime)");
+  lines.push("");
+  lines.push('Agent "authority" today = one prompt sentence per stage ("Stay inside this stage\'s authority"). It is instruction, not control.');
+}
+
+function paginate(lines, page) {
+  const total = Math.max(1, Math.ceil(lines.length / PAGE_LINES));
+  const selected = Math.min(Math.max(1, Number.isInteger(page) && page > 0 ? page : 1), total);
+  const start = (selected - 1) * PAGE_LINES;
+  const pageLines = [`página ${selected}/${total}`, ...lines.slice(start, start + PAGE_LINES)];
+  if (selected < total) pageLines.push(`-- continuar: rode  $drax-orq ${selected + 1}  --`);
+  return pageLines.join("\n").trimEnd();
+}
+
+function main() {
+  const { workspace, page } = parseArgs(process.argv.slice(2));
+  const version = readVersion();
+  const detected = isWorkspace(workspace);
+  const statePath = path.join(workspace, "EXECUTION_STATE.json");
+  const state = detected && fs.existsSync(statePath) ? readJson(statePath) : { ok: false, value: null };
+  const latest = detected ? latestRunManifest(workspace, state) : { status: "none", manifest: null };
+  const lines = [];
+
+  renderHeader(lines, version);
+  renderPipeline(lines, workspace, latest);
+  renderLiveState(lines, workspace, detected, state, latest);
+  renderAuthority(lines);
+
+  const report = paginate(lines, page);
+  process.stdout.write(`\`\`\`\n${report}\n\`\`\`\n`);
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === commandFile) main();

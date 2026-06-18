@@ -188,6 +188,12 @@ function rsvgAvailable() {
   return spawnSync("rsvg-convert", ["--version"], { stdio: "ignore" }).status === 0;
 }
 
+function pipelineSpecFrom(source) {
+  return [...source.matchAll(/evidenceStage:\s*"([^"]+)",[\s\S]*?role:\s*"([^"]+)",[\s\S]*?roleFile:\s*"([^"]+)"/g)].map(
+    ([, evidenceStage, role, roleFile]) => ({ evidenceStage, role, roleFile }),
+  );
+}
+
 function writeFakeCycleCodex(directory, articleBody) {
   const fakeCodex = path.join(directory, "codex");
   writeFileSync(
@@ -269,7 +275,7 @@ function writeFakeCycleCodex(directory, articleBody) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.19");
+  assert.equal(result.stdout.trim(), "1.1.20");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -316,6 +322,45 @@ test("the bare drax command starts founder intelligence intake", () => {
     assert.match(prompt, /AskUserQuestion/);
     assert.match(prompt, /scope decisions to the local blog surface only/);
     assert.doesNotMatch(prompt, /specific project you already want to build/);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("drax-orq pipeline constant matches runSector stages", () => {
+  const cycleSource = readFileSync("src/cycle.ts", "utf8");
+  const orqSource = readFileSync("plugins/drax/skills/drax/commands/drax-orq.mjs", "utf8");
+  const cyclePipeline = pipelineSpecFrom(cycleSource);
+  const orqPipeline = pipelineSpecFrom(orqSource);
+
+  assert.deepEqual(cyclePipeline, [
+    { evidenceStage: "content-strategist", role: "content-strategist", roleFile: "content-strategist.md" },
+    { evidenceStage: "seo-manager", role: "seo-manager", roleFile: "seo-manager.md" },
+    { evidenceStage: "copywriter-performance", role: "copywriter-performance", roleFile: "copywriter-performance.md" },
+    { evidenceStage: "claims/quality-review", role: "claims/quality-review", roleFile: "claims-quality-reviewer.md" },
+  ]);
+  assert.deepEqual(orqPipeline, cyclePipeline);
+});
+
+test("drax-orq commands handle non-workspace directories", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-orq-nonworkspace-"));
+  try {
+    const commands = [
+      [path.resolve("plugins/drax/skills/drax/commands/drax-orq.mjs"), /DRAX v[0-9.]+ — orchestration introspection \(\$drax-orq\)/],
+      [
+        path.resolve("plugins/drax/skills/drax/commands/drax-orq-overview.mjs"),
+        /DRAX v[0-9.]+ — journey overview \(\$drax-orq-overview\)/,
+      ],
+    ];
+
+    for (const [command, header] of commands) {
+      const result = spawnSync(process.execPath, [command, directory], { encoding: "utf8" });
+      assert.equal(result.status, 0, result.stderr);
+      assert.ok(result.stdout.startsWith("```\n"));
+      assert.ok(result.stdout.endsWith("\n```\n"));
+      assert.match(result.stdout, header);
+      assert.match(result.stdout, /not a Drax workspace/);
+    }
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

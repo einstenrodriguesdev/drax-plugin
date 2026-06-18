@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.19 Organic Automation Runtime
+# Drax v1.1.20 Organic Automation Runtime
 
-Drax v1.1.19 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.20 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -24,10 +24,13 @@ This skill ships deterministic command scripts in the `commands/` directory next
 
 - If the argument is `help`, `--help`, or `commands`: run `node "<SKILL_DIR>/commands/drax-help.mjs"`, where `<SKILL_DIR>` is the directory that contains this `SKILL.md`. Print the script's stdout verbatim, then stop.
 - If the argument is `map`, `tree`, or `sectors`: run `node "<SKILL_DIR>/commands/drax-map.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
+- If the argument is `orq`, `orchestration`, or `flow`: run `node "<SKILL_DIR>/commands/drax-orq.mjs" "<CWD>" <PAGE-if-present>`, where `<CWD>` is the current working directory and `<PAGE-if-present>` is the optional page number from the invocation. Print stdout verbatim, then stop.
+- If the argument is `orq-overview` or `overview`: run `node "<SKILL_DIR>/commands/drax-orq-overview.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - For any other invocation, including a bare `$drax` with no argument, skip this router and continue with Mode Selection below.
 
-The plugin also exposes `$drax-help` and `$drax-map` as direct aliases. Their
-skills delegate to these same deterministic scripts.
+The plugin also exposes `$drax-help`, `$drax-map`, `$drax-orq`, and
+`$drax-orq-overview` as direct aliases. Their skills delegate to these same
+deterministic scripts.
 
 These are real commands: the output is produced by the script, not by you. Never paraphrase, regenerate, reorder, or "improve" it. If a script exits non-zero, show its error output verbatim and stop.
 
