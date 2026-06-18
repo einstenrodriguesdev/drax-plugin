@@ -187,17 +187,19 @@ const DEFAULT_CONFIG: CycleConfig = {
 };
 
 const WORKSPACE_ARTIFACTS = [
-  "FOUNDER_PROFILE.md",
-  "PRODUCT_CONTEXT.md",
-  "LANGUAGE_STRATEGY.md",
-  "STACK_DECISION.md",
-  "ORGANIC_GROWTH_STRATEGY.md",
+  "FOUNDER_BRAND_BRIEF.md",
+  "BOARD_MANDATE.md",
+  "VISION_AND_STRATEGY.md",
+  "POSITIONING_STATEMENT.md",
+  "MARKET_LOCALIZATION_STRATEGY.md",
+  "TECH_DECISION_RECORD.md",
+  "GTM_STRATEGY.md",
   "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
-  "DISTRIBUTION_PLAN.md",
-  "TRIGGER_PLAN.md",
-  "WORKER_ROUTING.md",
-  "MEASUREMENT_PLAN.md",
+  "CHANNEL_PLAN.md",
+  "AUTOMATION_RUNBOOK.md",
+  "RESPONSIBILITY_MATRIX.md",
+  "MEASUREMENT_FRAMEWORK.md",
   "EXECUTION_STATE.md",
   "EXECUTION_STATE.json",
 ];
@@ -935,7 +937,7 @@ function readArtifact(cwd: string, file: string): string {
 }
 
 function distributionBlogSurface(cloneDir: string, state: ExecutionState): string {
-  const plan = readArtifact(cloneDir, "DISTRIBUTION_PLAN.md");
+  const plan = readArtifact(cloneDir, "CHANNEL_PLAN.md");
   return artifactField(plan, "Blog surface target directory") || state.config.blogSurfaceDirectory;
 }
 
@@ -1789,7 +1791,7 @@ function joinUrl(base: string, ...parts: string[]): string {
 }
 
 function carouselCtaUrl(cloneDir: string, state: ExecutionState, slug: string): string {
-  const plan = readArtifact(cloneDir, "DISTRIBUTION_PLAN.md");
+  const plan = readArtifact(cloneDir, "CHANNEL_PLAN.md");
   const canonical = artifactField(plan, "Canonical site URL");
   const basePath = artifactField(plan, "Public base path");
   if (canonical && !needsDecision(canonical)) {

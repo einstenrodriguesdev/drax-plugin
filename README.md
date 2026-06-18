@@ -19,19 +19,21 @@ It does not ship broad enterprise automation, live social posting, paid spend, b
 
 ## Baseline Workspace Files
 
-`drax init` creates the 12 founder artifacts plus the machine state file:
+`drax init` creates the 14 founder artifacts plus the machine state file:
 
-- `FOUNDER_PROFILE.md`
-- `PRODUCT_CONTEXT.md`
-- `LANGUAGE_STRATEGY.md`
-- `STACK_DECISION.md`
-- `ORGANIC_GROWTH_STRATEGY.md`
+- `FOUNDER_BRAND_BRIEF.md`
+- `BOARD_MANDATE.md`
+- `VISION_AND_STRATEGY.md`
+- `POSITIONING_STATEMENT.md`
+- `MARKET_LOCALIZATION_STRATEGY.md`
+- `TECH_DECISION_RECORD.md`
+- `GTM_STRATEGY.md`
 - `CONTENT_STRATEGY.md`
 - `EDITORIAL_CALENDAR.md`
-- `DISTRIBUTION_PLAN.md`
-- `TRIGGER_PLAN.md`
-- `WORKER_ROUTING.md`
-- `MEASUREMENT_PLAN.md`
+- `CHANNEL_PLAN.md`
+- `AUTOMATION_RUNBOOK.md`
+- `RESPONSIBILITY_MATRIX.md`
+- `MEASUREMENT_FRAMEWORK.md`
 - `EXECUTION_STATE.md`
 - `EXECUTION_STATE.json`
 

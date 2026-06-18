@@ -5,32 +5,36 @@ import path from "node:path";
 
 const root = process.cwd();
 const artifacts = [
-  "FOUNDER_PROFILE.md",
-  "PRODUCT_CONTEXT.md",
-  "LANGUAGE_STRATEGY.md",
-  "STACK_DECISION.md",
-  "ORGANIC_GROWTH_STRATEGY.md",
+  "FOUNDER_BRAND_BRIEF.md",
+  "BOARD_MANDATE.md",
+  "VISION_AND_STRATEGY.md",
+  "POSITIONING_STATEMENT.md",
+  "MARKET_LOCALIZATION_STRATEGY.md",
+  "TECH_DECISION_RECORD.md",
+  "GTM_STRATEGY.md",
   "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
-  "DISTRIBUTION_PLAN.md",
-  "TRIGGER_PLAN.md",
-  "WORKER_ROUTING.md",
-  "MEASUREMENT_PLAN.md",
+  "CHANNEL_PLAN.md",
+  "AUTOMATION_RUNBOOK.md",
+  "RESPONSIBILITY_MATRIX.md",
+  "MEASUREMENT_FRAMEWORK.md",
   "EXECUTION_STATE.md",
 ];
 
 const blankTemplateMarkers = [
-  ["FOUNDER_PROFILE.md", /^Status:\s*draft\s*$/im, "Status: draft"],
-  ["PRODUCT_CONTEXT.md", /^Status:\s*draft\s*$/im, "Status: draft"],
-  ["LANGUAGE_STRATEGY.md", /^Status:\s*draft\s*$/im, "Status: draft"],
-  ["STACK_DECISION.md", /^Status:\s*draft\s*$/im, "Status: draft"],
-  ["ORGANIC_GROWTH_STRATEGY.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["FOUNDER_BRAND_BRIEF.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["BOARD_MANDATE.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["VISION_AND_STRATEGY.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["POSITIONING_STATEMENT.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["MARKET_LOCALIZATION_STRATEGY.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["TECH_DECISION_RECORD.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["GTM_STRATEGY.md", /^Status:\s*draft\s*$/im, "Status: draft"],
   ["CONTENT_STRATEGY.md", /^Status:\s*draft\s*$/im, "Status: draft"],
   ["EDITORIAL_CALENDAR.md", /^Status:\s*draft\s*$/im, "Status: draft"],
-  ["DISTRIBUTION_PLAN.md", /^Status:\s*dry-run\s*$/im, "Status: dry-run"],
-  ["TRIGGER_PLAN.md", /^Status:\s*draft\s*$/im, "Status: draft"],
-  ["WORKER_ROUTING.md", /^Status:\s*draft\s*$/im, "Status: draft"],
-  ["MEASUREMENT_PLAN.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["CHANNEL_PLAN.md", /^Status:\s*dry-run\s*$/im, "Status: dry-run"],
+  ["AUTOMATION_RUNBOOK.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["RESPONSIBILITY_MATRIX.md", /^Status:\s*draft\s*$/im, "Status: draft"],
+  ["MEASUREMENT_FRAMEWORK.md", /^Status:\s*draft\s*$/im, "Status: draft"],
   ["EXECUTION_STATE.md", /^Current phase:\s*qualification\s*$/im, "Current phase: qualification"],
 ];
 
@@ -99,24 +103,24 @@ for (const [artifact, content] of contents) {
   }
 }
 
-const productContext = contents.get("PRODUCT_CONTEXT.md");
+const productContext = contents.get("POSITIONING_STATEMENT.md");
 if (productContext) {
   const qualification = listField(productContext, "Qualified for v1 organic automation");
   const normalized = cleanValue(qualification ?? "").toLowerCase();
   if (normalized !== "yes") {
     const current = normalized || "blank";
     errors.push(
-      `PRODUCT_CONTEXT.md Qualified for v1 organic automation must resolve to yes before Path 2 starts; current value: ${current}. Path 2 must not start.`,
+      `POSITIONING_STATEMENT.md Qualified for v1 organic automation must resolve to yes before Path 2 starts; current value: ${current}. Path 2 must not start.`,
     );
   }
 }
 
 const decisionChecks = [
-  ["LANGUAGE_STRATEGY.md", ["Selected option", "Custom answer"]],
-  ["STACK_DECISION.md", ["Selected option", "Custom answer"]],
-  ["ORGANIC_GROWTH_STRATEGY.md", ["Custom answer"]],
-  ["DISTRIBUTION_PLAN.md", ["Custom answer"]],
-  ["TRIGGER_PLAN.md", ["Selected option", "Custom answer"]],
+  ["MARKET_LOCALIZATION_STRATEGY.md", ["Selected option", "Custom answer"]],
+  ["TECH_DECISION_RECORD.md", ["Selected option", "Custom answer"]],
+  ["GTM_STRATEGY.md", ["Custom answer"]],
+  ["CHANNEL_PLAN.md", ["Custom answer"]],
+  ["AUTOMATION_RUNBOOK.md", ["Selected option", "Custom answer"]],
 ];
 
 for (const [artifact, labels] of decisionChecks) {

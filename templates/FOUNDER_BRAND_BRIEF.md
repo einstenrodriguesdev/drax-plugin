@@ -1,12 +1,14 @@
-# Founder Profile
+# Founder Brand Brief
 
 Status: draft
 Owner: founder
 Last reviewed:
 
-## Identity And Expertise
+The founder's identity, voice, and the brand-safety guardrails the autonomous system must never cross.
 
-## Founder Context Snapshot
+## Founder Identity And Expertise
+
+## Operating Context
 
 - Location:
 - Available device(s):
@@ -14,16 +16,18 @@ Last reviewed:
 - Preferred working language:
 - Languages the founder can write/speak:
 
-## Product Relationship
+## Brand Voice
 
-## Voice And Boundaries
+## Messaging Guardrails
 
 - Approved claims:
 - Banned claims:
 - Topics not to publish:
 - Confidential information:
 
-## Available Time And Cadence
+## Proof And Credibility Assets
+
+## Cadence And Availability
 
 ## Interview Decisions
 

@@ -4,17 +4,19 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ARTIFACTS = [
-  "FOUNDER_PROFILE.md",
-  "PRODUCT_CONTEXT.md",
-  "LANGUAGE_STRATEGY.md",
-  "STACK_DECISION.md",
-  "ORGANIC_GROWTH_STRATEGY.md",
+  "FOUNDER_BRAND_BRIEF.md",
+  "BOARD_MANDATE.md",
+  "VISION_AND_STRATEGY.md",
+  "POSITIONING_STATEMENT.md",
+  "MARKET_LOCALIZATION_STRATEGY.md",
+  "TECH_DECISION_RECORD.md",
+  "GTM_STRATEGY.md",
   "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
-  "DISTRIBUTION_PLAN.md",
-  "TRIGGER_PLAN.md",
-  "WORKER_ROUTING.md",
-  "MEASUREMENT_PLAN.md",
+  "CHANNEL_PLAN.md",
+  "AUTOMATION_RUNBOOK.md",
+  "RESPONSIBILITY_MATRIX.md",
+  "MEASUREMENT_FRAMEWORK.md",
   "EXECUTION_STATE.md",
 ];
 
@@ -76,9 +78,9 @@ function main() {
     return content ? [{ name, content }] : [];
   });
   const staticContext = [
-    "Drax v1.1.16 organic automation runtime is active.",
+    "Drax v1.1.17 organic automation runtime is active.",
     "Target user: a founder with an existing product who wants a measured organic traffic system.",
-    "Required baseline: founder/product context, language strategy, stack/security decision, 90-post plan, trigger plan, worker routing, distribution, measurement, and execution state.",
+    "Required baseline: founder brand brief, board mandate, vision/strategy governance docs, positioning statement, market localization strategy, tech decision record, GTM strategy, content strategy, editorial calendar, channel plan, automation runbook, responsibility matrix, measurement framework, and execution state.",
     "Publishing defaults to dry-run. Live posting, paid spend, and browser automation require explicit approval.",
   ].join("\n\n");
   let context = [staticContext, "No Drax organic-growth artifacts were found in this workspace."].join("\n\n");

@@ -21,17 +21,19 @@ const currentFile = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(currentFile), "..");
 const cli = path.join(root, "dist", "cli.js");
 const baselineArtifacts = [
-  "FOUNDER_PROFILE.md",
-  "PRODUCT_CONTEXT.md",
-  "LANGUAGE_STRATEGY.md",
-  "STACK_DECISION.md",
-  "ORGANIC_GROWTH_STRATEGY.md",
+  "FOUNDER_BRAND_BRIEF.md",
+  "BOARD_MANDATE.md",
+  "VISION_AND_STRATEGY.md",
+  "POSITIONING_STATEMENT.md",
+  "MARKET_LOCALIZATION_STRATEGY.md",
+  "TECH_DECISION_RECORD.md",
+  "GTM_STRATEGY.md",
   "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
-  "DISTRIBUTION_PLAN.md",
-  "TRIGGER_PLAN.md",
-  "WORKER_ROUTING.md",
-  "MEASUREMENT_PLAN.md",
+  "CHANNEL_PLAN.md",
+  "AUTOMATION_RUNBOOK.md",
+  "RESPONSIBILITY_MATRIX.md",
+  "MEASUREMENT_FRAMEWORK.md",
   "EXECUTION_STATE.md",
 ];
 const expectedSector = [
@@ -504,7 +506,7 @@ function runPositivePass() {
   const directory = createWorkspace("drax-determinant-pass-");
   initGitRepo(directory);
   initDraxWorkspace(directory);
-  record("positive: all 12 baseline artifacts plus EXECUTION_STATE.json exist after init", () => assertBaselineArtifacts(directory));
+  record("positive: all 14 baseline artifacts plus EXECUTION_STATE.json exist after init", () => assertBaselineArtifacts(directory));
   const beforeState = JSON.parse(readFileSync(path.join(directory, "EXECUTION_STATE.json"), "utf8"));
   const fakeCodex = writeGeoRichFakeCodex(directory, "positive");
   const result = run(process.execPath, [cli, "cycle", "--dry-run"], {
@@ -585,7 +587,7 @@ function runForgedSignaturePass() {
     assert.match(result.stderr, /Access token signature is invalid/);
   });
   record("negative: forged access-token run writes no baseline artifacts", () => {
-    assert.equal(existsSync(path.join(directory, "FOUNDER_PROFILE.md")), false);
+    assert.equal(existsSync(path.join(directory, "FOUNDER_BRAND_BRIEF.md")), false);
   });
 }
 

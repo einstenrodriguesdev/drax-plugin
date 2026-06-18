@@ -19,8 +19,8 @@ No remote access or Drax API backend is required for local blog deploy. The safe
 
 The generator does not embed a product identity at build time. It reads identity from the founder workspace artifacts:
 
-- `DISTRIBUTION_PLAN.md`: editorial site name, canonical site URL, editorial description, attachment mode, and public base path
-- `PRODUCT_CONTEXT.md`: live URL as fallback for canonical site URL
+- `CHANNEL_PLAN.md`: editorial site name, canonical site URL, editorial description, attachment mode, and public base path
+- `POSITIONING_STATEMENT.md`: live URL as fallback for canonical site URL
 
 If a value is absent, the generated blog configuration keeps `NEEDS_DECISION`.
 
@@ -61,7 +61,7 @@ npm run build
 
 Local deploy is central to V1, but live deploy implementation remains gated.
 
-Before deploy, `DISTRIBUTION_PLAN.md` must define the blog target directory, static output directory, public base path, server or proxy, backup directory, approval owner, and rollback command.
+Before deploy, `CHANNEL_PLAN.md` must define the blog target directory, static output directory, public base path, server or proxy, backup directory, approval owner, and rollback command.
 
 The deploy configuration shape is defined in `schemas/deploy-config.schema.json`. Clean testing supplies this shape with `dryRun: true`; live deploy remains approval-gated and not implemented in the trigger engine.
 

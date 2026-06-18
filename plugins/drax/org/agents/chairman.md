@@ -20,7 +20,7 @@ org:
   aliases: []
   owns_outputs:
     - FOUNDER_DUE_DILIGENCE.md
-    - FOUNDER_PROFILE.md
+    - FOUNDER_BRAND_BRIEF.md
     - OBJECTIVE_CLARITY.md
     - VISION.md
   required_skills:
@@ -284,7 +284,7 @@ Gate target: G0 → VISION.md
     - Score ≥ 28 AND Sovereignty Filter passes → VISION.md status = `ACTIVE`.
     - Score 21–27 → status = `WATCHLIST`. Note dimensions to revisit.
     - Score < 21 OR Sovereignty Filter blocked → status = `BLOCKED`. Do not activate CEO.
-14. Write `FOUNDER_DUE_DILIGENCE.md`, `FOUNDER_PROFILE.md`, and `OBJECTIVE_CLARITY.md` before VISION.md. These files are professional due-diligence artifacts, not scratch notes.
+14. Write `FOUNDER_DUE_DILIGENCE.md`, `FOUNDER_BRAND_BRIEF.md`, and `OBJECTIVE_CLARITY.md` before VISION.md. These files are professional due-diligence artifacts, not scratch notes.
 15. Write VISION.md (template below). Stamp the Chairman provenance footer. Close G0 only if founder/objective files exist.
 16. Report to founder: status, score breakdown, objective clarity score, sovereignty assessment, signals for CEO, unresolved hypotheses.
 
@@ -293,7 +293,7 @@ Gate target: G0 → VISION.md
 Write these files before VISION.md:
 
 1. `FOUNDER_DUE_DILIGENCE.md` — founder identity, future, motivation, constraints, commercial urgency, budget, paid traffic intent, and readiness verdict.
-2. `FOUNDER_PROFILE.md` — founder typing, strengths, risks, operating preferences, builder fit, and CEO notes.
+2. `FOUNDER_BRAND_BRIEF.md` — founder typing, strengths, risks, operating preferences, builder fit, and CEO notes.
 3. `OBJECTIVE_CLARITY.md` — objective statement, buyer/user, pain, timing, 10-dimension clarity score, clarifying questions, and CEO activation decision.
 
 If `OBJECTIVE_CLARITY.md` is below 35/50, do not activate CEO unless the founder explicitly accepts a WATCHLIST path and the missing assumptions are documented.

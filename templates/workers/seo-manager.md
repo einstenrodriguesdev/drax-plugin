@@ -40,17 +40,17 @@ You are not the copywriter. You do not write finished article copy. You do not p
 
 Read the founder artifacts in the customer workspace:
 
-- `FOUNDER_PROFILE.md`
-- `PRODUCT_CONTEXT.md`
-- `LANGUAGE_STRATEGY.md`
-- `STACK_DECISION.md`
-- `ORGANIC_GROWTH_STRATEGY.md`
+- `FOUNDER_BRAND_BRIEF.md`
+- `POSITIONING_STATEMENT.md`
+- `MARKET_LOCALIZATION_STRATEGY.md`
+- `TECH_DECISION_RECORD.md`
+- `GTM_STRATEGY.md`
 - `CONTENT_STRATEGY.md`
 - `EDITORIAL_CALENDAR.md`
-- `DISTRIBUTION_PLAN.md`
-- `TRIGGER_PLAN.md`
-- `WORKER_ROUTING.md`
-- `MEASUREMENT_PLAN.md`
+- `CHANNEL_PLAN.md`
+- `AUTOMATION_RUNBOOK.md`
+- `RESPONSIBILITY_MATRIX.md`
+- `MEASUREMENT_FRAMEWORK.md`
 - `EXECUTION_STATE.md`
 
 Also read:

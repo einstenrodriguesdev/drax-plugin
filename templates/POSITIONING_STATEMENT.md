@@ -1,8 +1,10 @@
-# Product Context
+# Positioning Statement
 
 Status: draft
 Owner: founder
 Last reviewed:
+
+Positioning per April Dunford: the context that makes the product's value obvious to the best-fit customer.
 
 ## Product And Offer
 
@@ -13,7 +15,13 @@ Last reviewed:
 - Pricing:
 - Purchase/contact path:
 
-## Ideal Customer
+## Competitive Alternatives
+
+## Unique Attributes
+
+## Value And Proof
+
+## Best-Fit Customer
 
 - Primary buyer:
 - Pain:
@@ -21,18 +29,9 @@ Last reviewed:
 - Buying trigger:
 - Geography:
 
-## Proof And Objections
+## Market Category
 
-- Existing proof:
-- Missing proof:
-- Main objections:
-
-## Conversion Path
-
-- Entry point:
-- CTA:
-- Conversion event:
-- Follow-up:
+## Positioning Statement
 
 ## Qualification Result
 

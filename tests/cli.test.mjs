@@ -143,7 +143,7 @@ function initDraxWorkspace(directory) {
 }
 
 function initBlogSurface(directory) {
-  const distributionPlan = path.join(directory, "DISTRIBUTION_PLAN.md");
+  const distributionPlan = path.join(directory, "CHANNEL_PLAN.md");
   writeFileSync(
     distributionPlan,
     readFileSync(distributionPlan, "utf8").replace("- Blog surface target directory:", "- Blog surface target directory: drax-blog"),
@@ -269,7 +269,7 @@ function writeFakeCycleCodex(directory, articleBody) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.16");
+  assert.equal(result.stdout.trim(), "1.1.17");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -362,7 +362,7 @@ test("runtime commands fail closed without an access token", () => {
     });
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /Drax access token validation failed/);
-    assert.equal(existsSync(path.join(directory, "FOUNDER_PROFILE.md")), false);
+    assert.equal(existsSync(path.join(directory, "FOUNDER_BRAND_BRIEF.md")), false);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -386,7 +386,7 @@ test("runtime commands fail closed on a tampered signed token", () => {
     });
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /Access token signature is invalid/);
-    assert.equal(existsSync(path.join(directory, "FOUNDER_PROFILE.md")), false);
+    assert.equal(existsSync(path.join(directory, "FOUNDER_BRAND_BRIEF.md")), false);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -404,7 +404,7 @@ test("runtime commands fail closed on a forged signature", () => {
     });
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /Access token signature is invalid/);
-    assert.equal(existsSync(path.join(directory, "FOUNDER_PROFILE.md")), false);
+    assert.equal(existsSync(path.join(directory, "FOUNDER_BRAND_BRIEF.md")), false);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -424,7 +424,7 @@ test("runtime commands fail closed when the token is not signed by the embedded 
     });
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /Access token signature is invalid/);
-    assert.equal(existsSync(path.join(directory, "FOUNDER_PROFILE.md")), false);
+    assert.equal(existsSync(path.join(directory, "FOUNDER_BRAND_BRIEF.md")), false);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -531,7 +531,7 @@ test("init copies baseline artifacts into a workspace", () => {
     });
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /Drax baseline artifacts ready/);
-    assert.equal(existsSync(path.join(directory, "FOUNDER_PROFILE.md")), true);
+    assert.equal(existsSync(path.join(directory, "FOUNDER_BRAND_BRIEF.md")), true);
     assert.equal(existsSync(path.join(directory, "EXECUTION_STATE.md")), true);
     assert.equal(existsSync(path.join(directory, "EXECUTION_STATE.json")), true);
   } finally {
@@ -544,7 +544,7 @@ test("blog init generates a self-contained Astro surface", () => {
   const target = path.join(directory, "blog");
   try {
     writeFileSync(
-      path.join(directory, "DISTRIBUTION_PLAN.md"),
+      path.join(directory, "CHANNEL_PLAN.md"),
       [
         "# Distribution Plan",
         "",

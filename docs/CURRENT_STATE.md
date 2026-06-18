@@ -12,7 +12,7 @@ Drax Plugin is an open-core Codex plugin for founders who already have a product
 The current pre-release factory state in `drax-dev` includes:
 
 - founder intake contract with recognition and strategic definition phases
-- 12 baseline founder artifacts
+- 14 baseline founder artifacts
 - `EXECUTION_STATE.json` as machine state
 - vendored V1 marketing worker roles
 - self-contained Astro blog surface generator
@@ -60,17 +60,19 @@ chairman interview
 
 Founder-readable artifacts:
 
-- `FOUNDER_PROFILE.md`
-- `PRODUCT_CONTEXT.md`
-- `LANGUAGE_STRATEGY.md`
-- `STACK_DECISION.md`
-- `ORGANIC_GROWTH_STRATEGY.md`
+- `FOUNDER_BRAND_BRIEF.md`
+- `BOARD_MANDATE.md`
+- `VISION_AND_STRATEGY.md`
+- `POSITIONING_STATEMENT.md`
+- `MARKET_LOCALIZATION_STRATEGY.md`
+- `TECH_DECISION_RECORD.md`
+- `GTM_STRATEGY.md`
 - `CONTENT_STRATEGY.md`
 - `EDITORIAL_CALENDAR.md`
-- `DISTRIBUTION_PLAN.md`
-- `TRIGGER_PLAN.md`
-- `WORKER_ROUTING.md`
-- `MEASUREMENT_PLAN.md`
+- `CHANNEL_PLAN.md`
+- `AUTOMATION_RUNBOOK.md`
+- `RESPONSIBILITY_MATRIX.md`
+- `MEASUREMENT_FRAMEWORK.md`
 - `EXECUTION_STATE.md`
 
 Machine-readable state:

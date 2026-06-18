@@ -1,10 +1,12 @@
-# Measurement Plan
+# Measurement Framework
 
 Status: draft
 Owner: analytics
 Last reviewed:
 
-## North-Star Outcome
+One North Star metric, supporting AARRR funnel metrics, and the decision rules that turn data into action.
+
+## North Star Metric
 
 ## Baseline
 
@@ -12,6 +14,16 @@ Last reviewed:
 - Current subscribers/leads:
 - Current conversions:
 - Current posting cadence:
+
+## AARRR Funnel Metrics
+
+| Stage | Metric | Source | Cadence | Target |
+|---|---|---|---|---|
+| Acquisition | | | | |
+| Activation | | | | |
+| Retention | | | | |
+| Referral | | | | |
+| Revenue | | | | |
 
 ## Leading Indicators
 
@@ -23,7 +35,7 @@ Last reviewed:
 | Event | Definition | Tool/source | Owner | Notes |
 |---|---|---|---|---|
 
-## Weekly Decision Rules
+## Decision Rules
 
 - Continue when:
 - Change when:

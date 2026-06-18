@@ -1,12 +1,10 @@
-# Trigger Plan
+# Automation Runbook
 
 Status: draft
 Owner: distribution
 Last reviewed:
 
-Daily posting requires both a clock trigger and a manual trigger. Both read the same approved queue and write the same publish record format.
-
-Machine state lives in `EXECUTION_STATE.json`. `EXECUTION_STATE.md` is the readable view rendered from JSON after a successful publish.
+Daily posting needs both a clock trigger and a manual trigger reading the same approved queue; machine state lives in `EXECUTION_STATE.json` and `EXECUTION_STATE.md` is the readable view rendered from it.
 
 ## Trigger Options
 
@@ -29,7 +27,7 @@ Custom answer:
 - Kill switch:
 - Revisit trigger:
 
-## Trigger Engine
+## Runbook — Trigger Engine
 
 - Lock: `.drax/locks/cycle.lock` through `flock`, acquired before state read.
 - Manual dry run: `drax cycle --dry-run`.
@@ -54,7 +52,15 @@ Custom answer:
 - Future external adapters fall back to export-manual when their own gates are blocked.
 - A trigger that fails a gate does not advance `EXECUTION_STATE.json`.
 
-## Trigger Log
+## Failure Handling And Escalation
+
+- Failed runs record failure evidence and do not advance state.
+- Failed runs do not retry infinitely.
+- Logs and evidence live under `.drax/logs`, `.drax/runs/failed`, and `.drax/publish-records`.
+- The kill switch stops scheduled and live publishing paths.
+- Failure notification owner:
+
+## Run Log
 
 | Date/time | Trigger | Package ID | Platform | Result | Evidence | Next action |
 |---|---|---|---|---|---|---|

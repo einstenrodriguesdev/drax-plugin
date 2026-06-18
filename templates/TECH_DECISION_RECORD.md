@@ -1,12 +1,12 @@
-# Stack Decision
+# Tech Decision Record
 
 Status: draft
 Owner: technical operations
 Last reviewed:
 
-This document records the current stack, the isolated Drax automation environment, and the security posture for v1 organic automation.
+An Architecture Decision Record (ADR) for the v1 stack, the isolated automation environment, and the security posture; each decision states context, the decision, status, and consequences.
 
-## Current State Snapshot
+## Context
 
 | Layer | Current value | Owner | Risk | Immediate action |
 |---|---|---|---|---|
@@ -23,7 +23,7 @@ This document records the current stack, the isolated Drax automation environmen
 | Email/newsletter | | | | |
 | Social accounts | | | | |
 
-## Stack Options
+## Decision Options
 
 | Option | Posture | Advantage | Disadvantage | Cost/complexity | Choose when | Do not choose when |
 |---|---|---|---|---|---|---|
@@ -36,6 +36,7 @@ Custom answer:
 ## Decision
 
 - Selected option:
+- Decision status:
 - Server:
 - Database/state store:
 - Queue:
@@ -45,6 +46,12 @@ Custom answer:
 - Backup policy:
 - Rollback path:
 - Revisit trigger:
+
+## Consequences
+
+- Positive consequences:
+- Negative consequences/trade-offs accepted:
+- Follow-up actions:
 
 ## Security Baseline
 

@@ -7,17 +7,19 @@ import test from "node:test";
 
 const HOOK = path.resolve("plugins/drax/hooks/session-start.mjs");
 const ARTIFACTS = [
-  "FOUNDER_PROFILE.md",
-  "PRODUCT_CONTEXT.md",
-  "LANGUAGE_STRATEGY.md",
-  "STACK_DECISION.md",
-  "ORGANIC_GROWTH_STRATEGY.md",
+  "FOUNDER_BRAND_BRIEF.md",
+  "BOARD_MANDATE.md",
+  "VISION_AND_STRATEGY.md",
+  "POSITIONING_STATEMENT.md",
+  "MARKET_LOCALIZATION_STRATEGY.md",
+  "TECH_DECISION_RECORD.md",
+  "GTM_STRATEGY.md",
   "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
-  "DISTRIBUTION_PLAN.md",
-  "TRIGGER_PLAN.md",
-  "WORKER_ROUTING.md",
-  "MEASUREMENT_PLAN.md",
+  "CHANNEL_PLAN.md",
+  "AUTOMATION_RUNBOOK.md",
+  "RESPONSIBILITY_MATRIX.md",
+  "MEASUREMENT_FRAMEWORK.md",
   "EXECUTION_STATE.md",
 ];
 
@@ -31,13 +33,13 @@ function runHook(cwd) {
 test("session hook includes a real founder profile", (t) => {
   const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-session-start-real-"));
   t.after(() => rmSync(workspace, { recursive: true, force: true }));
-  writeFileSync(path.join(workspace, "FOUNDER_PROFILE.md"), "REAL_FOUNDER_PROFILE", "utf8");
+  writeFileSync(path.join(workspace, "FOUNDER_BRAND_BRIEF.md"), "REAL_FOUNDER_BRAND_BRIEF", "utf8");
 
   const result = runHook(workspace);
 
   assert.equal(result.status, 0, result.stderr);
   const payload = JSON.parse(result.stdout);
-  assert.match(payload.hookSpecificOutput.additionalContext, /REAL_FOUNDER_PROFILE/);
+  assert.match(payload.hookSpecificOutput.additionalContext, /REAL_FOUNDER_BRAND_BRIEF/);
 });
 
 test("session hook refuses a symlinked founder profile", (t) => {
@@ -47,7 +49,7 @@ test("session hook refuses a symlinked founder profile", (t) => {
   const secret = path.join(root, "secret.txt");
   mkdirSync(workspace);
   writeFileSync(secret, "TOPSECRET_DO_NOT_LEAK", "utf8");
-  symlinkSync(secret, path.join(workspace, "FOUNDER_PROFILE.md"));
+  symlinkSync(secret, path.join(workspace, "FOUNDER_BRAND_BRIEF.md"));
 
   const result = runHook(workspace);
 
@@ -93,7 +95,7 @@ test("session hook prioritizes execution state and names omitted artifacts", (t)
   const context = payload.hookSpecificOutput.additionalContext;
   assert.ok(context.length <= 9000);
   assert.match(context, /EXECUTION_STATE\.md_CONTENT/);
-  assert.ok(context.indexOf("--- EXECUTION_STATE.md ---") < context.indexOf("--- FOUNDER_PROFILE.md ---"));
+  assert.ok(context.indexOf("--- EXECUTION_STATE.md ---") < context.indexOf("--- FOUNDER_BRAND_BRIEF.md ---"));
 
   const omitted = ARTIFACTS.filter((name) => !context.includes(`--- ${name} ---`));
   assert.ok(omitted.length > 0);

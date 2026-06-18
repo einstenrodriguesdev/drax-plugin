@@ -92,7 +92,7 @@ Load these skill files via Read tool before the relevant step:
 
 ## EXECUTION STEPS
 
-1. Read `FOUNDER_DUE_DILIGENCE.md`, `FOUNDER_PROFILE.md`, `OBJECTIVE_CLARITY.md`, `VISION.md`, and `EXECUTION_PLAN.md` if they exist.
+1. Read `FOUNDER_DUE_DILIGENCE.md`, `FOUNDER_BRAND_BRIEF.md`, `OBJECTIVE_CLARITY.md`, `VISION.md`, and `EXECUTION_PLAN.md` if they exist.
 2. Load required skills and knowledge.
 3. Identify the customer, user, buyer, trigger event, current alternative, and first value moment.
 4. Apply problem framing. Separate facts, inferences, and assumptions.

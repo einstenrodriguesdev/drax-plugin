@@ -1,14 +1,14 @@
-# Organic Growth Strategy
+# GTM Strategy
 
 Status: draft
 Owner: growth strategy
 Last reviewed:
 
+The go-to-market strategy for v1: an organic-content-led motion mapped to the AARRR funnel (Acquisition, Activation, Retention, Referral, Revenue).
+
 ## Objective
 
-## Strategic Options
-
-Use this section before locking strategy. Present three options and record the founder choice.
+## GTM Motion Options
 
 | Option | Strategy | Advantage | Disadvantage | Cost/complexity | Choose when | Do not choose when |
 |---|---|---|---|---|---|---|
@@ -17,6 +17,16 @@ Use this section before locking strategy. Present three options and record the f
 | C | | | | | | |
 
 Custom answer:
+
+## AARRR Funnel
+
+| Stage | Goal | Primary lever | Metric | Current baseline |
+|---|---|---|---|---|
+| Acquisition | | | | |
+| Activation | | | | |
+| Retention | | | | |
+| Referral | | | | |
+| Revenue | | | | |
 
 ## Content Pillars
 

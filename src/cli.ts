@@ -23,22 +23,24 @@ import { runDistributeCommand } from "./distribute.js";
 import { directTaskPrompt, founderIntakePrompt } from "./prompts.js";
 import { runStatusCommand } from "./status.js";
 
-const VERSION = "1.1.16";
+const VERSION = "1.1.17";
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const home = os.homedir();
 const BASELINE_ARTIFACTS = [
-  "FOUNDER_PROFILE.md",
-  "PRODUCT_CONTEXT.md",
-  "LANGUAGE_STRATEGY.md",
-  "STACK_DECISION.md",
-  "ORGANIC_GROWTH_STRATEGY.md",
+  "FOUNDER_BRAND_BRIEF.md",
+  "BOARD_MANDATE.md",
+  "VISION_AND_STRATEGY.md",
+  "POSITIONING_STATEMENT.md",
+  "MARKET_LOCALIZATION_STRATEGY.md",
+  "TECH_DECISION_RECORD.md",
+  "GTM_STRATEGY.md",
   "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
-  "DISTRIBUTION_PLAN.md",
-  "TRIGGER_PLAN.md",
-  "WORKER_ROUTING.md",
-  "MEASUREMENT_PLAN.md",
+  "CHANNEL_PLAN.md",
+  "AUTOMATION_RUNBOOK.md",
+  "RESPONSIBILITY_MATRIX.md",
+  "MEASUREMENT_FRAMEWORK.md",
   "EXECUTION_STATE.md",
 ];
 const RUNTIME_STATE_FILES = ["EXECUTION_STATE.json"];
@@ -55,7 +57,7 @@ function help(): void {
 Usage:
   drax                         Start founder intelligence intake in Codex
   drax "task"                  Run Drax direct-task mode
-  drax init                    Copy the 12 baseline artifacts into the current workspace
+  drax init                    Copy the 14 baseline artifacts into the current workspace
   drax blog init               Generate a self-contained Astro editorial blog surface
   drax cycle --dry-run         Run the headless content cycle without publishing
   drax cycle --publish         Run the headless content cycle and write the blog artifact in the isolated clone
@@ -121,8 +123,8 @@ function artifactField(content: string, label: string): string | null {
 }
 
 function founderBlogConfig(cwd: string): Record<string, string> {
-  const distributionPlan = readWorkspaceArtifact(cwd, "DISTRIBUTION_PLAN.md");
-  const productContext = readWorkspaceArtifact(cwd, "PRODUCT_CONTEXT.md");
+  const distributionPlan = readWorkspaceArtifact(cwd, "CHANNEL_PLAN.md");
+  const productContext = readWorkspaceArtifact(cwd, "POSITIONING_STATEMENT.md");
   return {
     SITE_NAME: artifactField(distributionPlan, "Editorial site name") || "NEEDS_DECISION",
     SITE_URL:

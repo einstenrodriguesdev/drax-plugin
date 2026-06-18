@@ -1,12 +1,12 @@
-# Language Strategy
+# Market Localization Strategy
 
 Status: draft
 Owner: growth strategy
 Last reviewed:
 
-Language is the first planning decision. Do not build the 90-post plan until the primary language and market are explicit.
+Localization is the first market decision; do not build the content plan until the primary market and language are explicit.
 
-## Current Language Inputs
+## Market And Language Inputs
 
 - Founder native language:
 - Founder fluent languages:
@@ -15,7 +15,7 @@ Language is the first planning decision. Do not build the 90-post plan until the
 - Target geography:
 - Domain/SEO locale:
 
-## Language Options
+## Localization Options
 
 | Option | Language posture | Advantage | Disadvantage | Cost/complexity | Choose when | Do not choose when |
 |---|---|---|---|---|---|---|
@@ -34,7 +34,7 @@ Custom answer:
 - Localization owner:
 - Revisit trigger:
 
-## Channel By Language
+## Channel By Market
 
 | Language | Country/market | Blog | Instagram | YouTube Shorts | TikTok | Other | CTA |
 |---|---|---|---|---|---|---|---|

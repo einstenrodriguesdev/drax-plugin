@@ -463,7 +463,7 @@ agents:
     aliases: []
     owns_outputs:
       - FOUNDER_DUE_DILIGENCE.md
-      - FOUNDER_PROFILE.md
+      - FOUNDER_BRAND_BRIEF.md
       - OBJECTIVE_CLARITY.md
       - VISION.md
     required_skills:

@@ -2,7 +2,7 @@
 
 ## Boundary
 
-The trigger engine is fixed product code. The founder interview produces the 12 baseline artifacts and `EXECUTION_STATE.json`; the engine reads those files and runs executable gates. Markdown describes the system, but JSON state, run manifests, asset hashes, and publish records are the source of truth for trigger execution.
+The trigger engine is fixed product code. The founder interview produces the 14 baseline artifacts and `EXECUTION_STATE.json`; the engine reads those files and runs executable gates. Markdown describes the system, but JSON state, run manifests, asset hashes, and publish records are the source of truth for trigger execution.
 
 ## Commands
 

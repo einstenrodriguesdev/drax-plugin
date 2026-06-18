@@ -53,17 +53,17 @@ Read these cycle artifacts:
 
 The founder artifacts are available in the workspace when positioning, product truth, language, voice, buyer, or safety context needs checking:
 
-- `FOUNDER_PROFILE.md`
-- `PRODUCT_CONTEXT.md`
-- `LANGUAGE_STRATEGY.md`
-- `STACK_DECISION.md`
-- `ORGANIC_GROWTH_STRATEGY.md`
+- `FOUNDER_BRAND_BRIEF.md`
+- `POSITIONING_STATEMENT.md`
+- `MARKET_LOCALIZATION_STRATEGY.md`
+- `TECH_DECISION_RECORD.md`
+- `GTM_STRATEGY.md`
 - `CONTENT_STRATEGY.md`
 - `EDITORIAL_CALENDAR.md`
-- `DISTRIBUTION_PLAN.md`
-- `TRIGGER_PLAN.md`
-- `WORKER_ROUTING.md`
-- `MEASUREMENT_PLAN.md`
+- `CHANNEL_PLAN.md`
+- `AUTOMATION_RUNBOOK.md`
+- `RESPONSIBILITY_MATRIX.md`
+- `MEASUREMENT_FRAMEWORK.md`
 - `EXECUTION_STATE.md`
 
 The SEO/GEO brief is the copywriter's contract. The article must satisfy it unless a field explicitly contains `NEEDS_DECISION`.
@@ -106,7 +106,7 @@ Run this checklist every cycle.
 - No unverifiable superlatives such as "best", "only", "guaranteed", or "fastest" unless directly substantiated.
 - No fake customer stories, fake revenue proof, fake urgency, or unsupported outcome claims.
 - The article body contains a `Proof note:` line.
-- The article does not claim product capabilities that contradict `PRODUCT_CONTEXT.md`.
+- The article does not claim product capabilities that contradict `POSITIONING_STATEMENT.md`.
 
 ### Brief Compliance
 
@@ -128,7 +128,7 @@ Verify the article satisfies `sector/02-seo-brief.md`.
 ### Quality And Safety
 
 - The article is genuinely useful, not thin, templated, or padded.
-- The voice is consistent with `FOUNDER_PROFILE.md` and `LANGUAGE_STRATEGY.md`.
+- The voice is consistent with `FOUNDER_BRAND_BRIEF.md` and `MARKET_LOCALIZATION_STRATEGY.md`.
 - The article does not hallucinate founder history, customer outcomes, revenue, integrations, benchmarks, credentials, or platform support.
 - The article does not plagiarize or mirror a source too closely.
 - The article does not include private data, credentials, tokens, secrets, or account instructions.
@@ -169,7 +169,7 @@ Examples:
 - `VERDICT: FAIL - missing Proof note`
 - `VERDICT: FAIL - FAQPage claimed without FAQ section`
 - `VERDICT: FAIL - primary keyword absent`
-- `VERDICT: FAIL - article contradicts PRODUCT_CONTEXT`
+- `VERDICT: FAIL - article contradicts POSITIONING_STATEMENT`
 
 Do not pass an article with a known blocker just because the deterministic safety gate may catch it later. This review is an independent professional gate.
 

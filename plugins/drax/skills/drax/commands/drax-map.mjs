@@ -8,24 +8,26 @@ import { fileURLToPath } from "node:url";
 const commandDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.16";
+const FALLBACK_VERSION = "1.1.17";
 
 const ARTIFACTS = [
-  "FOUNDER_PROFILE.md",
-  "PRODUCT_CONTEXT.md",
-  "LANGUAGE_STRATEGY.md",
-  "STACK_DECISION.md",
-  "ORGANIC_GROWTH_STRATEGY.md",
+  "FOUNDER_BRAND_BRIEF.md",
+  "BOARD_MANDATE.md",
+  "VISION_AND_STRATEGY.md",
+  "POSITIONING_STATEMENT.md",
+  "MARKET_LOCALIZATION_STRATEGY.md",
+  "TECH_DECISION_RECORD.md",
+  "GTM_STRATEGY.md",
   "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
-  "DISTRIBUTION_PLAN.md",
-  "TRIGGER_PLAN.md",
-  "WORKER_ROUTING.md",
-  "MEASUREMENT_PLAN.md",
+  "CHANNEL_PLAN.md",
+  "AUTOMATION_RUNBOOK.md",
+  "RESPONSIBILITY_MATRIX.md",
+  "MEASUREMENT_FRAMEWORK.md",
   "EXECUTION_STATE.md",
 ];
 
-const GATE_ARTIFACTS = ["FOUNDER_PROFILE.md", "CONTENT_STRATEGY.md"];
+const GATE_ARTIFACTS = ["FOUNDER_BRAND_BRIEF.md", "CONTENT_STRATEGY.md"];
 
 function parseArgs(args) {
   let agent = null;
@@ -381,7 +383,7 @@ function renderWorkspace(lines, workspace) {
   for (const [file, status] of statuses) lines.push(`  [${pad(status, 7)}] ${pad(file, width)}`);
   lines.push("");
   lines.push("Release gates:");
-  lines.push("  - Artifact Readiness Gate: FOUNDER_PROFILE.md + CONTENT_STRATEGY.md must be `ready` before unattended posting.");
+  lines.push("  - Artifact Readiness Gate: FOUNDER_BRAND_BRIEF.md + CONTENT_STRATEGY.md must be `ready` before unattended posting.");
   lines.push("  - Claims/quality review must pass before any publish.");
   lines.push("  - Fail-closed: triggers refuse on manifest, asset-hash, or connection mismatch.");
   lines.push("");

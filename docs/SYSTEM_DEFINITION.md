@@ -98,17 +98,19 @@ Out of scope:
 
 | Artifact | Definition |
 |---|---|
-| `FOUNDER_PROFILE.md` | Founder identity, constraints, voice, goals, risk tolerance, and brand safety. |
-| `PRODUCT_CONTEXT.md` | Product, offer, buyer, proof, conversion path, current evidence, and qualification. |
-| `LANGUAGE_STRATEGY.md` | Market-language posture before content planning. |
-| `STACK_DECISION.md` | Current stack, automation posture, environment references, logs, backups, and future stack triggers. |
-| `ORGANIC_GROWTH_STRATEGY.md` | Organic channel and content strategy connected to buyer behavior. |
+| `FOUNDER_BRAND_BRIEF.md` | Founder identity, constraints, voice, goals, risk tolerance, and brand safety. |
+| `BOARD_MANDATE.md` | Board authority, founder accountability, decision rights, cadence, and guardrails. |
+| `VISION_AND_STRATEGY.md` | V2MOM source of truth for vision, values, methods, obstacles, and measures. |
+| `POSITIONING_STATEMENT.md` | Product, offer, buyer, proof, conversion path, current evidence, and qualification. |
+| `MARKET_LOCALIZATION_STRATEGY.md` | Market-language posture before content planning. |
+| `TECH_DECISION_RECORD.md` | Current stack, automation posture, environment references, logs, backups, and future stack triggers. |
+| `GTM_STRATEGY.md` | Organic channel and content strategy connected to buyer behavior. |
 | `CONTENT_STRATEGY.md` | Source plan for 90 content classes before calendar execution. |
 | `EDITORIAL_CALENDAR.md` | Scheduled execution plan derived from the 90-post/class source plan. |
-| `DISTRIBUTION_PLAN.md` | Blog surface identity, adapter posture, metadata, and approval posture. |
-| `TRIGGER_PLAN.md` | Manual and cron trigger behavior against JSON state and publish records. |
-| `WORKER_ROUTING.md` | Accountable worker, permissions, forbidden actions, outputs, and gates per job. |
-| `MEASUREMENT_PLAN.md` | Metrics, review cadence, evidence thresholds, and decision logic. |
+| `CHANNEL_PLAN.md` | Blog surface identity, adapter posture, metadata, and approval posture. |
+| `AUTOMATION_RUNBOOK.md` | Manual and cron trigger behavior against JSON state and publish records. |
+| `RESPONSIBILITY_MATRIX.md` | Accountable worker, permissions, forbidden actions, outputs, and gates per job. |
+| `MEASUREMENT_FRAMEWORK.md` | Metrics, review cadence, evidence thresholds, and decision logic. |
 | `EXECUTION_STATE.md` | Human-readable execution state view. |
 | `EXECUTION_STATE.json` | Machine-readable execution state source. |
 

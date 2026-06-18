@@ -46,7 +46,7 @@ drax init
 drax
 ```
 
-`drax init` creates the 12 baseline artifacts plus `EXECUTION_STATE.json`. Existing artifacts are preserved unless `--force` is used.
+`drax init` creates the 14 baseline artifacts plus `EXECUTION_STATE.json`. Existing artifacts are preserved unless `--force` is used.
 
 The trigger engine writes local runtime state under `.drax/`. That directory should stay ignored by git.
 

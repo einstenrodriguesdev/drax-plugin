@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.16 Organic Automation Runtime
+# Drax v1.1.17 Organic Automation Runtime
 
-Drax v1.1.16 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.17 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -50,7 +50,7 @@ allowed before the first response.
 - Existing state found — this is a resume. Read `EXECUTION_STATE.md` and the artifacts
   it references. Do NOT ask the founder's name again and do NOT restart Recognition
   from the top. Your first response must, in a single turn: greet the founder by name
-  from `FOUNDER_PROFILE.md`; state briefly (2-4 lines) what is already settled and
+  from `FOUNDER_BRAND_BRIEF.md`; state briefly (2-4 lines) what is already settled and
   what is still open; note they can say "start over" to begin a fresh interview; then,
   per the Continuity Rule, immediately ask the next single open question or decision
   recorded in `EXECUTION_STATE.md`. Never re-ask anything already answered in the
@@ -130,18 +130,20 @@ Confirm there is real intent and a path to a buyer, or a clear intent to build o
 
 Create or maintain only the artifacts needed for the current phase. Phase 1 produces the full baseline set:
 
-1. `FOUNDER_PROFILE.md`
-2. `PRODUCT_CONTEXT.md`
-3. `LANGUAGE_STRATEGY.md`
-4. `STACK_DECISION.md`
-5. `ORGANIC_GROWTH_STRATEGY.md`
-6. `CONTENT_STRATEGY.md`
-7. `EDITORIAL_CALENDAR.md`
-8. `DISTRIBUTION_PLAN.md`
-9. `TRIGGER_PLAN.md`
-10. `WORKER_ROUTING.md`
-11. `MEASUREMENT_PLAN.md`
-12. `EXECUTION_STATE.md`
+1. `BOARD_MANDATE.md`
+2. `VISION_AND_STRATEGY.md`
+3. `FOUNDER_BRAND_BRIEF.md`
+4. `POSITIONING_STATEMENT.md`
+5. `MARKET_LOCALIZATION_STRATEGY.md`
+6. `TECH_DECISION_RECORD.md`
+7. `GTM_STRATEGY.md`
+8. `CONTENT_STRATEGY.md`
+9. `EDITORIAL_CALENDAR.md`
+10. `CHANNEL_PLAN.md`
+11. `AUTOMATION_RUNBOOK.md`
+12. `RESPONSIBILITY_MATRIX.md`
+13. `MEASUREMENT_FRAMEWORK.md`
+14. `EXECUTION_STATE.md`
 
 Do not duplicate the same facts across every file. Link to the canonical artifact.
 
@@ -164,17 +166,19 @@ Accountable owner per artifact (grounded in the org chart):
 
 | Artifact | Frame (C-level) | Decompose (Director) | Draft (Specialist) | Gate |
 |---|---|---|---|---|
-| `FOUNDER_PROFILE.md` | Chairman (direct) | — | Chairman + founder (founder due diligence) | founder confirms |
-| `PRODUCT_CONTEXT.md` | CMO | Director of Marketing Operations | content/brand strategist (positioning) | CMO review |
-| `LANGUAGE_STRATEGY.md` | CMO | Director of Marketing Operations | content strategist | CMO review |
-| `STACK_DECISION.md` | CTO / CISO | — | CTO/CISO (decision record) | founder confirms |
-| `ORGANIC_GROWTH_STRATEGY.md` | CMO | Director of Marketing Operations | content strategist (growth model) | CMO review |
+| `BOARD_MANDATE.md` | Chairman (direct) | — | Chairman + founder (board charter) | board/Chairman gate |
+| `VISION_AND_STRATEGY.md` | Chairman / CEO | — | Chairman + founder (V2MOM) | board/Chairman gate |
+| `FOUNDER_BRAND_BRIEF.md` | Chairman (direct) | — | Chairman + founder (founder due diligence) | founder confirms |
+| `POSITIONING_STATEMENT.md` | CMO | Director of Marketing Operations | content/brand strategist (positioning) | CMO review |
+| `MARKET_LOCALIZATION_STRATEGY.md` | CMO | Director of Marketing Operations | content strategist | CMO review |
+| `TECH_DECISION_RECORD.md` | CTO / CISO | — | CTO/CISO (decision record) | founder confirms |
+| `GTM_STRATEGY.md` | CMO | Director of Marketing Operations | content strategist (growth model) | CMO review |
 | `CONTENT_STRATEGY.md` | CMO | Director of Marketing Operations | content strategist (SME) -> SEO -> claims review | claims review + founder |
 | `EDITORIAL_CALENDAR.md` | CMO | Director of Marketing Operations | social-media manager + content strategist | CMO review |
-| `DISTRIBUTION_PLAN.md` | CMO | Director of Marketing Operations | traffic manager (paid/owned/earned) | CMO review |
-| `MEASUREMENT_PLAN.md` | CMO | Director of Marketing Operations | analytics-attribution specialist | CMO review |
-| `WORKER_ROUTING.md` | COO | Director of Operations | operations (responsibility matrix) | COO review |
-| `TRIGGER_PLAN.md` | COO | Director of Operations | marketing-automation specialist | COO review |
+| `CHANNEL_PLAN.md` | CMO | Director of Marketing Operations | traffic manager (paid/owned/earned) | CMO review |
+| `MEASUREMENT_FRAMEWORK.md` | CMO | Director of Marketing Operations | analytics-attribution specialist | CMO review |
+| `RESPONSIBILITY_MATRIX.md` | COO | Director of Operations | operations (responsibility matrix) | COO review |
+| `AUTOMATION_RUNBOOK.md` | COO | Director of Operations | marketing-automation specialist | COO review |
 | `EXECUTION_STATE.md` | CEO / COO | — | review cadence (catchball) -> Chairman | Chairman gate |
 
 The specialists that actually draft in the customer runtime are the vendored workers in `templates/workers/`; the Chairman, C-level, and Director roles are the accountability chain the Chairman-led interview embodies. The detailed content-plan chain is in Content Strategy Orchestration under Worker Routing.
@@ -185,10 +189,10 @@ An artifact may carry `Status: ready` only when its mastery conditions are met. 
 
 Two artifacts gate unattended posting and must never be marked `ready` prematurely:
 
-- `FOUNDER_PROFILE.md`: not `ready` until **Banned claims** and **Topics not to publish** are filled in the founder's own words, plus approved claims and voice. An empty or placeholder voice/boundaries section means the autonomous poster has no brand-safety guardrail; treat that as a blocking gap, never as `ready`.
+- `FOUNDER_BRAND_BRIEF.md`: not `ready` until **Banned claims** and **Topics not to publish** are filled in the founder's own words, plus approved claims and voice. An empty or placeholder voice/boundaries section means the autonomous poster has no brand-safety guardrail; treat that as a blocking gap, never as `ready`.
 - `CONTENT_STRATEGY.md`: not `ready` until it holds an editorial mission, three to five content pillars mapped to hub-and-spoke clusters, a named content mix (default Hero-Hub-Hygiene), and a derived editorial calendar covering the 90-day horizon at the chosen cadence. Content volume is derived from cadence times pillars, never a fixed count. Each calendar item is one reusable content idea that yields one coupled create-once-publish-everywhere unit (one blog post, one short video, one carousel). A partial seed stays `draft` (or `seeded`); a small bootstrap of a few items is not a passed planning gate.
 
-When reporting interview completion, list any artifact still `draft` with the specific missing field, and state plainly that daily posting is not cleared until `FOUNDER_PROFILE.md` and `CONTENT_STRATEGY.md` are both `ready`.
+When reporting interview completion, list any artifact still `draft` with the specific missing field, and state plainly that daily posting is not cleared until `FOUNDER_BRAND_BRIEF.md` and `CONTENT_STRATEGY.md` are both `ready`.
 
 ## Decision Pattern
 
@@ -340,7 +344,7 @@ When the baseline artifacts are generated, finish by printing how to operate the
 
 If a command does not exist yet, print `NEEDS_DECISION` with the missing executable or path. Do not imply a trigger runs when it has not been built.
 
-Apply the Artifact Readiness Gate before declaring the system operational: if `FOUNDER_PROFILE.md` or `CONTENT_STRATEGY.md` is still `draft`, report that unattended daily posting is not cleared and name the missing field.
+Apply the Artifact Readiness Gate before declaring the system operational: if `FOUNDER_BRAND_BRIEF.md` or `CONTENT_STRATEGY.md` is still `draft`, report that unattended daily posting is not cleared and name the missing field.
 
 ## Security Baseline
 
