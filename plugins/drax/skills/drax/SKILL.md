@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.10 Organic Automation Runtime
+# Drax v1.1.11 Organic Automation Runtime
 
-Drax v1.1.10 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.11 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -185,6 +185,19 @@ Use the tool's custom answer path for founder-specific answers. Do not put long 
 If `AskUserQuestion` is unavailable because the session is non-interactive, do not block. Record `NEEDS_DECISION` or use a previously approved artifact value. The daily clock trigger must never depend on a human prompt.
 
 Use the founder's answer as the decision record in the relevant artifact.
+
+### Marketing and Launch Decisions
+
+Marketing, launch, traffic, and distribution decisions demand expertise the founder may not have. The DRAX customer is typically a solo technical founder, not a marketer. Do not assume the founder has marketing expertise, and never make them architect a go-to-market plan from an abstract menu.
+
+For any marketing, launch, traffic, channel, or distribution decision, lead with ONE concrete, ready-to-approve recommended plan stated in plain language, specific enough to act on:
+
+- the channels to use and why
+- the sequence or phasing (for example, an organic-only proof window before any paid spend, with organic continuing afterward)
+- the first public surface and where traffic lands
+- a concrete starting budget cadence the founder can approve or change
+
+Present this recommended plan first, as the default the founder can approve in one word. You may still offer up to two clearly-labelled alternatives, but each must be a complete plan in plain language, not a jargon label the founder must decode. Always make a phased or hybrid answer explicit and acceptable; never force a single mutually-exclusive choice when a sequence or combination is the better strategy. Record whatever richer plan the founder approves or describes as the decision in the relevant artifact, not just the option letter.
 
 ## Version-Scope Rule
 

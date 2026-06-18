@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.10";
+const FALLBACK_VERSION = "1.1.11";
 
 const ARTIFACTS = [
   "FOUNDER_PROFILE.md",
