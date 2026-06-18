@@ -1,0 +1,17 @@
+---
+const links = [
+  { href: "/product", label: "Product" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/docs", label: "Docs" },
+];
+---
+
+<header class="site-header">
+  <a class="brand" href="https://draxbusiness.cloud/" aria-label="DRAX home">DR<span>△</span>X</a>
+  <nav aria-label="Primary navigation">
+    {links.map((link) => (
+      <a href={link.href}>{link.label}</a>
+    ))}
+  </nav>
+  <a class="button button--small" href="/pricing">Get DRAX</a>
+</header>

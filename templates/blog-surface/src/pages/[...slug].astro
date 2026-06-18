@@ -2,6 +2,18 @@
 import { render } from "astro:content";
 import { getPublishedPosts, postPath, postSlug, type BlogPost } from "../lib/posts";
 import { siteConfig } from "../site.config";
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
+import "@fontsource/fraunces/400.css";
+import "@fontsource/fraunces/600.css";
+import "@fontsource/fraunces/700.css";
+import "@fontsource/fraunces/900.css";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/inter/700.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/600.css";
 import "../styles/global.css";
 
 export async function getStaticPaths() {
@@ -26,7 +38,7 @@ const basePath = siteConfig.basePath === "/" ? "/" : `${siteConfig.basePath.repl
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{post.data.title} | {siteConfig.name}</title>
     <meta name="description" content={post.data.description} />
     <link rel="canonical" href={canonicalUrl} />
@@ -38,8 +50,9 @@ const basePath = siteConfig.basePath === "/" ? "/" : `${siteConfig.basePath.repl
     {post.data.coverImage && <meta property="og:image" content={new URL(post.data.coverImage, siteConfig.url).toString()} />}
   </head>
   <body>
+    <Header />
     <main class="shell post-shell">
-      <a class="back-link" href={basePath}>Back to index</a>
+      <a class="back-link" href={basePath}>← Back to index</a>
       <article>
         <header class="post-header">
           <time datetime={post.data.publishedAt.toISOString()}>
@@ -51,7 +64,15 @@ const basePath = siteConfig.basePath === "/" ? "/" : `${siteConfig.basePath.repl
         <div class="prose">
           <Content />
         </div>
+        <aside class="article-cta">
+          <div class="article-cta__copy">
+            <p class="article-cta__eyebrow">Built by DRAX</p>
+            <h2>Put a marketing department on autopilot.</h2>
+          </div>
+          <a class="button" href="/pricing">Get DRAX</a>
+        </aside>
       </article>
     </main>
+    <Footer />
   </body>
 </html>

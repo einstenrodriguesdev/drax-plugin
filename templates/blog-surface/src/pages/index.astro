@@ -1,6 +1,18 @@
 ---
 import { getPublishedPosts, postPath } from "../lib/posts";
 import { siteConfig } from "../site.config";
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
+import "@fontsource/fraunces/400.css";
+import "@fontsource/fraunces/600.css";
+import "@fontsource/fraunces/700.css";
+import "@fontsource/fraunces/900.css";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/inter/700.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/600.css";
 import "../styles/global.css";
 
 const posts = await getPublishedPosts();
@@ -11,15 +23,16 @@ const basePath = siteConfig.basePath === "/" ? "/" : `${siteConfig.basePath.repl
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{siteConfig.name}</title>
     <meta name="description" content={siteConfig.description} />
     <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} RSS`} href={`${basePath}rss.xml`} />
   </head>
   <body>
+    <Header />
     <main class="shell">
       <header class="hero">
-        <p class="eyebrow">Editorial</p>
+        <p class="eyebrow">DRAX Field Notes</p>
         <h1>{siteConfig.name}</h1>
         <p>{siteConfig.description}</p>
       </header>
@@ -41,5 +54,6 @@ const basePath = siteConfig.basePath === "/" ? "/" : `${siteConfig.basePath.repl
         ))}
       </section>
     </main>
+    <Footer />
   </body>
 </html>
