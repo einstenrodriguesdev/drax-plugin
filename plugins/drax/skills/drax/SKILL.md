@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.11 Organic Automation Runtime
+# Drax v1.1.12 Organic Automation Runtime
 
-Drax v1.1.11 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.12 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -198,6 +198,8 @@ For any marketing, launch, traffic, channel, or distribution decision, lead with
 - a concrete starting budget cadence the founder can approve or change
 
 Present this recommended plan first, as the default the founder can approve in one word. You may still offer up to two clearly-labelled alternatives, but each must be a complete plan in plain language, not a jargon label the founder must decode. Always make a phased or hybrid answer explicit and acceptable; never force a single mutually-exclusive choice when a sequence or combination is the better strategy. Record whatever richer plan the founder approves or describes as the decision in the relevant artifact, not just the option letter.
+
+When the recommended plan includes content production across formats, model it as create-once-publish-everywhere from one canonical blog post: a single blog post optimized for SEO and GEO is the source, and the video and image assets are derived from it. Express content cadence as coupled units, not disconnected per-channel counts. For example, one blog post yields one short video reused across Reels, YouTube Shorts, and TikTok, plus one image carousel of three images by default for Instagram. Keep the counts coupled so every channel traces back to the same canonical blog post; never recommend mismatched per-channel quantities that disconnect the channels from the SEO and GEO source.
 
 ## Version-Scope Rule
 
