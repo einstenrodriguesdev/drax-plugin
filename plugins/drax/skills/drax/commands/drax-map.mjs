@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.15";
+const FALLBACK_VERSION = "1.1.16";
 
 const ARTIFACTS = [
   "FOUNDER_PROFILE.md",
@@ -16,7 +16,7 @@ const ARTIFACTS = [
   "LANGUAGE_STRATEGY.md",
   "STACK_DECISION.md",
   "ORGANIC_GROWTH_STRATEGY.md",
-  "NINETY_POST_PLAN.md",
+  "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
   "DISTRIBUTION_PLAN.md",
   "TRIGGER_PLAN.md",
@@ -25,7 +25,7 @@ const ARTIFACTS = [
   "EXECUTION_STATE.md",
 ];
 
-const GATE_ARTIFACTS = ["FOUNDER_PROFILE.md", "NINETY_POST_PLAN.md"];
+const GATE_ARTIFACTS = ["FOUNDER_PROFILE.md", "CONTENT_STRATEGY.md"];
 
 function parseArgs(args) {
   let agent = null;
@@ -381,7 +381,7 @@ function renderWorkspace(lines, workspace) {
   for (const [file, status] of statuses) lines.push(`  [${pad(status, 7)}] ${pad(file, width)}`);
   lines.push("");
   lines.push("Release gates:");
-  lines.push("  - Artifact Readiness Gate: FOUNDER_PROFILE.md + NINETY_POST_PLAN.md must be `ready` before unattended posting.");
+  lines.push("  - Artifact Readiness Gate: FOUNDER_PROFILE.md + CONTENT_STRATEGY.md must be `ready` before unattended posting.");
   lines.push("  - Claims/quality review must pass before any publish.");
   lines.push("  - Fail-closed: triggers refuse on manifest, asset-hash, or connection mismatch.");
   lines.push("");

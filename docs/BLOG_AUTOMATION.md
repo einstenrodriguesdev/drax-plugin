@@ -48,7 +48,7 @@ The blog generator creates:
 
 ## Content Flow
 
-After the founder baseline passes, the V1 marketing team produces article drafts and metadata from `NINETY_POST_PLAN.md` and `EDITORIAL_CALENDAR.md`. Approved posts are written into `src/content/posts/` as Markdown or MDX.
+After the founder baseline passes, the V1 marketing team produces article drafts and metadata from `CONTENT_STRATEGY.md` and `EDITORIAL_CALENDAR.md`. Approved posts are written into `src/content/posts/` as Markdown or MDX.
 
 The generated blog can then be built with:
 

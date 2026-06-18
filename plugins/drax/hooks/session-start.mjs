@@ -9,7 +9,7 @@ const ARTIFACTS = [
   "LANGUAGE_STRATEGY.md",
   "STACK_DECISION.md",
   "ORGANIC_GROWTH_STRATEGY.md",
-  "NINETY_POST_PLAN.md",
+  "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
   "DISTRIBUTION_PLAN.md",
   "TRIGGER_PLAN.md",
@@ -76,7 +76,7 @@ function main() {
     return content ? [{ name, content }] : [];
   });
   const staticContext = [
-    "Drax v1.1.15 organic automation runtime is active.",
+    "Drax v1.1.16 organic automation runtime is active.",
     "Target user: a founder with an existing product who wants a measured organic traffic system.",
     "Required baseline: founder/product context, language strategy, stack/security decision, 90-post plan, trigger plan, worker routing, distribution, measurement, and execution state.",
     "Publishing defaults to dry-run. Live posting, paid spend, and browser automation require explicit approval.",

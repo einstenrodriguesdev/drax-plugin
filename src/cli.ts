@@ -23,7 +23,7 @@ import { runDistributeCommand } from "./distribute.js";
 import { directTaskPrompt, founderIntakePrompt } from "./prompts.js";
 import { runStatusCommand } from "./status.js";
 
-const VERSION = "1.1.15";
+const VERSION = "1.1.16";
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const home = os.homedir();
@@ -33,7 +33,7 @@ const BASELINE_ARTIFACTS = [
   "LANGUAGE_STRATEGY.md",
   "STACK_DECISION.md",
   "ORGANIC_GROWTH_STRATEGY.md",
-  "NINETY_POST_PLAN.md",
+  "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
   "DISTRIBUTION_PLAN.md",
   "TRIGGER_PLAN.md",

@@ -103,7 +103,7 @@ Out of scope:
 | `LANGUAGE_STRATEGY.md` | Market-language posture before content planning. |
 | `STACK_DECISION.md` | Current stack, automation posture, environment references, logs, backups, and future stack triggers. |
 | `ORGANIC_GROWTH_STRATEGY.md` | Organic channel and content strategy connected to buyer behavior. |
-| `NINETY_POST_PLAN.md` | Source plan for 90 content classes before calendar execution. |
+| `CONTENT_STRATEGY.md` | Source plan for 90 content classes before calendar execution. |
 | `EDITORIAL_CALENDAR.md` | Scheduled execution plan derived from the 90-post/class source plan. |
 | `DISTRIBUTION_PLAN.md` | Blog surface identity, adapter posture, metadata, and approval posture. |
 | `TRIGGER_PLAN.md` | Manual and cron trigger behavior against JSON state and publish records. |

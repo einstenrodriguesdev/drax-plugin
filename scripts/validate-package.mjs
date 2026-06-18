@@ -20,7 +20,7 @@ const required = [
   "templates/LANGUAGE_STRATEGY.md",
   "templates/STACK_DECISION.md",
   "templates/ORGANIC_GROWTH_STRATEGY.md",
-  "templates/NINETY_POST_PLAN.md",
+  "templates/CONTENT_STRATEGY.md",
   "templates/EDITORIAL_CALENDAR.md",
   "templates/DISTRIBUTION_PLAN.md",
   "templates/TRIGGER_PLAN.md",

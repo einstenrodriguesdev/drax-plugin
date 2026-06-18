@@ -26,7 +26,7 @@ It does not ship broad enterprise automation, live social posting, paid spend, b
 - `LANGUAGE_STRATEGY.md`
 - `STACK_DECISION.md`
 - `ORGANIC_GROWTH_STRATEGY.md`
-- `NINETY_POST_PLAN.md`
+- `CONTENT_STRATEGY.md`
 - `EDITORIAL_CALENDAR.md`
 - `DISTRIBUTION_PLAN.md`
 - `TRIGGER_PLAN.md`

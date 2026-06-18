@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.15 Organic Automation Runtime
+# Drax v1.1.16 Organic Automation Runtime
 
-Drax v1.1.15 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.16 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -13,7 +13,7 @@ The operating goal is narrow:
 - capture the current product, stack, market, constraints, and objectives
 - define language and audience priority first
 - choose the safest stack and automation posture for the current phase
-- generate a 90-theme editorial plan
+- generate a 90-day (quarterly) content strategy
 - produce article, SVG/carousel, short-video, audio, metadata, and publishing manifests
 - run the daily content clock with a manual trigger fallback
 - measure results and revise the system from evidence
@@ -135,7 +135,7 @@ Create or maintain only the artifacts needed for the current phase. Phase 1 prod
 3. `LANGUAGE_STRATEGY.md`
 4. `STACK_DECISION.md`
 5. `ORGANIC_GROWTH_STRATEGY.md`
-6. `NINETY_POST_PLAN.md`
+6. `CONTENT_STRATEGY.md`
 7. `EDITORIAL_CALENDAR.md`
 8. `DISTRIBUTION_PLAN.md`
 9. `TRIGGER_PLAN.md`
@@ -145,6 +145,40 @@ Create or maintain only the artifacts needed for the current phase. Phase 1 prod
 
 Do not duplicate the same facts across every file. Link to the canonical artifact.
 
+## Artifact Production Governance
+
+No artifact is improvised. Every document is fabricated through the official org chain, with one accountable owner and an explicit approval gate. The chain runs founder -> Chairman -> C-level -> Director -> Specialists, and the flow STARTS between the founder and the Chairman.
+
+Every artifact passes through six stages:
+
+1. Authorize — the Chairman, accountable to the founder and board, sets the objective and owns the final approval gate.
+2. Frame — the responsible C-level sets the mandate from their domain (positioning, audience, technical posture, operations).
+3. Decompose — the responsible Director breaks the work into a specialist workstream, assigns owners, and runs the review cadence.
+4. Draft — the accountable specialist runs an SME interview first (jtbd-interview and Voice-of-Customer technique), extracting real material from the founder as the primary subject-matter expert and any relevant specialist, then writes the artifact with their skills instead of inventing generic content.
+5. Gate — an independent reviewer renders a pass or fail on factual support, brand-safety, and fitness; it gates, it never rewrites.
+6. Ratify — the founder confirms; the Chairman owns the final approval.
+
+Before any downstream artifact, the Chairman establishes the founder's objective, mandate, and vision in conversation; only then does each C-level frame its documents and route them down the chain. The Chairman never fabricates downstream artifacts alone.
+
+Accountable owner per artifact (grounded in the org chart):
+
+| Artifact | Frame (C-level) | Decompose (Director) | Draft (Specialist) | Gate |
+|---|---|---|---|---|
+| `FOUNDER_PROFILE.md` | Chairman (direct) | — | Chairman + founder (founder due diligence) | founder confirms |
+| `PRODUCT_CONTEXT.md` | CMO | Director of Marketing Operations | content/brand strategist (positioning) | CMO review |
+| `LANGUAGE_STRATEGY.md` | CMO | Director of Marketing Operations | content strategist | CMO review |
+| `STACK_DECISION.md` | CTO / CISO | — | CTO/CISO (decision record) | founder confirms |
+| `ORGANIC_GROWTH_STRATEGY.md` | CMO | Director of Marketing Operations | content strategist (growth model) | CMO review |
+| `CONTENT_STRATEGY.md` | CMO | Director of Marketing Operations | content strategist (SME) -> SEO -> claims review | claims review + founder |
+| `EDITORIAL_CALENDAR.md` | CMO | Director of Marketing Operations | social-media manager + content strategist | CMO review |
+| `DISTRIBUTION_PLAN.md` | CMO | Director of Marketing Operations | traffic manager (paid/owned/earned) | CMO review |
+| `MEASUREMENT_PLAN.md` | CMO | Director of Marketing Operations | analytics-attribution specialist | CMO review |
+| `WORKER_ROUTING.md` | COO | Director of Operations | operations (responsibility matrix) | COO review |
+| `TRIGGER_PLAN.md` | COO | Director of Operations | marketing-automation specialist | COO review |
+| `EXECUTION_STATE.md` | CEO / COO | — | review cadence (catchball) -> Chairman | Chairman gate |
+
+The specialists that actually draft in the customer runtime are the vendored workers in `templates/workers/`; the Chairman, C-level, and Director roles are the accountability chain the Chairman-led interview embodies. The detailed content-plan chain is in Content Strategy Orchestration under Worker Routing.
+
 ## Artifact Readiness Gate
 
 An artifact may carry `Status: ready` only when its mastery conditions are met. Until then it stays `Status: draft`, and the system is NOT cleared for unattended daily posting.
@@ -152,9 +186,9 @@ An artifact may carry `Status: ready` only when its mastery conditions are met. 
 Two artifacts gate unattended posting and must never be marked `ready` prematurely:
 
 - `FOUNDER_PROFILE.md`: not `ready` until **Banned claims** and **Topics not to publish** are filled in the founder's own words, plus approved claims and voice. An empty or placeholder voice/boundaries section means the autonomous poster has no brand-safety guardrail; treat that as a blocking gap, never as `ready`.
-- `NINETY_POST_PLAN.md`: not `ready` until the Theme Plan holds the full 90 themes in the 30/30/20/10 split (30 problem/education, 30 product/proof, 20 operational/tutorial, 10 conversion/objection). Each theme is one reusable content idea, not a lesson — it yields one coupled unit (one blog post, one short video, one carousel). A partial seed stays `draft` (or `seeded`); a small bootstrap of a few themes is not a passed planning gate.
+- `CONTENT_STRATEGY.md`: not `ready` until it holds an editorial mission, three to five content pillars mapped to hub-and-spoke clusters, a named content mix (default Hero-Hub-Hygiene), and a derived editorial calendar covering the 90-day horizon at the chosen cadence. Content volume is derived from cadence times pillars, never a fixed count. Each calendar item is one reusable content idea that yields one coupled create-once-publish-everywhere unit (one blog post, one short video, one carousel). A partial seed stays `draft` (or `seeded`); a small bootstrap of a few items is not a passed planning gate.
 
-When reporting interview completion, list any artifact still `draft` with the specific missing field, and state plainly that daily posting is not cleared until `FOUNDER_PROFILE.md` and `NINETY_POST_PLAN.md` are both `ready`.
+When reporting interview completion, list any artifact still `draft` with the specific missing field, and state plainly that daily posting is not cleared until `FOUNDER_PROFILE.md` and `CONTENT_STRATEGY.md` are both `ready`.
 
 ## Decision Pattern
 
@@ -225,7 +259,7 @@ Use capabilities and explicit worker routes, not a large collection of overlappi
 2. Language: select primary and secondary language markets before content planning.
 3. Stack: decide isolated environment, hosting, database/state, connection readiness, logging, and security controls.
 4. Strategy: define content pillars, channel hypotheses, conversion paths, and falsifiable targets.
-5. Editorial: create the 90-theme plan, source-backed briefs, and a calendar.
+5. Editorial: create the 90-day content strategy (editorial mission, content pillars, named content mix), source-backed briefs, and a calendar.
 6. Production: prepare article, SVG/carousel, video, audio, metadata, and deliverable manifests.
 7. Distribution: queue approved assets for the active version surface.
 8. Triggering: run a daily clock trigger and a manual trigger, both with idempotency.
@@ -248,19 +282,19 @@ Use the vendored V1 worker definitions in `templates/workers/` for customer inst
 
 Do not invent new workers casually. New-role creation through the internal Conclave HR protocol is DRAX-internal only and is not part of the customer V1 runtime. Customer installs must not depend on the private Conclave source library.
 
-### Theme Creation Orchestration
+### Content Strategy Orchestration
 
-The 90-theme editorial plan is produced through the official org chain, not improvised by the Chairman. Accountability runs Chairman -> C-level -> Director -> Specialists:
+The 90-day content strategy is produced through the official org chain, not improvised by the Chairman. Accountability runs Chairman -> C-level -> Director -> Specialists:
 
-- Chairman: authorizes the theme-planning job, sets the objective, and owns the final approval gate.
+- Chairman: authorizes the content-planning job, sets the objective, and owns the final approval gate.
 - CMO (C-level): frames the content mandate from positioning, audience priority, and the founder's objective.
 - Director of Marketing Operations (Director): decomposes the plan into the specialist workstream, assigns owners, and runs the review cadence.
 - Specialists execute in sequence:
-  1. Content strategist (`templates/workers/content-strategist.md`): runs an SME interview before writing. Using the jtbd-interview and Voice-of-Customer technique, the strategist interviews the founder as the primary subject-matter expert — and any relevant specialist for technical or proof topics — to extract real material instead of inventing generic topics. The strategist then writes the full 90 themes in the 30/30/20/10 split, each theme one reusable content idea that yields one coupled create-once-publish-everywhere unit.
-  2. SEO (`templates/workers/seo-manager.md`): maps keyword, search and answer intent, and GEO metadata onto each theme.
+  1. Content strategist (`templates/workers/content-strategist.md`): runs an SME interview before writing. Using the jtbd-interview and Voice-of-Customer technique, the strategist interviews the founder as the primary subject-matter expert — and any relevant specialist for technical or proof topics — to extract real material instead of inventing generic content. The strategist then writes the editorial mission, three to five content pillars as hub-and-spoke clusters, a named content mix (default Hero-Hub-Hygiene), and a derived editorial calendar. Content volume is derived from cadence times pillars over the 90-day horizon, never a fixed count, and each calendar item yields one coupled create-once-publish-everywhere unit.
+  2. SEO (`templates/workers/seo-manager.md`): maps keyword, search and answer intent, and GEO metadata onto each item.
   3. Editorial/claims review (`templates/workers/claims-quality-reviewer.md`): renders an independent pass or fail on factual support and brand-safety; it gates, it never rewrites.
 
-`NINETY_POST_PLAN.md` flips to `ready` only after this chain completes and the review passes. In the interview, the Chairman gathers the founder's subject-matter input and routes theme creation through this chain; he never fabricates 90 themes alone.
+`CONTENT_STRATEGY.md` flips to `ready` only after this chain completes and the review passes. In the interview, the Chairman gathers the founder's subject-matter input and routes content planning through this chain; he never fabricates the content plan alone.
 
 ## Rendering Modes
 
@@ -306,7 +340,7 @@ When the baseline artifacts are generated, finish by printing how to operate the
 
 If a command does not exist yet, print `NEEDS_DECISION` with the missing executable or path. Do not imply a trigger runs when it has not been built.
 
-Apply the Artifact Readiness Gate before declaring the system operational: if `FOUNDER_PROFILE.md` or `NINETY_POST_PLAN.md` is still `draft`, report that unattended daily posting is not cleared and name the missing field.
+Apply the Artifact Readiness Gate before declaring the system operational: if `FOUNDER_PROFILE.md` or `CONTENT_STRATEGY.md` is still `draft`, report that unattended daily posting is not cleared and name the missing field.
 
 ## Security Baseline
 

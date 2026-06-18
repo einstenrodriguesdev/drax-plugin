@@ -192,7 +192,7 @@ const WORKSPACE_ARTIFACTS = [
   "LANGUAGE_STRATEGY.md",
   "STACK_DECISION.md",
   "ORGANIC_GROWTH_STRATEGY.md",
-  "NINETY_POST_PLAN.md",
+  "CONTENT_STRATEGY.md",
   "EDITORIAL_CALENDAR.md",
   "DISTRIBUTION_PLAN.md",
   "TRIGGER_PLAN.md",
@@ -461,7 +461,7 @@ function prepareClone(cwd: string, cloneLocation: string, blogSurfaceDirectory: 
 }
 
 function nextPostClass(cwd: string, index: number): string {
-  const plan = path.join(cwd, "NINETY_POST_PLAN.md");
+  const plan = path.join(cwd, "CONTENT_STRATEGY.md");
   if (!existsSync(plan)) return `post-${index}`;
   const lines = readFileSync(plan, "utf8")
     .split(/\r?\n/)

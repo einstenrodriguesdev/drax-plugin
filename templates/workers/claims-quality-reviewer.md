@@ -58,7 +58,7 @@ The founder artifacts are available in the workspace when positioning, product t
 - `LANGUAGE_STRATEGY.md`
 - `STACK_DECISION.md`
 - `ORGANIC_GROWTH_STRATEGY.md`
-- `NINETY_POST_PLAN.md`
+- `CONTENT_STRATEGY.md`
 - `EDITORIAL_CALENDAR.md`
 - `DISTRIBUTION_PLAN.md`
 - `TRIGGER_PLAN.md`

@@ -17,7 +17,7 @@ Use vendored V1 worker definitions from `templates/workers/` for customer instal
 | Founder interview | Drax intake | drax skill | Founder answers | Prompt only | Guessing missing facts | FOUNDER_PROFILE.md, PRODUCT_CONTEXT.md | Founder confirms |
 | Language strategy | Growth strategy | templates/workers/content-strategist.md | Founder profile, product context | Research, docs | Publishing before language lock | LANGUAGE_STRATEGY.md | Founder confirms |
 | Stack/security decision | Technical operations | CTO/CISO pattern from source library | Current stack, constraints | Docs, shell diagnostics when approved | Credential exposure, destructive changes | STACK_DECISION.md | Founder confirms |
-| 90-post plan | Content strategy | templates/workers/content-strategist.md | Language strategy, product context, SME interview (founder + specialists) | Research, docs | Calendar without 90-theme plan | NINETY_POST_PLAN.md | Editorial/claims review + founder confirms |
+| 90-post plan | Content strategy | templates/workers/content-strategist.md | Language strategy, product context, SME interview (founder + specialists) | Research, docs | Calendar without 90-theme plan | CONTENT_STRATEGY.md | Editorial/claims review + founder confirms |
 | SEO brief/metadata | SEO | templates/workers/seo-manager.md | Product context, language strategy, theme plan, site surface | Research, docs | Keyword stuffing, unsupported search claims | SEO brief/metadata | Editorial review |
 | Article brief/draft | Editorial writer | templates/workers/content-strategist.md, templates/workers/copywriter-performance.md | Theme plan, sources | Research, markdown | Unsupported claims | Article draft/brief | Editorial review |
 | SVG/carousel | Social visual production | templates/workers/social-media-designer.md | Article brief, brand tokens | SVG/code/image tools | Off-brand tokens, unreviewed claims | Asset manifest | Creative review |
@@ -36,7 +36,7 @@ The 90-theme plan is governed by the org chain Chairman -> C-level -> Director -
 5. SEO (`templates/workers/seo-manager.md`) maps keyword, intent, and GEO metadata onto each theme.
 6. Editorial/claims review (`templates/workers/claims-quality-reviewer.md`) renders an independent pass or fail; it gates, it never rewrites.
 
-`NINETY_POST_PLAN.md` flips to `ready` only after this chain completes and the review passes.
+`CONTENT_STRATEGY.md` flips to `ready` only after this chain completes and the review passes.
 
 ## Permission Rules
 
