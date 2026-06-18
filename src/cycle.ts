@@ -618,6 +618,11 @@ function runCodexStage(input: {
     {
       cwd: input.cloneDir,
       encoding: "utf8",
+      // Codex exec streams reasoning + content to stdout, which routinely exceeds
+      // Node's 1 MB spawnSync default and aborts the run with ENOBUFS. The
+      // authoritative output is also written to --output-last-message, but the
+      // captured stdout/stderr feed the run log, so allow a generous ceiling.
+      maxBuffer: 1024 * 1024 * 256,
       env: {
         ...input.env,
         DRAX_CYCLE_MODE: input.mode,

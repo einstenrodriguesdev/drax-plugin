@@ -269,7 +269,7 @@ function writeFakeCycleCodex(directory, articleBody) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.17");
+  assert.equal(result.stdout.trim(), "1.1.18");
 });
 
 test("prints a scoped direct-task prompt", () => {

@@ -23,7 +23,7 @@ import { runDistributeCommand } from "./distribute.js";
 import { directTaskPrompt, founderIntakePrompt } from "./prompts.js";
 import { runStatusCommand } from "./status.js";
 
-const VERSION = "1.1.17";
+const VERSION = "1.1.18";
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const home = os.homedir();
