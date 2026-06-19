@@ -169,6 +169,14 @@ function firstPublishRecord(directory) {
   return JSON.parse(readFileSync(path.join(recordsDir, recordFiles[0]), "utf8"));
 }
 
+function firstRunManifest(directory, status) {
+  const runDir = path.join(directory, ".drax/runs", status);
+  const manifestFiles = readdirSync(runDir).filter((entry) => entry.endsWith(".json"));
+  assert.equal(manifestFiles.length, 1);
+  const file = path.join(runDir, manifestFiles[0]);
+  return { file, manifest: JSON.parse(readFileSync(file, "utf8")) };
+}
+
 function pythonCanRenderSocialImages() {
   return spawnSync("python3", ["-c", "import PIL"], { stdio: "ignore" }).status === 0;
 }
@@ -201,6 +209,9 @@ function writeFakeCycleCodex(directory, articleBody) {
     [
       "#!/bin/sh",
       "set -eu",
+      'if [ "${DRAX_FAKE_EMIT_USAGE:-}" = "1" ]; then',
+      "  printf '%s\\n' \"{\\\"type\\\":\\\"turn.completed\\\",\\\"usage\\\":{\\\"input_tokens\\\":${DRAX_FAKE_INPUT_TOKENS:-0},\\\"cached_input_tokens\\\":0,\\\"output_tokens\\\":${DRAX_FAKE_OUTPUT_TOKENS:-100},\\\"reasoning_output_tokens\\\":0}}\"",
+      "fi",
       'mkdir -p "$DRAX_CYCLE_SECTOR_DIR"',
       'case "${DRAX_CYCLE_STAGE:-}" in',
       "  content-strategist)",
@@ -282,7 +293,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.21");
+  assert.equal(result.stdout.trim(), "1.1.22");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -701,6 +712,103 @@ test("cycle dry-run records ordered sector evidence", () => {
       assert.notEqual(readFileSync(artifact, "utf8").trim(), "");
       assert.equal(sha256File(artifact), entry.sha256);
     }
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("cycle dry-run records stage and run token telemetry", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-telemetry-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--dry-run"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_FAKE_EMIT_USAGE: "1",
+        DRAX_FAKE_INPUT_TOKENS: "100",
+        DRAX_FAKE_OUTPUT_TOKENS: "100",
+      }),
+    });
+    assert.equal(result.status, 0, result.stderr);
+
+    const { manifest } = firstRunManifest(directory, "pending");
+    assert.ok(manifest.telemetry);
+    assert.equal(manifest.telemetry.stages.length, 4);
+    assert.equal(manifest.telemetry.totals.totalTokens, 800);
+
+    const logDir = path.join(directory, ".drax/logs");
+    const runTelemetryPath = path.join(logDir, `${manifest.runId}.telemetry.json`);
+    assert.equal(existsSync(runTelemetryPath), true);
+    const stageTelemetryPath = path.join(logDir, `${manifest.runId}.content-strategist.telemetry.json`);
+    assert.equal(existsSync(stageTelemetryPath), true);
+    const stageTelemetry = JSON.parse(readFileSync(stageTelemetryPath, "utf8"));
+    assert.equal(stageTelemetry.usage.measured, true);
+    assert.equal(stageTelemetry.usage.totalTokens, 200);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("cycle fails closed when a stage exceeds the token budget", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-stage-budget-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--dry-run"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_FAKE_EMIT_USAGE: "1",
+        DRAX_FAKE_INPUT_TOKENS: "0",
+        DRAX_FAKE_OUTPUT_TOKENS: "5000",
+        DRAX_STAGE_TOKEN_BUDGET: "1000",
+      }),
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /used 5000 tokens, exceeding the per-stage budget of 1000 \(fail-closed\)/);
+    assert.equal(existsSync(path.join(directory, ".drax/publish-records")), false);
+
+    const { manifest } = firstRunManifest(directory, "failed");
+    const stageTelemetryPath = path.join(directory, ".drax/logs", `${manifest.runId}.content-strategist.telemetry.json`);
+    assert.equal(existsSync(stageTelemetryPath), true);
+    const stageTelemetry = JSON.parse(readFileSync(stageTelemetryPath, "utf8"));
+    assert.equal(stageTelemetry.usage.totalTokens, 5000);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("cycle fails closed when the run exceeds the token budget", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-run-budget-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--dry-run"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_FAKE_EMIT_USAGE: "1",
+        DRAX_FAKE_INPUT_TOKENS: "0",
+        DRAX_FAKE_OUTPUT_TOKENS: "400",
+        DRAX_RUN_TOKEN_BUDGET: "1000",
+      }),
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /used 1200 tokens after stage copywriter, exceeding the per-run budget of 1000 \(fail-closed\)/);
+
+    const { manifest } = firstRunManifest(directory, "failed");
+    const runTelemetryPath = path.join(directory, ".drax/logs", `${manifest.runId}.telemetry.json`);
+    assert.equal(existsSync(runTelemetryPath), true);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

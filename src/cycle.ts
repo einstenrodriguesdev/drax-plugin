@@ -80,6 +80,43 @@ type HashedFile = {
   mediaType?: string;
 };
 
+type StageUsage = {
+  measured: boolean;
+  turnsObserved: number;
+  inputTokens: number;
+  cachedInputTokens: number;
+  outputTokens: number;
+  reasoningOutputTokens: number;
+  totalTokens: number;
+};
+
+type StageTelemetry = {
+  stage: string;
+  envStage: string;
+  role: string;
+  startedAt: string;
+  endedAt: string;
+  elapsedMs: number;
+  status: "ok" | "timeout" | "error" | "nonzero-exit";
+  exitStatus: number | null;
+  signal: string | null;
+  usage: StageUsage;
+};
+
+type RunTelemetry = {
+  runId: string;
+  startedAt: string;
+  endedAt: string;
+  stages: StageTelemetry[];
+  totals: {
+    inputTokens: number;
+    cachedInputTokens: number;
+    outputTokens: number;
+    reasoningOutputTokens: number;
+    totalTokens: number;
+  };
+};
+
 type SectorEvidence = {
   stage: string;
   role: string;
@@ -105,6 +142,7 @@ type RunManifest = {
   failureReason: string | null;
   published: boolean;
   sector?: SectorEvidence[];
+  telemetry?: RunTelemetry;
 };
 
 type PublishRecord = {
@@ -240,6 +278,39 @@ function nonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+function parseStageUsage(stdout: string): StageUsage {
+  const usage: StageUsage = {
+    measured: false,
+    turnsObserved: 0,
+    inputTokens: 0,
+    cachedInputTokens: 0,
+    outputTokens: 0,
+    reasoningOutputTokens: 0,
+    totalTokens: 0,
+  };
+  for (const line of stdout.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    let event: unknown;
+    try {
+      event = JSON.parse(trimmed);
+    } catch {
+      continue;
+    }
+    if (!isRecord(event) || event.type !== "turn.completed") continue;
+    const u = event.usage;
+    if (!isRecord(u)) continue;
+    usage.turnsObserved += 1;
+    usage.inputTokens += typeof u.input_tokens === "number" ? u.input_tokens : 0;
+    usage.cachedInputTokens += typeof u.cached_input_tokens === "number" ? u.cached_input_tokens : 0;
+    usage.outputTokens += typeof u.output_tokens === "number" ? u.output_tokens : 0;
+    usage.reasoningOutputTokens += typeof u.reasoning_output_tokens === "number" ? u.reasoning_output_tokens : 0;
+  }
+  usage.measured = usage.turnsObserved > 0;
+  usage.totalTokens = usage.inputTokens + usage.outputTokens;
+  return usage;
+}
+
 function needsDecision(value: string | null | undefined): boolean {
   return !value || value.trim() === "" || value.trim() === "NEEDS_DECISION";
 }
@@ -249,6 +320,14 @@ function resolveStageTimeoutMs(env: NodeJS.ProcessEnv): number {
   if (!value) return DEFAULT_STAGE_TIMEOUT_MS;
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_STAGE_TIMEOUT_MS;
+}
+
+// 0 disables token budgets; defaults stay disabled until usage is calibrated, while wall-clock timeout protects runaways.
+function resolvePositiveIntEnv(env: NodeJS.ProcessEnv, key: string): number {
+  const value = env[key]?.trim();
+  if (!value) return 0;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 0;
 }
 
 function resolveWorkspacePath(cwd: string, value: string): string {
@@ -601,7 +680,7 @@ function runCodexStage(input: {
   packagePath: string;
   stage: SectorStage;
   env: NodeJS.ProcessEnv;
-}): { finalMessagePath: string; logPath: string } {
+}): { finalMessagePath: string; logPath: string; telemetry: StageTelemetry } {
   const roleDefinition = readFileSync(roleDefinitionPath(input.stage.roleFile), "utf8");
   const finalMessagePath = path.join(input.logDir, `${input.runId}.${input.stage.envStage}.final.txt`);
   const logPath = path.join(input.logDir, `${input.runId}.${input.stage.envStage}.codex.log`);
@@ -621,10 +700,11 @@ function runCodexStage(input: {
   // file-write is blocked. Such trusted hosts set DRAX_CODEX_SANDBOX=danger-full-access.
   const sandboxMode = input.env.DRAX_CODEX_SANDBOX || "workspace-write";
   const timeoutMs = resolveStageTimeoutMs(input.env);
-  const startedAt = Date.now();
+  const startedAt = new Date().toISOString();
+  const startedAtMs = Date.now();
   const result = spawnSync(
     binary,
-    ["exec", "--sandbox", sandboxMode, "--cd", input.cloneDir, "--output-last-message", finalMessagePath, prompt],
+    ["exec", "--json", "--sandbox", sandboxMode, "--cd", input.cloneDir, "--output-last-message", finalMessagePath, prompt],
     {
       cwd: input.cloneDir,
       encoding: "utf8",
@@ -646,9 +726,23 @@ function runCodexStage(input: {
       },
     },
   );
-  const elapsedMs = Date.now() - startedAt;
+  const elapsedMs = Date.now() - startedAtMs;
   const errorCode = (result.error as NodeJS.ErrnoException | undefined)?.code;
   const timedOut = Boolean(result.error) && (result.signal === "SIGKILL" || errorCode === "ETIMEDOUT" || elapsedMs >= timeoutMs);
+  const usage = parseStageUsage(result.stdout ?? "");
+  const status = timedOut ? "timeout" : result.error ? "error" : result.status !== 0 ? "nonzero-exit" : "ok";
+  const telemetry: StageTelemetry = {
+    stage: input.stage.evidenceStage,
+    envStage: input.stage.envStage,
+    role: input.stage.role,
+    startedAt,
+    endedAt: new Date().toISOString(),
+    elapsedMs,
+    status,
+    exitStatus: result.status ?? null,
+    signal: result.signal ?? null,
+    usage,
+  };
   const timeoutMarker = timedOut
     ? `[timeout] killed after ${elapsedMs} ms (budget ${timeoutMs} ms, signal ${result.signal ?? "SIGKILL"})`
     : "";
@@ -656,9 +750,10 @@ function runCodexStage(input: {
   writeFileSync(
     logPath,
     [
-      `command: ${binary} exec --sandbox ${sandboxMode} --cd ${input.cloneDir}`,
+      `command: ${binary} exec --json --sandbox ${sandboxMode} --cd ${input.cloneDir}`,
       `stage: ${input.stage.envStage}`,
       `status: ${result.status ?? "error"}`,
+      `tokens: in=${usage.inputTokens} out=${usage.outputTokens} total=${usage.totalTokens} measured=${usage.measured}`,
       "",
       "[stdout]",
       result.stdout,
@@ -672,6 +767,7 @@ function runCodexStage(input: {
     ].join("\n"),
     "utf8",
   );
+  writeJson(path.join(input.logDir, `${input.runId}.${input.stage.envStage}.telemetry.json`), telemetry);
 
   if (timedOut) {
     throw new CycleError([
@@ -688,8 +784,14 @@ function runCodexStage(input: {
   if (result.status !== 0) {
     throw new CycleError([`codex exec failed for stage ${input.stage.envStage} in run ${input.runId}. See ${logPath}`]);
   }
+  const stageBudget = resolvePositiveIntEnv(input.env, "DRAX_STAGE_TOKEN_BUDGET");
+  if (stageBudget > 0 && usage.measured && usage.totalTokens > stageBudget) {
+    throw new CycleError([
+      `codex exec stage ${input.stage.envStage} in run ${input.runId} used ${usage.totalTokens} tokens, exceeding the per-stage budget of ${stageBudget} (fail-closed). See ${logPath}.`,
+    ]);
+  }
   assertNonEmptyFile(input.stage.artifactPath, `Sector stage ${input.stage.evidenceStage} artifact`);
-  return { finalMessagePath, logPath };
+  return { finalMessagePath, logPath, telemetry };
 }
 
 function sectorEvidence(packagePath: string, stage: SectorStage): SectorEvidence {
@@ -757,6 +859,32 @@ function combineStageOutputs(target: string, files: string[], label: string): vo
   writeFileSync(target, `${parts.join("\n\n")}\n`, "utf8");
 }
 
+function buildRunTelemetry(runId: string, stages: StageTelemetry[]): RunTelemetry {
+  const totals = stages.reduce(
+    (acc, stage) => ({
+      inputTokens: acc.inputTokens + stage.usage.inputTokens,
+      cachedInputTokens: acc.cachedInputTokens + stage.usage.cachedInputTokens,
+      outputTokens: acc.outputTokens + stage.usage.outputTokens,
+      reasoningOutputTokens: acc.reasoningOutputTokens + stage.usage.reasoningOutputTokens,
+      totalTokens: acc.totalTokens + stage.usage.totalTokens,
+    }),
+    { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, reasoningOutputTokens: 0, totalTokens: 0 },
+  );
+  return {
+    runId,
+    startedAt: stages[0]?.startedAt ?? new Date().toISOString(),
+    endedAt: new Date().toISOString(),
+    stages,
+    totals,
+  };
+}
+
+function writeRunTelemetry(logDir: string, runId: string, stages: StageTelemetry[]): RunTelemetry {
+  const telemetry = buildRunTelemetry(runId, stages);
+  writeJson(path.join(logDir, `${runId}.telemetry.json`), telemetry);
+  return telemetry;
+}
+
 function runSector(input: {
   cloneDir: string;
   logDir: string;
@@ -766,7 +894,7 @@ function runSector(input: {
   postIndex: number;
   postClass: string;
   env: NodeJS.ProcessEnv;
-}): { articlePath: string; packagePath: string; finalMessagePath: string; logPath: string; sector: SectorEvidence[] } {
+}): { articlePath: string; packagePath: string; finalMessagePath: string; logPath: string; sector: SectorEvidence[]; telemetry: RunTelemetry } {
   mkdirSync(input.runWorkDir, { recursive: true });
   mkdirSync(input.logDir, { recursive: true });
 
@@ -836,8 +964,11 @@ function runSector(input: {
     },
   ];
   const sector: SectorEvidence[] = [];
+  const stageTelemetry: StageTelemetry[] = [];
   const finalMessageFiles: string[] = [];
   const logFiles: string[] = [];
+  const runBudget = resolvePositiveIntEnv(input.env, "DRAX_RUN_TOKEN_BUDGET");
+  let cumulativeTokens = 0;
 
   for (const stage of stages) {
     const result = runCodexStage({
@@ -854,8 +985,16 @@ function runSector(input: {
       stage,
       env: input.env,
     });
+    stageTelemetry.push(result.telemetry);
+    cumulativeTokens += result.telemetry.usage.totalTokens;
     finalMessageFiles.push(result.finalMessagePath);
     logFiles.push(result.logPath);
+    if (runBudget > 0 && cumulativeTokens > runBudget) {
+      writeRunTelemetry(input.logDir, input.runId, stageTelemetry);
+      throw new CycleError([
+        `run ${input.runId} used ${cumulativeTokens} tokens after stage ${stage.envStage}, exceeding the per-run budget of ${runBudget} (fail-closed).`,
+      ]);
+    }
 
     if (stage.envStage === "copywriter") {
       assertNonEmptyFile(articlePath, "Content engine article");
@@ -866,10 +1005,11 @@ function runSector(input: {
   }
 
   writeSectorEvidence(packagePath, sector);
+  const telemetry = writeRunTelemetry(input.logDir, input.runId, stageTelemetry);
   combineStageOutputs(finalMessagePath, finalMessageFiles, "final-message");
   combineStageOutputs(logPath, logFiles, "codex-log");
 
-  return { articlePath, packagePath, finalMessagePath, logPath, sector };
+  return { articlePath, packagePath, finalMessagePath, logPath, sector, telemetry };
 }
 
 function parseContentPackage(packagePath: string, articlePath: string, postIndex: number): ContentPackage {
@@ -2256,6 +2396,7 @@ function executeCycle(args: string[], options: CycleOptions): number {
       status: published.published ? "PUBLISHED" : "PENDING",
       published: published.published,
       sector: codexResult.sector,
+      telemetry: codexResult.telemetry,
     };
     manifestFile = writeManifest(runRoot, manifest);
 

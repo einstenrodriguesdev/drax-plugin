@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.21 Organic Automation Runtime
+# Drax v1.1.22 Organic Automation Runtime
 
-Drax v1.1.21 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.22 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
