@@ -170,6 +170,7 @@ type SocialCarouselResult = {
 const STATE_JSON = "EXECUTION_STATE.json";
 const STATE_MD = "EXECUTION_STATE.md";
 const CLONE_MARKER = ".drax-cycle-clone";
+const DEFAULT_STAGE_TIMEOUT_MS = 1_200_000;
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const DEFAULT_CONFIG: CycleConfig = {
@@ -241,6 +242,13 @@ function nonEmptyString(value: unknown): value is string {
 
 function needsDecision(value: string | null | undefined): boolean {
   return !value || value.trim() === "" || value.trim() === "NEEDS_DECISION";
+}
+
+function resolveStageTimeoutMs(env: NodeJS.ProcessEnv): number {
+  const value = env.DRAX_STAGE_TIMEOUT_MS?.trim();
+  if (!value) return DEFAULT_STAGE_TIMEOUT_MS;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_STAGE_TIMEOUT_MS;
 }
 
 function resolveWorkspacePath(cwd: string, value: string): string {
@@ -612,12 +620,16 @@ function runCodexStage(input: {
   // fails ("loopback: RTM_NEWADDR" / "setting up uid map") and every sector
   // file-write is blocked. Such trusted hosts set DRAX_CODEX_SANDBOX=danger-full-access.
   const sandboxMode = input.env.DRAX_CODEX_SANDBOX || "workspace-write";
+  const timeoutMs = resolveStageTimeoutMs(input.env);
+  const startedAt = Date.now();
   const result = spawnSync(
     binary,
     ["exec", "--sandbox", sandboxMode, "--cd", input.cloneDir, "--output-last-message", finalMessagePath, prompt],
     {
       cwd: input.cloneDir,
       encoding: "utf8",
+      timeout: timeoutMs,
+      killSignal: "SIGKILL",
       // Codex exec streams reasoning + content to stdout, which routinely exceeds
       // Node's 1 MB spawnSync default and aborts the run with ENOBUFS. The
       // authoritative output is also written to --output-last-message, but the
@@ -634,6 +646,12 @@ function runCodexStage(input: {
       },
     },
   );
+  const elapsedMs = Date.now() - startedAt;
+  const errorCode = (result.error as NodeJS.ErrnoException | undefined)?.code;
+  const timedOut = Boolean(result.error) && (result.signal === "SIGKILL" || errorCode === "ETIMEDOUT" || elapsedMs >= timeoutMs);
+  const timeoutMarker = timedOut
+    ? `[timeout] killed after ${elapsedMs} ms (budget ${timeoutMs} ms, signal ${result.signal ?? "SIGKILL"})`
+    : "";
 
   writeFileSync(
     logPath,
@@ -648,11 +666,18 @@ function runCodexStage(input: {
       "[stderr]",
       result.stderr,
       "",
+      timeoutMarker,
+      "",
       result.error ? `[error]\n${result.error.message}\n` : "",
     ].join("\n"),
     "utf8",
   );
 
+  if (timedOut) {
+    throw new CycleError([
+      `codex exec stage ${input.stage.envStage} in run ${input.runId} exceeded the ${timeoutMs} ms budget and was killed (fail-closed). See ${logPath}.`,
+    ]);
+  }
   if (result.error) {
     throw new CycleError([
       result.error.message.includes("ENOENT")

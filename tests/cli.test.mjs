@@ -272,10 +272,17 @@ function writeFakeCycleCodex(directory, articleBody) {
   return fakeCodex;
 }
 
+function writeSleepingCodex(directory) {
+  const fakeCodex = path.join(directory, "codex-sleep");
+  writeFileSync(fakeCodex, "#!/usr/bin/env node\nsetTimeout(() => {}, 2000);\n", "utf8");
+  chmodSync(fakeCodex, 0o755);
+  return fakeCodex;
+}
+
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.20");
+  assert.equal(result.stdout.trim(), "1.1.21");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -849,6 +856,42 @@ test("cycle fails closed on forbidden claims", () => {
     assert.equal(existsSync(path.join(directory, ".drax/publish-records")), false);
     const failedDir = path.join(directory, ".drax/runs/failed");
     assert.equal(readdirSync(failedDir).filter((entry) => entry.endsWith(".json")).length, 1);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("cycle fails closed when a codex stage exceeds the timeout", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-timeout-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    const beforeState = JSON.parse(readFileSync(path.join(directory, "EXECUTION_STATE.json"), "utf8"));
+    const fakeCodex = writeSleepingCodex(directory);
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--dry-run"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({ DRAX_CODEX_BIN: fakeCodex, DRAX_STAGE_TIMEOUT_MS: "500" }),
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /codex exec stage content-strategist .* exceeded the 500 ms budget and was killed \(fail-closed\)/);
+    assert.equal(existsSync(path.join(directory, ".drax/publish-records")), false);
+
+    const afterState = JSON.parse(readFileSync(path.join(directory, "EXECUTION_STATE.json"), "utf8"));
+    assert.equal(afterState.nextPostIndex, beforeState.nextPostIndex);
+    assert.equal(afterState.lastRunId, beforeState.lastRunId);
+    assert.equal(afterState.lastPublishedAt, beforeState.lastPublishedAt);
+    assert.equal(afterState.publishingMode, beforeState.publishingMode);
+
+    const failedDir = path.join(directory, ".drax/runs/failed");
+    assert.equal(readdirSync(failedDir).filter((entry) => entry.endsWith(".json")).length, 1);
+
+    const logDir = path.join(directory, ".drax/logs");
+    const stageLog = readdirSync(logDir).find((entry) => entry.endsWith(".content-strategist.codex.log"));
+    assert.ok(stageLog);
+    const log = readFileSync(path.join(logDir, stageLog), "utf8");
+    assert.match(log, /\[timeout\] killed after [0-9]+ ms \(budget 500 ms, signal SIGKILL\)/);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
