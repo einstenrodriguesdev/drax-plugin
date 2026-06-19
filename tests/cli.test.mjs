@@ -293,7 +293,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.24");
+  assert.equal(result.stdout.trim(), "1.1.25");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -770,6 +770,43 @@ test("cycle dry-run records stage and run token telemetry", () => {
   }
 });
 
+test("cycle dry-run records an all-allow C-level authority ledger", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-authority-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--dry-run"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_FAKE_EMIT_USAGE: "1",
+        DRAX_FAKE_INPUT_TOKENS: "100",
+        DRAX_FAKE_OUTPUT_TOKENS: "100",
+      }),
+    });
+    assert.equal(result.status, 0, result.stderr);
+
+    const { manifest } = firstRunManifest(directory, "pending");
+    assert.ok(manifest.authority);
+    assert.equal(manifest.authority.role, "chief-executive");
+    assert.equal(manifest.authority.contained, false);
+    assert.equal(manifest.authority.decisions.length, 8);
+    assert.equal(manifest.authority.decisions.every((decision) => decision.verdict === "allow"), true);
+    assert.equal(manifest.authority.decisions.some((decision) => decision.verdict === "halt"), false);
+    assert.equal(manifest.authority.decisions.some((decision) => decision.verdict === "contain"), false);
+    assert.deepEqual(manifest.authority.policy, { runTokenBudget: 0, runTokenSoft: 0, runTimeBudgetMs: 0 });
+
+    const authorityPath = path.join(directory, ".drax/logs", `${manifest.runId}.authority.json`);
+    assert.equal(existsSync(authorityPath), true);
+    const authority = JSON.parse(readFileSync(authorityPath, "utf8"));
+    assert.equal(authority.decisions.length, 8);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
 test("cycle fails closed when a stage exceeds the token budget", () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-stage-budget-"));
   try {
@@ -826,6 +863,46 @@ test("cycle fails closed when the run exceeds the token budget", () => {
     const { manifest } = firstRunManifest(directory, "failed");
     const runTelemetryPath = path.join(directory, ".drax/logs", `${manifest.runId}.telemetry.json`);
     assert.equal(existsSync(runTelemetryPath), true);
+    assert.ok(manifest.authority);
+    assert.ok(
+      manifest.authority.decisions.some(
+        (decision) => decision.verdict === "halt" && /exceeding the per-run budget of 1000/.test(decision.reason),
+      ),
+    );
+    const authorityPath = path.join(directory, ".drax/logs", `${manifest.runId}.authority.json`);
+    assert.equal(existsSync(authorityPath), true);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("C-level run wall-clock mandate halts an overrunning run", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-wall-clock-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--dry-run"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_RUN_TIME_BUDGET_MS: "1",
+      }),
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /exceeding the run wall-clock budget of 1 ms \(fail-closed\)/);
+
+    const { manifest } = firstRunManifest(directory, "failed");
+    assert.ok(manifest.authority);
+    assert.ok(
+      manifest.authority.decisions.some(
+        (decision) => decision.verdict === "halt" && /run wall-clock budget/.test(decision.reason),
+      ),
+    );
+    const authorityPath = path.join(directory, ".drax/logs", `${manifest.runId}.authority.json`);
+    assert.equal(existsSync(authorityPath), true);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -969,6 +1046,54 @@ test("cycle publish honors the DRAX_DISTRIBUTE_CONFIRM double opt-in", (t) => {
     assert.equal(distributeStages.length, 1);
     assert.equal(distributeStages[0].detail, "confirm");
     assert.equal(distributeStages[0].status, "ok");
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("C-level contain revokes live-distribution authority on a soft token overrun", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-contain-distribute-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    initBlogSurface(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--publish"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_PYTHON_BIN: "/nonexistent/drax-python3",
+        DRAX_DISTRIBUTE: "instagram",
+        DRAX_DISTRIBUTE_CONFIRM: "1",
+        DRAX_FAKE_EMIT_USAGE: "1",
+        DRAX_FAKE_INPUT_TOKENS: "100",
+        DRAX_FAKE_OUTPUT_TOKENS: "100",
+        DRAX_RUN_TOKEN_SOFT: "500",
+      }),
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Drax cycle publish passed/);
+
+    const { manifest } = firstRunManifest(directory, "published");
+    assert.equal(manifest.authority.contained, true);
+    assert.ok(
+      manifest.authority.decisions.some(
+        (decision) => decision.verdict === "contain" && /soft token threshold/.test(decision.reason),
+      ),
+    );
+    assert.ok(
+      manifest.authority.decisions.some(
+        (decision) => decision.checkpoint === "pre-distribution" && decision.verdict === "contain",
+      ),
+    );
+    const distributeStages = manifest.telemetry.stages.filter((stage) => stage.kind === "distribute");
+    assert.equal(distributeStages.length, 1);
+    assert.equal(distributeStages[0].detail, "queue");
+
+    const state = JSON.parse(readFileSync(path.join(directory, "EXECUTION_STATE.json"), "utf8"));
+    assert.equal(state.nextPostIndex, 2);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

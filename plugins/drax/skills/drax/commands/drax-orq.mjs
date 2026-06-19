@@ -9,7 +9,7 @@ const commandFile = fileURLToPath(import.meta.url);
 const commandDir = path.dirname(commandFile);
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.24";
+const FALLBACK_VERSION = "1.1.25";
 const PAGE_LINES = 46;
 const DEFAULT_RUN_DIRECTORY = ".drax/runs";
 
@@ -264,6 +264,12 @@ function renderLiveState(lines, workspace, detected, state, latest) {
     const runId = valueOrNeedsDecision(latest.manifest.runId);
     const status = valueOrNeedsDecision(latest.manifest.status);
     lines.push(`latest run: ${runId} · status ${status} · ${sector.length}/4 stages with sha256 evidence`);
+    const authority = latest.manifest.authority;
+    if (authority && typeof authority === "object" && Array.isArray(authority.decisions)) {
+      lines.push(
+        `latest run authority: contained=${Boolean(authority.contained)} · decisions=${authority.decisions.length} · halts=${authority.decisions.filter((d) => d && d.verdict === "halt").length}`,
+      );
+    }
   } else if (latest.status === "unreadable") {
     lines.push("latest run: present but unreadable");
   } else {
@@ -280,14 +286,21 @@ function renderAuthority(lines) {
   lines.push("- VERDICT: PASS gate");
   lines.push("- SHA-256 evidence chain");
   lines.push("- Ed25519 access-token gate (runtime refuses without a valid token)");
+  lines.push("- per-stage wall-clock timeout (a stalled stage is killed, SIGKILL)");
+  lines.push("- per-stage token budget (DRAX_STAGE_TOKEN_BUDGET)");
+  lines.push("- per-run token budget (DRAX_RUN_TOKEN_BUDGET)");
+  lines.push("- C-level run supervisor: every sector stage passes an authorize/ratify checkpoint that records an");
+  lines.push("  ALLOW / CONTAIN / HALT decision into an authority ledger (run manifest + <runId>.authority.json)");
+  lines.push("- run wall-clock mandate (DRAX_RUN_TIME_BUDGET_MS): halts a run that overruns as a whole");
+  lines.push("- contain / redirect (DRAX_RUN_TOKEN_SOFT): a soft token overrun revokes live-distribution authority");
+  lines.push("  (forces queue-only) instead of killing the run");
   lines.push("");
   lines.push("NOT ENFORCED IN CODE (today):");
-  lines.push("- per-agent token budget (none)");
-  lines.push("- per-agent timeout (no kill if a stage loops/stalls)");
-  lines.push("- C-level kill of a runaway specialist (no supervision tree; stages are codex exec subprocesses, not governed objects)");
   lines.push("- dynamic org routing (the 4 stages are hardcoded, not chosen at runtime)");
   lines.push("");
-  lines.push('Agent "authority" today = one prompt sentence per stage ("Stay inside this stage\'s authority"). It is instruction, not control.');
+  lines.push("Budgets and thresholds are opt-in: with the *_BUDGET / *_SOFT vars unset, the supervisor records an");
+  lines.push("ALLOW decision for every stage and throttles nothing — but each stage is still a governed object with");
+  lines.push("an audited authority decision.");
 }
 
 function paginate(lines, page) {

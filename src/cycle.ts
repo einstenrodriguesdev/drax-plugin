@@ -119,6 +119,38 @@ type RunTelemetry = {
   };
 };
 
+type AuthorityCheckpoint = "pre-stage" | "post-stage" | "pre-distribution";
+type AuthorityVerdict = "allow" | "contain" | "halt";
+
+type AuthorityDecision = {
+  sequence: number;
+  checkpoint: AuthorityCheckpoint;
+  stage: string;
+  role: string;
+  verdict: AuthorityVerdict;
+  reason: string;
+  observed: {
+    cumulativeTokens: number;
+    elapsedMs: number;
+    stageStatus: string | null;
+  };
+  decidedAt: string;
+};
+
+type AuthorityPolicy = {
+  runTokenBudget: number;
+  runTokenSoft: number;
+  runTimeBudgetMs: number;
+};
+
+type AuthorityLedger = {
+  runId: string;
+  role: string;
+  policy: AuthorityPolicy;
+  contained: boolean;
+  decisions: AuthorityDecision[];
+};
+
 type SectorEvidence = {
   stage: string;
   role: string;
@@ -145,6 +177,7 @@ type RunManifest = {
   published: boolean;
   sector?: SectorEvidence[];
   telemetry?: RunTelemetry;
+  authority?: AuthorityLedger;
 };
 
 type PublishRecord = {
@@ -946,6 +979,194 @@ function combineRunTelemetry(logDir: string, base: RunTelemetry, mediaStages: St
   return writeRunTelemetry(logDir, base.runId, [...base.stages, ...mediaStages]);
 }
 
+type AuthoritySupervisor = {
+  authorize(input: { stage: string; role: string; cumulativeTokens: number }): void;
+  ratify(input: { stage: string; role: string; cumulativeTokens: number; stageStatus: string }): void;
+  governDistribution(input: { requestedConfirm: boolean }): boolean;
+  contained(): boolean;
+  ledger(): AuthorityLedger;
+};
+
+function createAuthoritySupervisor(input: {
+  runId: string;
+  logDir: string;
+  env: NodeJS.ProcessEnv;
+  startedAtMs: number;
+}): AuthoritySupervisor {
+  const role = "chief-executive";
+  const policy: AuthorityPolicy = {
+    runTokenBudget: resolvePositiveIntEnv(input.env, "DRAX_RUN_TOKEN_BUDGET"),
+    runTokenSoft: resolvePositiveIntEnv(input.env, "DRAX_RUN_TOKEN_SOFT"),
+    runTimeBudgetMs: resolvePositiveIntEnv(input.env, "DRAX_RUN_TIME_BUDGET_MS"),
+  };
+  const decisions: AuthorityDecision[] = [];
+  let containedFlag = false;
+  let seq = 0;
+  let latestCumulativeTokens = 0;
+
+  function ledger(): AuthorityLedger {
+    return {
+      runId: input.runId,
+      role,
+      policy,
+      contained: containedFlag,
+      decisions,
+    };
+  }
+
+  function record(decision: {
+    checkpoint: AuthorityCheckpoint;
+    stage: string;
+    role: string;
+    verdict: AuthorityVerdict;
+    reason: string;
+    observed: {
+      cumulativeTokens: number;
+      stageStatus: string | null;
+    };
+    elapsedMs: number;
+  }): AuthorityDecision {
+    const recorded: AuthorityDecision = {
+      sequence: ++seq,
+      checkpoint: decision.checkpoint,
+      stage: decision.stage,
+      role: decision.role,
+      verdict: decision.verdict,
+      reason: decision.reason,
+      observed: {
+        cumulativeTokens: decision.observed.cumulativeTokens,
+        elapsedMs: decision.elapsedMs,
+        stageStatus: decision.observed.stageStatus,
+      },
+      decidedAt: new Date().toISOString(),
+    };
+    decisions.push(recorded);
+    writeJson(path.join(input.logDir, `${input.runId}.authority.json`), ledger());
+    return recorded;
+  }
+
+  function elapsedMs(): number {
+    return Date.now() - input.startedAtMs;
+  }
+
+  return {
+    authorize(stageInput) {
+      record({
+        checkpoint: "pre-stage",
+        stage: stageInput.stage,
+        role: stageInput.role,
+        verdict: "allow",
+        reason: "authorized: stage cleared to run under C-level supervision",
+        observed: {
+          cumulativeTokens: stageInput.cumulativeTokens,
+          stageStatus: null,
+        },
+        elapsedMs: elapsedMs(),
+      });
+    },
+    ratify(stageInput) {
+      latestCumulativeTokens = stageInput.cumulativeTokens;
+      const observedElapsedMs = elapsedMs();
+      if (policy.runTimeBudgetMs > 0 && observedElapsedMs > policy.runTimeBudgetMs) {
+        const reason = `run ${input.runId} ran ${observedElapsedMs} ms after stage ${stageInput.stage}, exceeding the run wall-clock budget of ${policy.runTimeBudgetMs} ms (fail-closed).`;
+        record({
+          checkpoint: "post-stage",
+          stage: stageInput.stage,
+          role: stageInput.role,
+          verdict: "halt",
+          reason,
+          observed: {
+            cumulativeTokens: stageInput.cumulativeTokens,
+            stageStatus: stageInput.stageStatus,
+          },
+          elapsedMs: observedElapsedMs,
+        });
+        throw new CycleError([reason]);
+      }
+      if (policy.runTokenBudget > 0 && stageInput.cumulativeTokens > policy.runTokenBudget) {
+        const reason = `run ${input.runId} used ${stageInput.cumulativeTokens} tokens after stage ${stageInput.stage}, exceeding the per-run budget of ${policy.runTokenBudget} (fail-closed).`;
+        record({
+          checkpoint: "post-stage",
+          stage: stageInput.stage,
+          role: stageInput.role,
+          verdict: "halt",
+          reason,
+          observed: {
+            cumulativeTokens: stageInput.cumulativeTokens,
+            stageStatus: stageInput.stageStatus,
+          },
+          elapsedMs: observedElapsedMs,
+        });
+        throw new CycleError([reason]);
+      }
+      if (policy.runTokenSoft > 0 && stageInput.cumulativeTokens > policy.runTokenSoft && !containedFlag) {
+        containedFlag = true;
+        const reason = `run ${input.runId} crossed the soft token threshold (${stageInput.cumulativeTokens} > ${policy.runTokenSoft}) after stage ${stageInput.stage}; live distribution authority revoked (queue-only).`;
+        record({
+          checkpoint: "post-stage",
+          stage: stageInput.stage,
+          role: stageInput.role,
+          verdict: "contain",
+          reason,
+          observed: {
+            cumulativeTokens: stageInput.cumulativeTokens,
+            stageStatus: stageInput.stageStatus,
+          },
+          elapsedMs: observedElapsedMs,
+        });
+        return;
+      }
+      record({
+        checkpoint: "post-stage",
+        stage: stageInput.stage,
+        role: stageInput.role,
+        verdict: "allow",
+        reason: "ratified: stage completed within mandate",
+        observed: {
+          cumulativeTokens: stageInput.cumulativeTokens,
+          stageStatus: stageInput.stageStatus,
+        },
+        elapsedMs: observedElapsedMs,
+      });
+    },
+    governDistribution(distributionInput) {
+      const observedElapsedMs = elapsedMs();
+      if (containedFlag) {
+        record({
+          checkpoint: "pre-distribution",
+          stage: "distribution",
+          role,
+          verdict: "contain",
+          reason: "live distribution authority revoked by C-level contain; forcing queue-only.",
+          observed: {
+            cumulativeTokens: latestCumulativeTokens,
+            stageStatus: null,
+          },
+          elapsedMs: observedElapsedMs,
+        });
+        return false;
+      }
+      record({
+        checkpoint: "pre-distribution",
+        stage: "distribution",
+        role,
+        verdict: "allow",
+        reason: "live distribution authority granted as requested.",
+        observed: {
+          cumulativeTokens: latestCumulativeTokens,
+          stageStatus: null,
+        },
+        elapsedMs: observedElapsedMs,
+      });
+      return distributionInput.requestedConfirm;
+    },
+    contained() {
+      return containedFlag;
+    },
+    ledger,
+  };
+}
+
 const DEFAULT_DISTRIBUTE_TIMEOUT_MS = 600_000;
 
 function resolveDistributeTimeoutMs(env: NodeJS.ProcessEnv): number {
@@ -1057,6 +1278,7 @@ function runSector(input: {
   postIndex: number;
   postClass: string;
   env: NodeJS.ProcessEnv;
+  supervisor: AuthoritySupervisor;
 }): { articlePath: string; packagePath: string; finalMessagePath: string; logPath: string; sector: SectorEvidence[]; telemetry: RunTelemetry } {
   mkdirSync(input.runWorkDir, { recursive: true });
   mkdirSync(input.logDir, { recursive: true });
@@ -1130,10 +1352,10 @@ function runSector(input: {
   const stageTelemetry: StageTelemetry[] = [];
   const finalMessageFiles: string[] = [];
   const logFiles: string[] = [];
-  const runBudget = resolvePositiveIntEnv(input.env, "DRAX_RUN_TOKEN_BUDGET");
   let cumulativeTokens = 0;
 
   for (const stage of stages) {
+    input.supervisor.authorize({ stage: stage.envStage, role: stage.role, cumulativeTokens });
     const result = runCodexStage({
       cloneDir: input.cloneDir,
       logDir: input.logDir,
@@ -1152,11 +1374,16 @@ function runSector(input: {
     cumulativeTokens += result.telemetry.usage.totalTokens;
     finalMessageFiles.push(result.finalMessagePath);
     logFiles.push(result.logPath);
-    if (runBudget > 0 && cumulativeTokens > runBudget) {
+    try {
+      input.supervisor.ratify({
+        stage: stage.envStage,
+        role: stage.role,
+        cumulativeTokens,
+        stageStatus: result.telemetry.status,
+      });
+    } catch (error) {
       writeRunTelemetry(input.logDir, input.runId, stageTelemetry);
-      throw new CycleError([
-        `run ${input.runId} used ${cumulativeTokens} tokens after stage ${stage.envStage}, exceeding the per-run budget of ${runBudget} (fail-closed).`,
-      ]);
+      throw error;
     }
 
     if (stage.envStage === "copywriter") {
@@ -2450,6 +2677,12 @@ function executeCycle(args: string[], options: CycleOptions): number {
   const postClass = optionValue(args, "--post-class") || nextPostClass(options.cwd, postIndex);
   let manifest = createInitialManifest(runId, mode, postIndex, postClass, startedAt);
   let manifestFile = writeManifest(runRoot, manifest);
+  const supervisor = createAuthoritySupervisor({
+    runId,
+    logDir,
+    env: options.env,
+    startedAtMs: now.getTime(),
+  });
 
   try {
     const cloneDir = prepareClone(options.cwd, state.config.cloneLocation, state.config.blogSurfaceDirectory);
@@ -2463,6 +2696,7 @@ function executeCycle(args: string[], options: CycleOptions): number {
       postIndex,
       postClass,
       env: options.env,
+      supervisor,
     });
     const contentPackage = parseContentPackage(codexResult.packagePath, codexResult.articlePath, postIndex);
     const hashes: HashedFile[] = [
@@ -2608,7 +2842,8 @@ function executeCycle(args: string[], options: CycleOptions): number {
     const distributePlatforms =
       mode !== "dry-run" && published.published ? resolveDistributePlatforms(options.env) : [];
     if (distributePlatforms.length) {
-      const confirm = resolvePositiveIntEnv(options.env, "DRAX_DISTRIBUTE_CONFIRM") > 0;
+      const requestedConfirm = resolvePositiveIntEnv(options.env, "DRAX_DISTRIBUTE_CONFIRM") > 0;
+      const confirm = supervisor.governDistribution({ requestedConfirm });
       const distributeStages = distributePlatforms.map(
         (platform) =>
           runDistributeStage({
@@ -2639,6 +2874,7 @@ function executeCycle(args: string[], options: CycleOptions): number {
       published: published.published,
       sector: codexResult.sector,
       telemetry: runTelemetry,
+      authority: supervisor.ledger(),
     };
     manifestFile = writeManifest(runRoot, manifest);
 
@@ -2685,6 +2921,7 @@ function executeCycle(args: string[], options: CycleOptions): number {
       status: "FAILED",
       failureReason: errors.join("\n"),
       published: false,
+      authority: supervisor.ledger(),
     };
     manifestFile = writeManifest(runRoot, manifest);
     console.error([`Drax cycle failed.`, ...errors, `Run manifest: ${manifestFile}`].join("\n"));
