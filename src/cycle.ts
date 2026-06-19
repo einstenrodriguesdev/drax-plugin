@@ -94,10 +94,12 @@ type StageTelemetry = {
   stage: string;
   envStage: string;
   role: string;
+  kind: "codex" | "media";
   startedAt: string;
   endedAt: string;
   elapsedMs: number;
-  status: "ok" | "timeout" | "error" | "nonzero-exit";
+  status: "ok" | "timeout" | "error" | "nonzero-exit" | "skipped";
+  detail: string | null;
   exitStatus: number | null;
   signal: string | null;
   usage: StageUsage;
@@ -735,10 +737,12 @@ function runCodexStage(input: {
     stage: input.stage.evidenceStage,
     envStage: input.stage.envStage,
     role: input.stage.role,
+    kind: "codex",
     startedAt,
     endedAt: new Date().toISOString(),
     elapsedMs,
     status,
+    detail: null,
     exitStatus: result.status ?? null,
     signal: result.signal ?? null,
     usage,
@@ -883,6 +887,63 @@ function writeRunTelemetry(logDir: string, runId: string, stages: StageTelemetry
   const telemetry = buildRunTelemetry(runId, stages);
   writeJson(path.join(logDir, `${runId}.telemetry.json`), telemetry);
   return telemetry;
+}
+
+const MEDIA_STAGE_USAGE: StageUsage = {
+  measured: false,
+  turnsObserved: 0,
+  inputTokens: 0,
+  cachedInputTokens: 0,
+  outputTokens: 0,
+  reasoningOutputTokens: 0,
+  totalTokens: 0,
+};
+
+function mediaTelemetryStatus(resultStatus: string): "ok" | "error" | "skipped" {
+  if (resultStatus === "generated") return "ok";
+  if (resultStatus === "error") return "error";
+  return "skipped";
+}
+
+// Wrap a best-effort media generator so it emits a governed per-stage telemetry record
+// (timing + mapped status) without changing its return contract. Tokens are N/A for these
+// non-Codex stages, so usage is recorded as unmeasured zeros. Never throws on its own;
+// enforcement lives in the opt-in DRAX_REQUIRE_MEDIA gate in runCycle.
+function runMediaStage<T extends { status: string }>(input: {
+  logDir: string;
+  runId: string;
+  stage: string;
+  envStage: string;
+  role: string;
+  generate: () => T;
+}): { result: T; telemetry: StageTelemetry } {
+  const startedAt = new Date().toISOString();
+  const startedAtMs = Date.now();
+  const result = input.generate();
+  const elapsedMs = Date.now() - startedAtMs;
+  const telemetry: StageTelemetry = {
+    stage: input.stage,
+    envStage: input.envStage,
+    role: input.role,
+    kind: "media",
+    startedAt,
+    endedAt: new Date().toISOString(),
+    elapsedMs,
+    status: mediaTelemetryStatus(result.status),
+    detail: result.status,
+    exitStatus: null,
+    signal: null,
+    usage: MEDIA_STAGE_USAGE,
+  };
+  writeJson(path.join(input.logDir, `${input.runId}.${input.envStage}.telemetry.json`), telemetry);
+  return { result, telemetry };
+}
+
+// Fold the media stages into the existing (Codex-only) run telemetry and rewrite the
+// run telemetry file so the manifest carries the whole body. Media contributes zero
+// tokens, so totals are unchanged; only the stage list grows.
+function combineRunTelemetry(logDir: string, base: RunTelemetry, mediaStages: StageTelemetry[]): RunTelemetry {
+  return writeRunTelemetry(logDir, base.runId, [...base.stages, ...mediaStages]);
 }
 
 function runSector(input: {
@@ -2331,43 +2392,92 @@ function executeCycle(args: string[], options: CycleOptions): number {
       articlePath: codexResult.articlePath,
       contentPackage,
     });
-    const images = generateSocialImages({
-      cwd: options.cwd,
-      cloneDir,
+    const imageStage = runMediaStage({
       logDir,
-      runWorkDir,
       runId,
-      mode,
-      published: published.published,
-      state,
-      contentPackage,
-      env: options.env,
+      stage: "social-image",
+      envStage: "social-image",
+      role: "social-media-designer",
+      generate: () =>
+        generateSocialImages({
+          cwd: options.cwd,
+          cloneDir,
+          logDir,
+          runWorkDir,
+          runId,
+          mode,
+          published: published.published,
+          state,
+          contentPackage,
+          env: options.env,
+        }),
     });
-    const video = generateSocialVideo({
-      cwd: options.cwd,
-      cloneDir,
+    const images = imageStage.result;
+    const videoStage = runMediaStage({
       logDir,
-      runWorkDir,
       runId,
-      mode,
-      published: published.published,
-      state,
-      contentPackage,
-      env: options.env,
+      stage: "social-video",
+      envStage: "social-video",
+      role: "video-editor",
+      generate: () =>
+        generateSocialVideo({
+          cwd: options.cwd,
+          cloneDir,
+          logDir,
+          runWorkDir,
+          runId,
+          mode,
+          published: published.published,
+          state,
+          contentPackage,
+          env: options.env,
+        }),
     });
-    const carousel = generateSocialCarousel({
-      cwd: options.cwd,
-      cloneDir,
+    const video = videoStage.result;
+    const carouselStage = runMediaStage({
       logDir,
-      runWorkDir,
       runId,
-      mode,
-      published: published.published,
-      state,
-      contentPackage,
-      articlePath: codexResult.articlePath,
-      env: options.env,
+      stage: "social-carousel",
+      envStage: "social-carousel",
+      role: "social-media-designer",
+      generate: () =>
+        generateSocialCarousel({
+          cwd: options.cwd,
+          cloneDir,
+          logDir,
+          runWorkDir,
+          runId,
+          mode,
+          published: published.published,
+          state,
+          contentPackage,
+          articlePath: codexResult.articlePath,
+          env: options.env,
+        }),
     });
+    const carousel = carouselStage.result;
+    const mediaStages = [imageStage.telemetry, videoStage.telemetry, carouselStage.telemetry];
+    const runTelemetry = combineRunTelemetry(logDir, codexResult.telemetry, mediaStages);
+    manifest = { ...manifest, telemetry: runTelemetry };
+
+    // Opt-in fail-closed media gate. Default OFF: when DRAX_REQUIRE_MEDIA is unset/0 the
+    // production stages stay best-effort exactly as before. When the operator opts in, a
+    // publish run that did not actually produce media (renderer error, or a dependency skip
+    // such as missing python/ffmpeg/rasterizer) fails closed. A normal dry-run skip
+    // ("skipped-dry-run") never trips the gate.
+    const requireMedia = resolvePositiveIntEnv(options.env, "DRAX_REQUIRE_MEDIA");
+    if (requireMedia > 0 && mode !== "dry-run" && published.published) {
+      const failedMedia = mediaStages.filter(
+        (stage) => stage.status === "error" || (stage.status === "skipped" && stage.detail !== "skipped-dry-run"),
+      );
+      if (failedMedia.length) {
+        throw new CycleError([
+          `run ${runId} requires media but ${failedMedia
+            .map((stage) => `${stage.envStage} (${stage.detail})`)
+            .join(", ")} did not produce assets (fail-closed).`,
+        ]);
+      }
+    }
     const publishRecordPath = writePublishRecord({
       cwd: options.cwd,
       state,
@@ -2396,7 +2506,7 @@ function executeCycle(args: string[], options: CycleOptions): number {
       status: published.published ? "PUBLISHED" : "PENDING",
       published: published.published,
       sector: codexResult.sector,
-      telemetry: codexResult.telemetry,
+      telemetry: runTelemetry,
     };
     manifestFile = writeManifest(runRoot, manifest);
 

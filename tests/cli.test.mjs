@@ -293,7 +293,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.22");
+  assert.equal(result.stdout.trim(), "1.1.23");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -737,10 +737,26 @@ test("cycle dry-run records stage and run token telemetry", () => {
 
     const { manifest } = firstRunManifest(directory, "pending");
     assert.ok(manifest.telemetry);
-    assert.equal(manifest.telemetry.stages.length, 4);
+    assert.equal(manifest.telemetry.stages.length, 7);
+    const codexStages = manifest.telemetry.stages.filter((stage) => stage.kind === "codex");
+    const mediaStages = manifest.telemetry.stages.filter((stage) => stage.kind === "media");
+    assert.equal(codexStages.length, 4);
+    assert.equal(mediaStages.length, 3);
+    assert.deepEqual(
+      mediaStages.map((stage) => stage.envStage).sort(),
+      ["social-carousel", "social-image", "social-video"],
+    );
+    for (const stage of mediaStages) {
+      assert.equal(stage.status, "skipped");
+      assert.equal(stage.detail, "skipped-dry-run");
+      assert.equal(stage.usage.measured, false);
+      assert.equal(stage.usage.totalTokens, 0);
+    }
     assert.equal(manifest.telemetry.totals.totalTokens, 800);
 
     const logDir = path.join(directory, ".drax/logs");
+    const mediaStageTelemetryPath = path.join(logDir, `${manifest.runId}.social-image.telemetry.json`);
+    assert.equal(existsSync(mediaStageTelemetryPath), true);
     const runTelemetryPath = path.join(logDir, `${manifest.runId}.telemetry.json`);
     assert.equal(existsSync(runTelemetryPath), true);
     const stageTelemetryPath = path.join(logDir, `${manifest.runId}.content-strategist.telemetry.json`);
@@ -809,6 +825,42 @@ test("cycle fails closed when the run exceeds the token budget", () => {
     const { manifest } = firstRunManifest(directory, "failed");
     const runTelemetryPath = path.join(directory, ".drax/logs", `${manifest.runId}.telemetry.json`);
     assert.equal(existsSync(runTelemetryPath), true);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("cycle publish fails closed when media is required but unavailable", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-require-media-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    initBlogSurface(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--publish"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_PYTHON_BIN: "/nonexistent/drax-python3",
+        DRAX_REQUIRE_MEDIA: "1",
+      }),
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /requires media but .* did not produce assets \(fail-closed\)/);
+
+    const { manifest } = firstRunManifest(directory, "failed");
+    assert.ok(manifest.telemetry);
+    assert.equal(manifest.telemetry.stages.length, 7);
+    const mediaStages = manifest.telemetry.stages.filter((stage) => stage.kind === "media");
+    assert.equal(mediaStages.length, 3);
+    for (const stage of mediaStages) {
+      assert.equal(stage.status, "skipped");
+      assert.equal(stage.detail, "skipped-no-python");
+    }
+    const state = JSON.parse(readFileSync(path.join(directory, "EXECUTION_STATE.json"), "utf8"));
+    assert.equal(state.nextPostIndex, 1);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
