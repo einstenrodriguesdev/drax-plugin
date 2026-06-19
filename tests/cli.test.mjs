@@ -293,7 +293,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.26");
+  assert.equal(result.stdout.trim(), "1.1.27");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -329,7 +329,7 @@ test("the bare drax command starts founder intelligence intake", () => {
     assert.match(prompt, /Phase 1 is Recognition: free text only, no visible choice menus/);
     assert.match(prompt, /Never dead-end the interview/);
     assert.match(prompt, /re-asking the exact last pending question/);
-    assert.match(prompt, /resume instead of cold-starting/);
+    assert.match(prompt, /Resume instead of cold-starting/);
     assert.match(prompt, /do not assume the founder has marketing expertise/);
     assert.match(prompt, /one canonical blog post/);
     assert.match(prompt, /foundational launch baseline/);
@@ -412,6 +412,56 @@ test("session hook stays silent outside a Drax workspace", () => {
     assert.equal(result.stdout.trim(), "{}");
   } finally {
     rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("session hook resolves a drax-workspace subfolder", () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "drax-session-subfolder-"));
+  try {
+    mkdirSync(path.join(root, "drax-workspace", ".drax"), { recursive: true });
+    const result = spawnSync(process.execPath, [path.resolve("plugins/drax/hooks/session-start.mjs")], {
+      input: JSON.stringify({ cwd: root, source: "startup" }),
+      encoding: "utf8",
+    });
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.match(payload.hookSpecificOutput.additionalContext, /Publishing defaults to dry-run/);
+    assert.match(payload.hookSpecificOutput.additionalContext, /subfolder drax-workspace/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("session hook resolves a legacy workspace subfolder", () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "drax-session-legacy-"));
+  try {
+    mkdirSync(path.join(root, "workspace", ".drax"), { recursive: true });
+    const result = spawnSync(process.execPath, [path.resolve("plugins/drax/hooks/session-start.mjs")], {
+      input: JSON.stringify({ cwd: root, source: "startup" }),
+      encoding: "utf8",
+    });
+    assert.equal(result.status, 0);
+    const payload = JSON.parse(result.stdout);
+    assert.match(payload.hookSpecificOutput.additionalContext, /Publishing defaults to dry-run/);
+    assert.match(payload.hookSpecificOutput.additionalContext, /subfolder workspace/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("drax-orq-overview resolves a workspace subfolder from the parent", () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "drax-orq-subfolder-"));
+  try {
+    mkdirSync(path.join(root, "drax-workspace", ".drax"), { recursive: true });
+    const result = spawnSync(
+      process.execPath,
+      [path.resolve("plugins/drax/skills/drax/commands/drax-orq-overview.mjs"), root],
+      { encoding: "utf8" },
+    );
+    assert.equal(result.status, 0, result.stderr);
+    assert.doesNotMatch(result.stdout, /not a Drax workspace/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 });
 

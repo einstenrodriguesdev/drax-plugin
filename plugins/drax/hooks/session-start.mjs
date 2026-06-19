@@ -61,28 +61,44 @@ function isDraxWorkspace(cwd) {
   return false;
 }
 
+function resolveWorkspace(cwd) {
+  if (isDraxWorkspace(cwd)) return cwd;
+  for (const child of ["drax-workspace", "workspace"]) {
+    const candidate = path.join(cwd, child);
+    if (isDraxWorkspace(candidate)) return candidate;
+  }
+  return cwd;
+}
+
 function main() {
   const raw = fs.readFileSync(0, "utf8").trim();
   const event = raw ? JSON.parse(raw) : {};
   const cwd = path.resolve(event.cwd || process.cwd());
+  const workspace = resolveWorkspace(cwd);
 
   // Scoped activation: outside a real Drax workspace the hook is a no-op, so
   // unrelated Codex sessions are never injected with Drax context.
-  if (!isDraxWorkspace(cwd)) {
+  if (!isDraxWorkspace(workspace)) {
     process.stdout.write(JSON.stringify({}));
     return;
   }
 
   const artifacts = ARTIFACTS.flatMap((name) => {
-    const content = safeRead(cwd, name);
+    const content = safeRead(workspace, name);
     return content ? [{ name, content }] : [];
   });
-  const staticContext = [
-    "Drax v1.1.26 organic automation runtime is active.",
+  const staticContextLines = [
+    "Drax v1.1.27 organic automation runtime is active.",
     "Target user: a founder with an existing product who wants a measured organic traffic system.",
     "Required baseline: founder brand brief, board mandate, vision/strategy governance docs, positioning statement, market localization strategy, tech decision record, GTM strategy, content strategy, editorial calendar, channel plan, automation runbook, responsibility matrix, measurement framework, and execution state.",
     "Publishing defaults to dry-run. Live posting, paid spend, and browser automation require explicit approval.",
-  ].join("\n\n");
+  ];
+  if (workspace !== cwd) {
+    staticContextLines.push(
+      `This run's Drax workspace is the subfolder ${path.basename(workspace)} (${workspace}). Treat it as the working directory: read and write every artifact there, never in ${cwd}.`,
+    );
+  }
+  const staticContext = staticContextLines.join("\n\n");
   let context = [staticContext, "No Drax organic-growth artifacts were found in this workspace."].join("\n\n");
 
   if (artifacts.length) {

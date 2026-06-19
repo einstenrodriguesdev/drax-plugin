@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandFile = fileURLToPath(import.meta.url);
 const commandDir = path.dirname(commandFile);
 const pluginRoot = path.resolve(commandDir, "../../..");
-const FALLBACK_VERSION = "1.1.26";
+const FALLBACK_VERSION = "1.1.27";
 const DEFAULT_RUN_DIRECTORY = ".drax/runs";
 
 const BASELINE_ARTIFACTS = [
@@ -30,7 +30,7 @@ const BASELINE_ARTIFACTS = [
 
 function parseArgs(args) {
   const workspace = args.find((arg) => !arg.startsWith("--")) || process.cwd();
-  return { workspace: path.resolve(workspace) };
+  return { workspace: resolveWorkspace(path.resolve(workspace)) };
 }
 
 function readVersion() {
@@ -46,6 +46,15 @@ function isWorkspace(workspace) {
   if (fs.existsSync(path.join(workspace, ".drax"))) return true;
   if (fs.existsSync(path.join(workspace, "EXECUTION_STATE.json"))) return true;
   return BASELINE_ARTIFACTS.some((file) => fs.existsSync(path.join(workspace, file)));
+}
+
+function resolveWorkspace(base) {
+  if (isWorkspace(base)) return base;
+  for (const child of ["drax-workspace", "workspace"]) {
+    const candidate = path.join(base, child);
+    if (isWorkspace(candidate)) return candidate;
+  }
+  return base;
 }
 
 function readJson(file) {

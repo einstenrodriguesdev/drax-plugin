@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandDir = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.26";
+const FALLBACK_VERSION = "1.1.27";
 
 const ARTIFACTS = [
   "FOUNDER_BRAND_BRIEF.md",
@@ -40,7 +40,7 @@ function parseArgs(args) {
       workspace = args[index];
     }
   }
-  return { agent, workspace: path.resolve(workspace || process.cwd()) };
+  return { agent, workspace: resolveWorkspace(path.resolve(workspace || process.cwd())) };
 }
 
 function readVersion() {
@@ -358,6 +358,15 @@ function isWorkspace(workspace) {
   if (fs.existsSync(path.join(workspace, ".drax"))) return true;
   if (fs.existsSync(path.join(workspace, "EXECUTION_STATE.json"))) return true;
   return ARTIFACTS.some((file) => fs.existsSync(path.join(workspace, file)));
+}
+
+function resolveWorkspace(base) {
+  if (isWorkspace(base)) return base;
+  for (const child of ["drax-workspace", "workspace"]) {
+    const candidate = path.join(base, child);
+    if (isWorkspace(candidate)) return candidate;
+  }
+  return base;
 }
 
 function pad(value, width) {
