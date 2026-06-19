@@ -94,7 +94,7 @@ type StageTelemetry = {
   stage: string;
   envStage: string;
   role: string;
-  kind: "codex" | "media";
+  kind: "codex" | "media" | "distribute";
   startedAt: string;
   endedAt: string;
   elapsedMs: number;
@@ -944,6 +944,108 @@ function runMediaStage<T extends { status: string }>(input: {
 // tokens, so totals are unchanged; only the stage list grows.
 function combineRunTelemetry(logDir: string, base: RunTelemetry, mediaStages: StageTelemetry[]): RunTelemetry {
   return writeRunTelemetry(logDir, base.runId, [...base.stages, ...mediaStages]);
+}
+
+const DEFAULT_DISTRIBUTE_TIMEOUT_MS = 600_000;
+
+function resolveDistributeTimeoutMs(env: NodeJS.ProcessEnv): number {
+  const value = env.DRAX_DISTRIBUTE_TIMEOUT_MS;
+  if (!value) return DEFAULT_DISTRIBUTE_TIMEOUT_MS;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_DISTRIBUTE_TIMEOUT_MS;
+}
+
+// Parse the opt-in DRAX_DISTRIBUTE platform list (comma-separated, trimmed, lower-cased, deduped).
+// Unset/empty -> [] -> distribution is a complete no-op for the run.
+function resolveDistributePlatforms(env: NodeJS.ProcessEnv): string[] {
+  const raw = env.DRAX_DISTRIBUTE;
+  if (!raw) return [];
+  const seen = new Set<string>();
+  const platforms: string[] = [];
+  for (const token of raw.split(",")) {
+    const name = token.trim().toLowerCase();
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    platforms.push(name);
+  }
+  return platforms;
+}
+
+// Run one social-distribution platform as a governed, telemetered stage. It shells out to the
+// SAME `drax distribute` command operators run by hand / via cron, so the in-run path and the
+// standalone path are byte-for-byte the same real flow (keeps the cycle synchronous; no async
+// refactor). Queue/dry-run unless `confirm` adds the live `--confirm` second opt-in. Tokens are
+// N/A for distribution, so usage is recorded as unmeasured zeros. Never throws: distribution is
+// best-effort and must not fail a run whose blog publish already succeeded.
+function runDistributeStage(input: {
+  cwd: string;
+  cliPath: string;
+  nodePath: string;
+  env: NodeJS.ProcessEnv;
+  logDir: string;
+  runId: string;
+  platform: string;
+  slug: string;
+  confirm: boolean;
+}): { telemetry: StageTelemetry } {
+  const envStage = `distribute-${input.platform}`;
+  const args = ["distribute", "--platform", input.platform, "--slug", input.slug];
+  if (input.confirm) args.push("--confirm");
+  const timeoutMs = resolveDistributeTimeoutMs(input.env);
+  const startedAt = new Date().toISOString();
+  const startedAtMs = Date.now();
+  const result = spawnSync(input.nodePath, [input.cliPath, ...args], {
+    cwd: input.cwd,
+    encoding: "utf8",
+    timeout: timeoutMs,
+    killSignal: "SIGKILL",
+    maxBuffer: 1024 * 1024 * 64,
+    env: input.env,
+  });
+  const elapsedMs = Date.now() - startedAtMs;
+  const errorCode = (result.error as NodeJS.ErrnoException | undefined)?.code;
+  const timedOut =
+    Boolean(result.error) && (result.signal === "SIGKILL" || errorCode === "ETIMEDOUT" || elapsedMs >= timeoutMs);
+  const status: StageTelemetry["status"] = timedOut
+    ? "timeout"
+    : result.error
+      ? "error"
+      : result.status !== 0
+        ? "nonzero-exit"
+        : "ok";
+  const telemetry: StageTelemetry = {
+    stage: envStage,
+    envStage,
+    role: "distribution",
+    kind: "distribute",
+    startedAt,
+    endedAt: new Date().toISOString(),
+    elapsedMs,
+    status,
+    detail: input.confirm ? "confirm" : "queue",
+    exitStatus: result.status ?? null,
+    signal: result.signal ?? null,
+    usage: MEDIA_STAGE_USAGE,
+  };
+  writeFileSync(
+    path.join(input.logDir, `${input.runId}.${envStage}.log`),
+    [
+      `command: ${input.nodePath} ${input.cliPath} ${args.join(" ")}`,
+      `stage: ${envStage}`,
+      `status: ${result.status ?? "error"}`,
+      "",
+      "[stdout]",
+      result.stdout ?? "",
+      "",
+      "[stderr]",
+      result.stderr ?? "",
+      "",
+      result.error ? `[error]\n${result.error.message}\n` : "",
+    ].join("\n"),
+    "utf8",
+  );
+  writeJson(path.join(input.logDir, `${input.runId}.${envStage}.telemetry.json`), telemetry);
+  return { telemetry };
 }
 
 function runSector(input: {
@@ -2457,7 +2559,7 @@ function executeCycle(args: string[], options: CycleOptions): number {
     });
     const carousel = carouselStage.result;
     const mediaStages = [imageStage.telemetry, videoStage.telemetry, carouselStage.telemetry];
-    const runTelemetry = combineRunTelemetry(logDir, codexResult.telemetry, mediaStages);
+    let runTelemetry = combineRunTelemetry(logDir, codexResult.telemetry, mediaStages);
     manifest = { ...manifest, telemetry: runTelemetry };
 
     // Opt-in fail-closed media gate. Default OFF: when DRAX_REQUIRE_MEDIA is unset/0 the
@@ -2494,6 +2596,36 @@ function executeCycle(args: string[], options: CycleOptions): number {
       carousel,
     });
     verifyPublishRecord(publishRecordPath, hashes, path.dirname(codexResult.packagePath));
+
+    // Opt-in distribution stages. Default OFF: with DRAX_DISTRIBUTE unset the cycle never touches
+    // distribution (the standalone `drax distribute` command + the existing cron chain are
+    // unchanged). When the operator lists platforms, each runs as a governed, telemetered stage by
+    // invoking the SAME real `drax distribute` subprocess. Queue/dry-run is the default even when
+    // enabled; live browser posting requires the explicit second opt-in DRAX_DISTRIBUTE_CONFIRM,
+    // honoring "live posting + browser automation require approval". Distribution must run AFTER
+    // the publish record exists (the subprocess reads it) and is best-effort: a failed stage is
+    // recorded in telemetry but never fails the run (the blog publish already succeeded).
+    const distributePlatforms =
+      mode !== "dry-run" && published.published ? resolveDistributePlatforms(options.env) : [];
+    if (distributePlatforms.length) {
+      const confirm = resolvePositiveIntEnv(options.env, "DRAX_DISTRIBUTE_CONFIRM") > 0;
+      const distributeStages = distributePlatforms.map(
+        (platform) =>
+          runDistributeStage({
+            cwd: options.cwd,
+            cliPath: options.cliPath,
+            nodePath: options.nodePath,
+            env: options.env,
+            logDir,
+            runId,
+            platform,
+            slug: contentPackage.slug,
+            confirm,
+          }).telemetry,
+      );
+      runTelemetry = combineRunTelemetry(logDir, codexResult.telemetry, [...mediaStages, ...distributeStages]);
+      manifest = { ...manifest, telemetry: runTelemetry };
+    }
 
     manifest = {
       ...manifest,

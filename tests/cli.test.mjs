@@ -293,7 +293,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.23");
+  assert.equal(result.stdout.trim(), "1.1.24");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -742,6 +742,7 @@ test("cycle dry-run records stage and run token telemetry", () => {
     const mediaStages = manifest.telemetry.stages.filter((stage) => stage.kind === "media");
     assert.equal(codexStages.length, 4);
     assert.equal(mediaStages.length, 3);
+    assert.equal(manifest.telemetry.stages.filter((stage) => stage.kind === "distribute").length, 0);
     assert.deepEqual(
       mediaStages.map((stage) => stage.envStage).sort(),
       ["social-carousel", "social-image", "social-video"],
@@ -861,6 +862,113 @@ test("cycle publish fails closed when media is required but unavailable", () => 
     }
     const state = JSON.parse(readFileSync(path.join(directory, "EXECUTION_STATE.json"), "utf8"));
     assert.equal(state.nextPostIndex, 1);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("cycle publish records best-effort distribution stages when DRAX_DISTRIBUTE is set", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-distribute-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    initBlogSurface(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--publish"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_PYTHON_BIN: "/nonexistent/drax-python3",
+        DRAX_DISTRIBUTE: "instagram",
+      }),
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Drax cycle publish passed/);
+
+    const { manifest } = firstRunManifest(directory, "published");
+    assert.ok(manifest.telemetry);
+    const distributeStages = manifest.telemetry.stages.filter((stage) => stage.kind === "distribute");
+    assert.equal(distributeStages.length, 1);
+    assert.equal(distributeStages[0].envStage, "distribute-instagram");
+    assert.equal(distributeStages[0].detail, "queue");
+    assert.equal(distributeStages[0].status, "nonzero-exit");
+    assert.equal(distributeStages[0].usage.measured, false);
+    assert.equal(distributeStages[0].usage.totalTokens, 0);
+
+    const logDir = path.join(directory, ".drax/logs");
+    const distributeTelemetryPath = path.join(logDir, `${manifest.runId}.distribute-instagram.telemetry.json`);
+    assert.equal(existsSync(distributeTelemetryPath), true);
+
+    const state = JSON.parse(readFileSync(path.join(directory, "EXECUTION_STATE.json"), "utf8"));
+    assert.equal(state.nextPostIndex, 2);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("cycle publish queues distribution when assets are available", (t) => {
+  if (!pythonCanRenderSocialImages()) {
+    t.skip("python3 and Pillow are not available");
+    return;
+  }
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-distribute-ok-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    initBlogSurface(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--publish"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_DISTRIBUTE: "instagram",
+      }),
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+
+    const { manifest } = firstRunManifest(directory, "published");
+    const distributeStages = manifest.telemetry.stages.filter((stage) => stage.kind === "distribute");
+    assert.equal(distributeStages.length, 1);
+    assert.equal(distributeStages[0].envStage, "distribute-instagram");
+    assert.equal(distributeStages[0].detail, "queue");
+    assert.equal(distributeStages[0].status, "ok");
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("cycle publish honors the DRAX_DISTRIBUTE_CONFIRM double opt-in", (t) => {
+  if (!pythonCanRenderSocialImages()) {
+    t.skip("python3 and Pillow are not available");
+    return;
+  }
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-cycle-distribute-confirm-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    initBlogSurface(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "cycle", "--publish"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({
+        DRAX_CODEX_BIN: fakeCodex,
+        DRAX_DISTRIBUTE: "instagram",
+        DRAX_DISTRIBUTE_CONFIRM: "1",
+      }),
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+
+    const { manifest } = firstRunManifest(directory, "published");
+    const distributeStages = manifest.telemetry.stages.filter((stage) => stage.kind === "distribute");
+    assert.equal(distributeStages.length, 1);
+    assert.equal(distributeStages[0].detail, "confirm");
+    assert.equal(distributeStages[0].status, "ok");
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
