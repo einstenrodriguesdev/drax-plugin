@@ -9,7 +9,7 @@ const commandFile = fileURLToPath(import.meta.url);
 const commandDir = path.dirname(commandFile);
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.27";
+const FALLBACK_VERSION = "1.1.28";
 const PAGE_LINES = 46;
 const DEFAULT_RUN_DIRECTORY = ".drax/runs";
 
