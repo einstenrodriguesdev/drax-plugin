@@ -1,6 +1,6 @@
 ---
 name: drax-orq
-description: Introspect the real Drax orchestration engine: live 4-stage pipeline, run state, and the honest authority model. Use when the user invokes $drax-orq or asks for orchestration, flow, authority, or live run detail.
+description: "Introspect the real Drax orchestration engine: live 4-stage pipeline, run state, and the honest authority model. Use when the user invokes $drax-orq or asks for orchestration, flow, authority, or live run detail."
 ---
 
 # Drax ORQ
