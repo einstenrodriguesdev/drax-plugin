@@ -21,28 +21,20 @@ import { validateAccess } from "./access.js";
 import { runCycleCommand } from "./cycle.js";
 import { runDistributeCommand } from "./distribute.js";
 import { directTaskPrompt, founderIntakePrompt } from "./prompts.js";
+import {
+  ARTIFACT_SEQUENCE,
+  auditArtifacts,
+  isDraxWorkspaceDir,
+  renderReadinessForPrompt,
+  renderReadinessReport,
+  resolveWorkspace,
+} from "./readiness.js";
 import { runStatusCommand } from "./status.js";
 
-const VERSION = "1.1.30";
+const VERSION = "1.1.31";
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const home = os.homedir();
-const BASELINE_ARTIFACTS = [
-  "FOUNDER_BRAND_BRIEF.md",
-  "BOARD_MANDATE.md",
-  "VISION_AND_STRATEGY.md",
-  "POSITIONING_STATEMENT.md",
-  "MARKET_LOCALIZATION_STRATEGY.md",
-  "TECH_DECISION_RECORD.md",
-  "GTM_STRATEGY.md",
-  "CONTENT_STRATEGY.md",
-  "EDITORIAL_CALENDAR.md",
-  "CHANNEL_PLAN.md",
-  "AUTOMATION_RUNBOOK.md",
-  "RESPONSIBILITY_MATRIX.md",
-  "MEASUREMENT_FRAMEWORK.md",
-  "EXECUTION_STATE.md",
-];
 const RUNTIME_STATE_FILES = ["EXECUTION_STATE.json"];
 
 type Marketplace = {
@@ -93,12 +85,6 @@ function bundlePath(...parts: string[]): string {
     throw new Error(`Package asset is unavailable: ${target}. Run install from the source package.`);
   }
   return target;
-}
-
-function isDraxWorkspaceDir(dir: string): boolean {
-  if (existsSync(path.join(dir, ".drax"))) return true;
-  if (existsSync(path.join(dir, "EXECUTION_STATE.json"))) return true;
-  return BASELINE_ARTIFACTS.some((artifact) => existsSync(path.join(dir, artifact)));
 }
 
 function hasFlag(args: string[], flag: string): boolean {
@@ -154,7 +140,7 @@ async function requireRuntimeAccess(): Promise<boolean> {
 function copyBaselineArtifacts(cwd: string, force: boolean): { created: number; skipped: number } {
   let created = 0;
   let skipped = 0;
-  for (const artifact of BASELINE_ARTIFACTS) {
+  for (const artifact of ARTIFACT_SEQUENCE) {
     const source = bundlePath("templates", artifact);
     const target = path.join(cwd, artifact);
     if (existsSync(target) && !force) {
@@ -356,6 +342,11 @@ async function doctor(): Promise<void> {
       console.log("OPTIONAL-MISSING Workspace security scan (integrity module unavailable)");
     }
   }
+  const readinessWorkspace = resolveWorkspace(process.cwd());
+  if (isDraxWorkspaceDir(readinessWorkspace)) {
+    const readiness = auditArtifacts(readinessWorkspace, bundlePath("templates"));
+    console.log(renderReadinessReport(readiness));
+  }
   console.log(
     failures.length
       ? `Drax install: FAILED - ${failures.join("; ")}`
@@ -396,10 +387,17 @@ async function initBlog(args: string[]): Promise<void> {
 
 async function launchCodex(args: string[]): Promise<void> {
   if (!(await requireRuntimeAccess())) return;
-  if (!args.length && process.cwd() !== packageRoot) {
-    copyBaselineArtifacts(process.cwd(), false);
+  let prompt: string;
+  if (args.length) {
+    prompt = directTaskPrompt(args.join(" "));
+  } else {
+    const ws = resolveWorkspace(process.cwd());
+    const audit = auditArtifacts(ws, bundlePath("templates"));
+    if (process.cwd() !== packageRoot) {
+      copyBaselineArtifacts(ws, false);
+    }
+    prompt = `${founderIntakePrompt()}\n\n${renderReadinessForPrompt(audit)}`;
   }
-  const prompt = args.length ? directTaskPrompt(args.join(" ")) : founderIntakePrompt();
   const binary = process.env.DRAX_CODEX_BIN || "codex";
   const result = spawnSync(binary, [prompt], { cwd: process.cwd(), env: process.env, stdio: "inherit" });
   if (result.error) {

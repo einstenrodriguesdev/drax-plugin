@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { canonicalAccessTokenBytes, verifyAccessTokenSignature } from "../dist/access.js";
+import { ARTIFACT_SEQUENCE, auditArtifacts, resolveWorkspace } from "../dist/readiness.js";
 
 const TEST_PUBLIC_KEY_B64 = "A6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=";
 const TEST_PRIVATE_KEY_B64 = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8DoQe/884Qvh1w3RjnS8CZZ+TWMJulDV8d3IZkElUxuA==";
@@ -293,7 +294,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.30");
+  assert.equal(result.stdout.trim(), "1.1.31");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -345,6 +346,100 @@ test("the bare drax command starts founder intelligence intake", () => {
     assert.doesNotMatch(prompt, /specific project you already want to build/);
   } finally {
     rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("auditArtifacts classifies baseline artifact readiness deterministically", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-readiness-audit-"));
+  const templatesDir = path.resolve("templates");
+  const [readyA, readyB, stubName, incompleteName] = ARTIFACT_SEQUENCE;
+  try {
+    writeFileSync(path.join(workspace, readyA), "# Founder Brand Brief\nFounder signal is filled.\n", "utf8");
+    writeFileSync(path.join(workspace, readyB), "# Board Mandate\nBoard mandate is filled.\n", "utf8");
+    cpSync(path.join(templatesDir, stubName), path.join(workspace, stubName));
+    writeFileSync(path.join(workspace, incompleteName), "# Strategy\nDecision: NEEDS_DECISION\n", "utf8");
+
+    const readiness = auditArtifacts(workspace, templatesDir);
+    const statuses = new Map(readiness.artifacts.map((artifact) => [artifact.name, artifact.status]));
+
+    assert.equal(statuses.get(readyA), "ready");
+    assert.equal(statuses.get(readyB), "ready");
+    assert.equal(statuses.get(stubName), "stub");
+    assert.equal(statuses.get(incompleteName), "incomplete");
+    assert.equal(readiness.nextGap, stubName);
+    assert.deepEqual(readiness.outOfOrder, [incompleteName]);
+    assert.equal(readiness.complete, false);
+    assert.equal(readiness.readyCount, 2);
+    assert.equal(readiness.ready.length, 2);
+    assert.equal(readiness.stub.length, 1);
+    assert.equal(readiness.incomplete.length, 1);
+    assert.equal(readiness.missing.length, ARTIFACT_SEQUENCE.length - 4);
+    assert.equal(readiness.total, ARTIFACT_SEQUENCE.length);
+    assert.equal(readiness.artifacts.find((artifact) => artifact.name === incompleteName).needsDecisionCount, 1);
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test("resolveWorkspace resolves a drax-workspace child before using the parent", () => {
+  const parent = mkdtempSync(path.join(os.tmpdir(), "drax-readiness-resolve-"));
+  try {
+    const child = path.join(parent, "drax-workspace");
+    mkdirSync(child);
+    writeFileSync(path.join(child, ARTIFACT_SEQUENCE[0]), "# Founder Brand Brief\n", "utf8");
+
+    assert.equal(resolveWorkspace(parent), child);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+test("doctor reports artifact readiness without changing the install exit code", () => {
+  const home = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-readiness-home-"));
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-doctor-readiness-ws-"));
+  try {
+    initDraxWorkspace(workspace);
+    rmSync(path.join(workspace, "BOARD_MANDATE.md"), { force: true });
+
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "doctor"], {
+      cwd: workspace,
+      encoding: "utf8",
+      env: { ...process.env, HOME: home, DRAX_CODEX_BIN: path.join(home, "missing-codex") },
+    });
+
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /MISSING BOARD_MANDATE\.md \(missing\)/);
+    assert.match(result.stdout, /WARN Next gap: FOUNDER_BRAND_BRIEF\.md/);
+    assert.match(result.stdout, /Drax install: OK \(standalone CLI\)/);
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test("bare drax injects deterministic artifact readiness into the founder prompt", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-readiness-intake-"));
+  const output = path.join(workspace, "prompt.txt");
+  const fakeCodex = path.join(workspace, "codex");
+  try {
+    initDraxWorkspace(workspace);
+    rmSync(path.join(workspace, "FOUNDER_BRAND_BRIEF.md"), { force: true });
+    writeFileSync(fakeCodex, '#!/bin/sh\nprintf "%s" "$1" > "$DRAX_TEST_OUTPUT"\n', "utf8");
+    chmodSync(fakeCodex, 0o755);
+
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js")], {
+      cwd: workspace,
+      encoding: "utf8",
+      env: accessEnv({ DRAX_CODEX_BIN: fakeCodex, DRAX_TEST_OUTPUT: output }),
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    const prompt = readFileSync(output, "utf8");
+    assert.match(prompt, /Deterministic Drax artifact readiness: this block was computed by the runtime/);
+    assert.match(prompt, /- FOUNDER_BRAND_BRIEF\.md: missing/);
+    assert.match(prompt, /Next gap: FOUNDER_BRAND_BRIEF\.md/);
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
   }
 });
 

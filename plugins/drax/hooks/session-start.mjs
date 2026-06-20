@@ -98,7 +98,7 @@ function main() {
     return content ? [{ name, content }] : [];
   });
   const staticContextLines = [
-    "Drax v1.1.30 organic automation runtime is active.",
+    "Drax v1.1.31 organic automation runtime is active.",
     "Target user: a founder with an existing product who wants a measured organic traffic system.",
     "Required baseline: founder brand brief, board mandate, vision/strategy governance docs, positioning statement, market localization strategy, tech decision record, GTM strategy, content strategy, editorial calendar, channel plan, automation runbook, responsibility matrix, measurement framework, and execution state.",
     "Publishing defaults to dry-run. Live posting, paid spend, and browser automation require explicit approval.",
