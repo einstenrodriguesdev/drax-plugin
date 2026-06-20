@@ -12,6 +12,7 @@ import {
   auditArtifacts as auditPluginArtifacts,
   renderReadinessForPrompt as renderPluginReadinessForPrompt,
 } from "../plugins/drax/hooks/readiness.mjs";
+import { ARTIFACT_OWNERS, renderBuildPlan, resolveRoleFile } from "../plugins/drax/hooks/roles.mjs";
 
 const TEST_PUBLIC_KEY_B64 = "A6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=";
 const TEST_PRIVATE_KEY_B64 = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8DoQe/884Qvh1w3RjnS8CZZ+TWMJulDV8d3IZkElUxuA==";
@@ -299,7 +300,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.32");
+  assert.equal(result.stdout.trim(), "1.1.33");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -495,7 +496,7 @@ test("session hook prepends deterministic artifact readiness", () => {
     assert.match(context, /Deterministic Drax artifact readiness: this block was computed by the runtime/);
     assert.match(context, /- BOARD_MANDATE\.md: missing/);
     assert.match(context, /Next gap: BOARD_MANDATE\.md/);
-    assert.ok(context.indexOf("Deterministic Drax artifact readiness") < context.indexOf("Drax v1.1.32 organic automation runtime is active."));
+    assert.ok(context.indexOf("Deterministic Drax artifact readiness") < context.indexOf("Drax v1.1.33 organic automation runtime is active."));
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }
@@ -512,6 +513,42 @@ test("drax-doctor command reports deterministic artifact readiness", () => {
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /MISSING BOARD_MANDATE\.md \(missing\)/);
     assert.match(result.stdout, /WARN Next gap: BOARD_MANDATE\.md/);
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test("plugin role mapping covers every baseline artifact and resolves to shipped role files", () => {
+  assert.deepEqual(Object.keys(ARTIFACT_OWNERS).sort(), [...PLUGIN_ARTIFACT_SEQUENCE].sort());
+  assert.deepEqual([...PLUGIN_ARTIFACT_SEQUENCE].sort(), Object.keys(ARTIFACT_OWNERS).sort());
+
+  for (const [artifact, chain] of Object.entries(ARTIFACT_OWNERS)) {
+    assert.equal(chain.at(-1).stage, "Gate", artifact);
+    for (const stage of chain) {
+      if (stage.roleFile) {
+        assert.ok(resolveRoleFile(stage.roleFile), `${artifact} missing role file: ${stage.roleFile}`);
+      }
+    }
+  }
+});
+
+test("drax-build command prints role-routed plan with next gap and owner chain", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-plugin-build-command-"));
+  try {
+    writeFileSync(path.join(workspace, "FOUNDER_BRAND_BRIEF.md"), "# Founder Brand Brief\nFounder signal is filled.\n", "utf8");
+    const result = spawnSync(process.execPath, [path.resolve("plugins/drax/skills/drax/commands/drax-build.mjs"), workspace], {
+      encoding: "utf8",
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Next gap: BOARD_MANDATE\.md/);
+    assert.match(result.stdout, /\[1\] BOARD_MANDATE\.md \(missing\)/);
+    assert.match(result.stdout, /Draft: Chairman \+ founder — board charter \(chairman\.md: found\)/);
+    assert.match(result.stdout, /Director of Marketing Operations \(director-of-marketing-operations\.md: found\)/);
+    assert.ok(result.stdout.indexOf("BOARD_MANDATE.md") < result.stdout.indexOf("POSITIONING_STATEMENT.md"));
+
+    const complete = renderBuildPlan({ complete: true, total: 14, nextGap: null, artifacts: [] });
+    assert.match(complete, /Baseline complete — all 14 artifacts ready/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }

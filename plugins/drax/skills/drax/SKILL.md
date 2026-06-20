@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.32 Organic Automation Runtime
+# Drax v1.1.33 Organic Automation Runtime
 
-Drax v1.1.32 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.33 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -28,6 +28,7 @@ This skill ships deterministic command scripts in the `commands/` directory next
 - If the argument is `orq-overview` or `overview`: run `node "<SKILL_DIR>/commands/drax-orq-overview.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - If the argument is `clean`: run `node "<SKILL_DIR>/commands/drax-clean.mjs" "<CWD>"` (append `--confirm` only if the user explicitly included it). `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - If the argument is `doctor`, `status`, or `readiness`: run `node "<SKILL_DIR>/commands/drax-doctor.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
+- If the argument is `build`, `next`, or `plan`: run `node "<SKILL_DIR>/commands/drax-build.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - For any other invocation, including a bare `$drax` with no argument, skip this router and continue with Mode Selection below.
 
 The plugin also exposes `$drax-help`, `$drax-map`, `$drax-orq`, and
@@ -188,6 +189,18 @@ Accountable owner per artifact (grounded in the org chart):
 | `EXECUTION_STATE.md` | CEO / COO | — | review cadence (catchball) -> Chairman | Chairman gate |
 
 The specialists that actually draft in the customer runtime are the vendored workers in `templates/workers/`; the Chairman, C-level, and Director roles are the accountability chain the Chairman-led interview embodies. The detailed content-plan chain is in Content Strategy Orchestration under Worker Routing.
+
+### Deterministic role routing (enforced)
+
+The accountable owner and canonical order of each artifact are computed by the runtime, not chosen by the Chairman. Before drafting any artifact, run `$drax build` (or honor the deterministic readiness block's `Next gap`) to obtain the role-routed plan, and produce artifacts strictly in that order — never skip ahead of an earlier gap.
+
+For each artifact the Chairman MUST:
+
+- load the named role definition file(s) from `org/agents/` and adopt that role's competencies, constraints, and voice to draft — the artifact is written as the accountable role, not in the Chairman's own voice;
+- route the Gate to a role that differs from the drafting role (separation of duties — whoever approves does not execute); never let the same role both draft and approve a downstream artifact;
+- never unilaterally draft a C-level/Director/Specialist-owned artifact — `POSITIONING_STATEMENT.md`, `MARKET_LOCALIZATION_STRATEGY.md`, `TECH_DECISION_RECORD.md`, `GTM_STRATEGY.md`, `CONTENT_STRATEGY.md`, `EDITORIAL_CALENDAR.md`, `CHANNEL_PLAN.md`, `AUTOMATION_RUNBOOK.md`, `RESPONSIBILITY_MATRIX.md`, `MEASUREMENT_FRAMEWORK.md`. The Chairman authorizes and ratifies; the accountable C-level frames, the Director decomposes, the Specialist drafts, and the gate role reviews.
+
+The Chairman drafts directly only the board-level artifacts whose accountable owner IS the board/Chairman: `BOARD_MANDATE.md`, `VISION_AND_STRATEGY.md` (with the CEO), `FOUNDER_BRAND_BRIEF.md`, and `EXECUTION_STATE.md` (catchball review cadence -> Chairman gate).
 
 ## Artifact Readiness Gate
 
