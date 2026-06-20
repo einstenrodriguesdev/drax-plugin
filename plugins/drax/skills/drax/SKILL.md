@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.28 Organic Automation Runtime
+# Drax v1.1.29 Organic Automation Runtime
 
-Drax v1.1.28 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.29 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -26,6 +26,7 @@ This skill ships deterministic command scripts in the `commands/` directory next
 - If the argument is `map`, `tree`, or `sectors`: run `node "<SKILL_DIR>/commands/drax-map.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - If the argument is `orq`, `orchestration`, or `flow`: run `node "<SKILL_DIR>/commands/drax-orq.mjs" "<CWD>" <PAGE-if-present>`, where `<CWD>` is the current working directory and `<PAGE-if-present>` is the optional page number from the invocation. Print stdout verbatim, then stop.
 - If the argument is `orq-overview` or `overview`: run `node "<SKILL_DIR>/commands/drax-orq-overview.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
+- If the argument is `clean`: run `node "<SKILL_DIR>/commands/drax-clean.mjs" "<CWD>"` (append `--confirm` only if the user explicitly included it). `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - For any other invocation, including a bare `$drax` with no argument, skip this router and continue with Mode Selection below.
 
 The plugin also exposes `$drax-help`, `$drax-map`, `$drax-orq`, and

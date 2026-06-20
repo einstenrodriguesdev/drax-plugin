@@ -17,12 +17,12 @@ test("drax map renders the bundled organization as a box-drawing tree and mechan
     assert.ok(result.stdout.startsWith("```\n"));
     assert.ok(result.stdout.endsWith("\n```\n"));
     assert.match(result.stdout, /DRAX v/);
-    assert.ok(result.stdout.includes(`Full map (all 134 agents + their skills) written to: ${mapPath}`));
+    assert.ok(result.stdout.includes(`Full map (all 135 agents + their skills) written to: ${mapPath}`));
     assert.match(result.stdout, /Open that file if your terminal truncates the output below\./);
     assert.match(result.stdout, /== ORGANIZATION ==/);
     const agentTotal = result.stdout.match(/agents: ([0-9]+) \| sectors: 11/);
     assert.ok(agentTotal);
-    assert.equal(Number(agentTotal[1]), 134);
+    assert.equal(Number(agentTotal[1]), 135);
     assert.match(result.stdout, /^Board & Office of the CEO$/m);
     assert.match(result.stdout, /^├─ chairman[ \t]+board[ \t]+\[2\]$/m);
     assert.match(result.stdout, /^└─ ceo[ \t]+c_level[ \t]+\[10\]$/m);

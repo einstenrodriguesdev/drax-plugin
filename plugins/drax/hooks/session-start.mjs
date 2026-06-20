@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { runIntegrityGate, renderSecurityReport } from "./integrity.mjs";
 
 const ARTIFACTS = [
   "FOUNDER_BRAND_BRIEF.md",
@@ -83,12 +84,21 @@ function main() {
     return;
   }
 
+  let security = null;
+  try {
+    security = runIntegrityGate(workspace, { enforce: true });
+  } catch {
+    security = null; // fail-closed: never let the gate crash the session
+  }
+  const tainted = security && security.taintedArtifacts instanceof Set ? security.taintedArtifacts : new Set();
+
   const artifacts = ARTIFACTS.flatMap((name) => {
+    if (tainted.has(name)) return [];
     const content = safeRead(workspace, name);
     return content ? [{ name, content }] : [];
   });
   const staticContextLines = [
-    "Drax v1.1.28 organic automation runtime is active.",
+    "Drax v1.1.29 organic automation runtime is active.",
     "Target user: a founder with an existing product who wants a measured organic traffic system.",
     "Required baseline: founder brand brief, board mandate, vision/strategy governance docs, positioning statement, market localization strategy, tech decision record, GTM strategy, content strategy, editorial calendar, channel plan, automation runbook, responsibility matrix, measurement framework, and execution state.",
     "Publishing defaults to dry-run. Live posting, paid spend, and browser automation require explicit approval.",
@@ -130,8 +140,11 @@ function main() {
     }
   }
 
+  const securityReport = security ? renderSecurityReport(security) : "";
+  const finalContext = securityReport ? `${securityReport}\n\n${context}` : context;
+
   process.stdout.write(JSON.stringify({
-    hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: context },
+    hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: finalContext },
   }));
 }
 

@@ -16,14 +16,14 @@ import {
 } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { validateAccess } from "./access.js";
 import { runCycleCommand } from "./cycle.js";
 import { runDistributeCommand } from "./distribute.js";
 import { directTaskPrompt, founderIntakePrompt } from "./prompts.js";
 import { runStatusCommand } from "./status.js";
 
-const VERSION = "1.1.28";
+const VERSION = "1.1.29";
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const home = os.homedir();
@@ -93,6 +93,12 @@ function bundlePath(...parts: string[]): string {
     throw new Error(`Package asset is unavailable: ${target}. Run install from the source package.`);
   }
   return target;
+}
+
+function isDraxWorkspaceDir(dir: string): boolean {
+  if (existsSync(path.join(dir, ".drax"))) return true;
+  if (existsSync(path.join(dir, "EXECUTION_STATE.json"))) return true;
+  return BASELINE_ARTIFACTS.some((artifact) => existsSync(path.join(dir, artifact)));
 }
 
 function hasFlag(args: string[], flag: string): boolean {
@@ -265,7 +271,7 @@ function install(target: string): void {
   console.log("Live publishing remains disabled until a publishing adapter passes its gate.");
 }
 
-function doctor(): void {
+async function doctor(): Promise<void> {
   const codexBinary = process.env.DRAX_CODEX_BIN || "codex";
   const surfaces = [
     ["Codex surface", [
@@ -322,6 +328,34 @@ function doctor(): void {
   const playwrightPresent = spawnSync("node", ["-e", "require.resolve('playwright')"], { stdio: "ignore" }).status === 0;
   console.log(`${playwrightPresent ? "OK" : "OPTIONAL-MISSING"} Playwright social posting library`);
   console.log(`${process.env.DRAX_ENV_PATH ? "CONFIGURED" : "UNSET"} External environment reference`);
+  const securityWorkspace = process.cwd();
+  if (isDraxWorkspaceDir(securityWorkspace)) {
+    try {
+      const integrityUrl = pathToFileURL(bundlePath("plugins", "drax", "hooks", "integrity.mjs")).href;
+      const { runIntegrityGate, renderSecurityReport } = await import(integrityUrl);
+      const report = runIntegrityGate(securityWorkspace, { enforce: false });
+      if (report.scopeError) {
+        console.log(`SKIPPED Workspace security scan (${report.scopeError})`);
+      } else {
+        const secretCount = report.secrets.length;
+        const injectionCount = report.injections.length;
+        const foreignCount = report.wouldQuarantine.length;
+        console.log(`${secretCount ? "FAIL" : "OK"} Workspace free of leaked secrets (${secretCount} found)`);
+        console.log(`${injectionCount ? "FAIL" : "OK"} Workspace artifacts injection-free (${injectionCount} tainted)`);
+        console.log(`${foreignCount ? "WARN" : "OK"} Workspace foreign files (${foreignCount} would be quarantined at session start)`);
+        const rendered = renderSecurityReport(report);
+        if (rendered) console.log(rendered);
+        if (secretCount) {
+          failures.push(`workspace contains ${secretCount} leaked secret-shaped file(s) - relocate them to the secure store (.drax/), not the open workspace`);
+        }
+        if (injectionCount) {
+          failures.push(`workspace contains ${injectionCount} artifact(s) with prompt-injection text`);
+        }
+      }
+    } catch {
+      console.log("OPTIONAL-MISSING Workspace security scan (integrity module unavailable)");
+    }
+  }
   console.log(
     failures.length
       ? `Drax install: FAILED - ${failures.join("; ")}`
@@ -385,7 +419,7 @@ async function main(): Promise<void> {
   const command = args[0];
   if (command === "--help" || command === "-h") return help();
   if (command === "--version" || command === "-v") return console.log(VERSION);
-  if (command === "doctor") return doctor();
+  if (command === "doctor") return await doctor();
   if (command === "status") return runStatusCommand(args.slice(1));
   if (command === "init") return initWorkspace(args.slice(1));
   if (command === "blog" && args[1] === "init") return initBlog(args.slice(2));

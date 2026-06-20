@@ -518,6 +518,12 @@ agents:
     contextual_skills: []
     required_knowledge: []
     contextual_knowledge: []
+  claims-quality-reviewer:
+    file: agents/claims-quality-reviewer.md
+    department: marketing
+    level: senior_ic
+    reports_to: director-of-marketing-operations
+    executive_owner: cmo
   clo:
     file: agents/clo.md
     department: legal

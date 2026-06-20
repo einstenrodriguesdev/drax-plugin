@@ -9,7 +9,7 @@ const commandFile = fileURLToPath(import.meta.url);
 const commandDir = path.dirname(commandFile);
 const pluginRoot = path.resolve(commandDir, "../../..");
 const packageRoot = path.resolve(pluginRoot, "../..");
-const FALLBACK_VERSION = "1.1.28";
+const FALLBACK_VERSION = "1.1.29";
 const PAGE_LINES = 46;
 const DEFAULT_RUN_DIRECTORY = ".drax/runs";
 
@@ -114,9 +114,21 @@ function locateTemplates(workspace) {
   );
 }
 
-function roleFileStatus(templatesRoot, roleFile) {
-  const target = templatesRoot ? firstExistingFile([path.join(templatesRoot, "workers", roleFile)]) : null;
-  return target ? "found" : "MISSING";
+function resolveRoleFile(workspace, roleFile) {
+  const candidates = [
+    path.join(pluginRoot, "org", "agents", roleFile),
+    ...roots(workspace).flatMap((root) => [
+      path.join(root, "org", "agents", roleFile),
+      path.join(root, "plugins/drax/org/agents", roleFile),
+    ]),
+  ];
+  const templatesRoot = locateTemplates(workspace);
+  if (templatesRoot) candidates.push(path.join(templatesRoot, "workers", roleFile));
+  return firstExistingFile(candidates);
+}
+
+function roleFileStatus(workspace, roleFile) {
+  return resolveRoleFile(workspace, roleFile) ? "found" : "MISSING";
 }
 
 function isWorkspace(workspace) {
@@ -206,7 +218,6 @@ function renderHeader(lines, version) {
 }
 
 function renderPipeline(lines, workspace, latest) {
-  const templatesRoot = locateTemplates(workspace);
   const evidenceStages = latestEvidenceStages(latest);
 
   lines.push("== PIPELINE (what actually runs) ==");
@@ -219,7 +230,7 @@ function renderPipeline(lines, workspace, latest) {
     const reads = stage.reads === "founder-artifacts" ? `${BASELINE_ARTIFACTS.length} founder artifacts` : stage.reads;
     const live = evidenceStages.has(stage.evidenceStage) ? "DONE (sha256 recorded)" : "—";
     lines.push(`${connector}[${index + 1}] ${stage.evidenceStage}`);
-    lines.push(`${prefix}owner: ${stage.roleFile} (role file: ${roleFileStatus(templatesRoot, stage.roleFile)})`);
+    lines.push(`${prefix}owner: ${stage.roleFile} (role file: ${roleFileStatus(workspace, stage.roleFile)})`);
     lines.push(`${prefix}reads: ${reads}`);
     lines.push(`${prefix}creates: ${stage.creates.join(" + ")}`);
     lines.push(`${prefix}gate: ${stage.gate}`);
@@ -239,20 +250,7 @@ function renderLiveState(lines, workspace, detected, state, latest) {
   }
 
   lines.push(`workspace: ${workspace} (Drax workspace)`);
-  if (!state.ok) {
-    lines.push("EXECUTION_STATE.json: present but unreadable");
-    lines.push("current phase: NEEDS_DECISION");
-    lines.push("publishing mode: NEEDS_DECISION");
-    lines.push("video engine: NEEDS_DECISION");
-    lines.push("active version: NEEDS_DECISION");
-    lines.push("next post index: NEEDS_DECISION");
-    lines.push("last run id: NEEDS_DECISION");
-    lines.push("last published at: NEEDS_DECISION");
-    lines.push("next gate: NEEDS_DECISION");
-    lines.push("completed: 0");
-    lines.push("in progress: 0");
-    lines.push("blocked: none");
-  } else {
+  if (state.status === "ok") {
     const value = state.value ?? {};
     lines.push("EXECUTION_STATE.json: readable");
     lines.push(`current phase: ${valueOrNeedsDecision(value.currentPhase)}`);
@@ -266,6 +264,25 @@ function renderLiveState(lines, workspace, detected, state, latest) {
     lines.push(`completed: ${arrayCount(value.completed)}`);
     lines.push(`in progress: ${arrayCount(value.inProgress)}`);
     lines.push(`blocked: ${arrayCount(value.blocked) || "none"}`);
+  } else if (state.status === "unreadable") {
+    lines.push("EXECUTION_STATE.json: present but unreadable");
+    lines.push("current phase: NEEDS_DECISION");
+    lines.push("publishing mode: NEEDS_DECISION");
+    lines.push("video engine: NEEDS_DECISION");
+    lines.push("active version: NEEDS_DECISION");
+    lines.push("next post index: NEEDS_DECISION");
+    lines.push("last run id: NEEDS_DECISION");
+    lines.push("last published at: NEEDS_DECISION");
+    lines.push("next gate: NEEDS_DECISION");
+    lines.push("completed: 0");
+    lines.push("in progress: 0");
+    lines.push("blocked: none");
+  } else {
+    if (state.mdPresent) {
+      lines.push("EXECUTION_STATE.json: absent — EXECUTION_STATE.md present (markdown-only); run a cycle to emit machine-readable state");
+    } else {
+      lines.push("EXECUTION_STATE.json: absent — no execution state yet; run a cycle to emit it");
+    }
   }
 
   if (latest.status === "ok") {
@@ -325,8 +342,17 @@ function main() {
   const { workspace, page } = parseArgs(process.argv.slice(2));
   const version = readVersion();
   const detected = isWorkspace(workspace);
-  const statePath = path.join(workspace, "EXECUTION_STATE.json");
-  const state = detected && fs.existsSync(statePath) ? readJson(statePath) : { ok: false, value: null };
+  const jsonPath = path.join(workspace, "EXECUTION_STATE.json");
+  const mdPath = path.join(workspace, "EXECUTION_STATE.md");
+  let state;
+  if (detected && fs.existsSync(jsonPath)) {
+    const parsed = readJson(jsonPath);
+    state = parsed.ok
+      ? { status: "ok", ok: true, value: parsed.value, mdPresent: fs.existsSync(mdPath) }
+      : { status: "unreadable", ok: false, value: null, mdPresent: fs.existsSync(mdPath) };
+  } else {
+    state = { status: "absent", ok: false, value: null, mdPresent: detected && fs.existsSync(mdPath) };
+  }
   const latest = detected ? latestRunManifest(workspace, state) : { status: "none", manifest: null };
   const lines = [];
 
