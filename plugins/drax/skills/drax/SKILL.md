@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.31 Organic Automation Runtime
+# Drax v1.1.32 Organic Automation Runtime
 
-Drax v1.1.31 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.32 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -27,6 +27,7 @@ This skill ships deterministic command scripts in the `commands/` directory next
 - If the argument is `orq`, `orchestration`, or `flow`: run `node "<SKILL_DIR>/commands/drax-orq.mjs" "<CWD>" <PAGE-if-present>`, where `<CWD>` is the current working directory and `<PAGE-if-present>` is the optional page number from the invocation. Print stdout verbatim, then stop.
 - If the argument is `orq-overview` or `overview`: run `node "<SKILL_DIR>/commands/drax-orq-overview.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - If the argument is `clean`: run `node "<SKILL_DIR>/commands/drax-clean.mjs" "<CWD>"` (append `--confirm` only if the user explicitly included it). `<CWD>` is the current working directory. Print stdout verbatim, then stop.
+- If the argument is `doctor`, `status`, or `readiness`: run `node "<SKILL_DIR>/commands/drax-doctor.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - For any other invocation, including a bare `$drax` with no argument, skip this router and continue with Mode Selection below.
 
 The plugin also exposes `$drax-help`, `$drax-map`, `$drax-orq`, and
@@ -59,6 +60,7 @@ allowed before the first response.
   per the Continuity Rule, immediately ask the next single open question or decision
   recorded in `EXECUTION_STATE.md`. Never re-ask anything already answered in the
   artifacts.
+- If context contains a deterministic artifact-readiness block computed by the runtime, treat it as authoritative: do not re-derive missing or incomplete artifacts from prose, and resume at its stated `Next gap` through the correct role in canonical org order.
 
 Welcome to DRAX.
 

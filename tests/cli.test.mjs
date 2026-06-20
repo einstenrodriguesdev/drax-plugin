@@ -7,6 +7,11 @@ import path from "node:path";
 import test from "node:test";
 import { canonicalAccessTokenBytes, verifyAccessTokenSignature } from "../dist/access.js";
 import { ARTIFACT_SEQUENCE, auditArtifacts, resolveWorkspace } from "../dist/readiness.js";
+import {
+  ARTIFACT_SEQUENCE as PLUGIN_ARTIFACT_SEQUENCE,
+  auditArtifacts as auditPluginArtifacts,
+  renderReadinessForPrompt as renderPluginReadinessForPrompt,
+} from "../plugins/drax/hooks/readiness.mjs";
 
 const TEST_PUBLIC_KEY_B64 = "A6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=";
 const TEST_PRIVATE_KEY_B64 = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8DoQe/884Qvh1w3RjnS8CZZ+TWMJulDV8d3IZkElUxuA==";
@@ -294,7 +299,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.31");
+  assert.equal(result.stdout.trim(), "1.1.32");
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -438,6 +443,75 @@ test("bare drax injects deterministic artifact readiness into the founder prompt
     assert.match(prompt, /Deterministic Drax artifact readiness: this block was computed by the runtime/);
     assert.match(prompt, /- FOUNDER_BRAND_BRIEF\.md: missing/);
     assert.match(prompt, /Next gap: FOUNDER_BRAND_BRIEF\.md/);
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test("plugin readiness audit classifies artifact gaps without templates", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-plugin-readiness-audit-"));
+  const [readyA, missingName, incompleteName, readyB] = PLUGIN_ARTIFACT_SEQUENCE;
+  try {
+    writeFileSync(path.join(workspace, readyA), "# Founder Brand Brief\nFounder signal is filled.\n", "utf8");
+    writeFileSync(path.join(workspace, incompleteName), "# Strategy\nDecision: NEEDS_DECISION\n", "utf8");
+    writeFileSync(path.join(workspace, readyB), "# Positioning\nPositioning is filled.\n", "utf8");
+
+    const readiness = auditPluginArtifacts(workspace);
+    const statuses = new Map(readiness.artifacts.map((artifact) => [artifact.name, artifact.status]));
+    const promptBlock = renderPluginReadinessForPrompt(readiness);
+
+    assert.equal(statuses.get(readyA), "ready");
+    assert.equal(statuses.get(missingName), "missing");
+    assert.equal(statuses.get(incompleteName), "incomplete");
+    assert.equal(statuses.get(readyB), "ready");
+    assert.equal(readiness.nextGap, missingName);
+    assert.deepEqual(readiness.outOfOrder, [incompleteName]);
+    assert.equal(readiness.complete, false);
+    assert.equal(readiness.readyCount, 2);
+    assert.equal(readiness.ready.length, 2);
+    assert.equal(readiness.stub.length, 0);
+    assert.equal(readiness.incomplete.length, 1);
+    assert.equal(readiness.missing.length, PLUGIN_ARTIFACT_SEQUENCE.length - 3);
+    assert.equal(readiness.total, PLUGIN_ARTIFACT_SEQUENCE.length);
+    assert.match(promptBlock, /Deterministic Drax artifact readiness: this block was computed by the runtime/);
+    assert.match(promptBlock, new RegExp(`Next gap: ${missingName.replaceAll(".", "\\.")}`));
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test("session hook prepends deterministic artifact readiness", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-plugin-readiness-hook-"));
+  try {
+    writeFileSync(path.join(workspace, "FOUNDER_BRAND_BRIEF.md"), "# Founder Brand Brief\nFounder signal is filled.\n", "utf8");
+    const result = spawnSync(process.execPath, [path.resolve("plugins/drax/hooks/session-start.mjs")], {
+      input: JSON.stringify({ cwd: workspace }),
+      encoding: "utf8",
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    const payload = JSON.parse(result.stdout);
+    const context = payload.hookSpecificOutput.additionalContext;
+    assert.match(context, /Deterministic Drax artifact readiness: this block was computed by the runtime/);
+    assert.match(context, /- BOARD_MANDATE\.md: missing/);
+    assert.match(context, /Next gap: BOARD_MANDATE\.md/);
+    assert.ok(context.indexOf("Deterministic Drax artifact readiness") < context.indexOf("Drax v1.1.32 organic automation runtime is active."));
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test("drax-doctor command reports deterministic artifact readiness", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-plugin-readiness-command-"));
+  try {
+    writeFileSync(path.join(workspace, "FOUNDER_BRAND_BRIEF.md"), "# Founder Brand Brief\nFounder signal is filled.\n", "utf8");
+    const result = spawnSync(process.execPath, [path.resolve("plugins/drax/skills/drax/commands/drax-doctor.mjs"), workspace], {
+      encoding: "utf8",
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /MISSING BOARD_MANDATE\.md \(missing\)/);
+    assert.match(result.stdout, /WARN Next gap: BOARD_MANDATE\.md/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }
