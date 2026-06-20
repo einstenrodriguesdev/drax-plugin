@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const commandFile = fileURLToPath(import.meta.url);
 const commandDir = path.dirname(commandFile);
 const pluginRoot = path.resolve(commandDir, "../../..");
-const FALLBACK_VERSION = "1.1.33";
+const FALLBACK_VERSION = "1.1.34";
 const DEFAULT_RUN_DIRECTORY = ".drax/runs";
 
 const BASELINE_ARTIFACTS = [

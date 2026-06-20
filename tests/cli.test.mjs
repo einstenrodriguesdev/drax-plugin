@@ -300,7 +300,15 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.33");
+  assert.equal(result.stdout.trim(), "1.1.34");
+});
+
+test("help lists drax post as the founder-facing posting command", () => {
+  const result = spawnSync(process.execPath, ["dist/cli.js", "--help"], { encoding: "utf8" });
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /drax post\s+Generate and publish one post to the local blog/);
+  assert.match(result.stdout, /drax post --dry-run\s+Generate one post without publishing/);
+  assert.match(result.stdout, /drax post cron\s+Print the clean cron line for scheduled blog posting/);
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -496,7 +504,7 @@ test("session hook prepends deterministic artifact readiness", () => {
     assert.match(context, /Deterministic Drax artifact readiness: this block was computed by the runtime/);
     assert.match(context, /- BOARD_MANDATE\.md: missing/);
     assert.match(context, /Next gap: BOARD_MANDATE\.md/);
-    assert.ok(context.indexOf("Deterministic Drax artifact readiness") < context.indexOf("Drax v1.1.33 organic automation runtime is active."));
+    assert.ok(context.indexOf("Deterministic Drax artifact readiness") < context.indexOf("Drax v1.1.34 organic automation runtime is active."));
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }
@@ -513,6 +521,24 @@ test("drax-doctor command reports deterministic artifact readiness", () => {
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /MISSING BOARD_MANDATE\.md \(missing\)/);
     assert.match(result.stdout, /WARN Next gap: BOARD_MANDATE\.md/);
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test("drax-post guide prints the real CLI command and clean cron line", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-plugin-post-guide-"));
+  try {
+    mkdirSync(path.join(workspace, ".drax"), { recursive: true });
+    const result = spawnSync(process.execPath, [path.resolve("plugins/drax/skills/drax/commands/drax-post.mjs"), workspace], {
+      encoding: "utf8",
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /drax post generates and publishes ONE post to the local blog/);
+    assert.match(result.stdout, /drax post --dry-run/);
+    assert.match(result.stdout, new RegExp(`30 7 \\* \\* \\* cd "${workspace.replaceAll("\\", "\\\\")}" && drax post >> `));
+    assert.match(result.stdout, /drax distribute/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }
@@ -947,6 +973,37 @@ test("cycle dry-run writes run manifest and publish record", () => {
 
     const pendingDir = path.join(directory, ".drax/runs/pending");
     assert.equal(readdirSync(pendingDir).filter((entry) => entry.endsWith(".json")).length, 1);
+    const state = JSON.parse(readFileSync(path.join(directory, "EXECUTION_STATE.json"), "utf8"));
+    assert.equal(state.nextPostIndex, 1);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("post dry-run delegates to the cycle pipeline without publishing", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-post-dry-run-"));
+  try {
+    initGitRepo(directory);
+    initDraxWorkspace(directory);
+    const fakeCodex = writeFakeCycleCodex(directory, "Proof note: Verified from founder artifacts.\n\nThis teaches the buyer with source-backed context.");
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "post", "--dry-run"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv({ DRAX_CODEX_BIN: fakeCodex }),
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Drax cycle dry-run passed/);
+    assert.match(result.stdout, /Would publish blog post:/);
+
+    const record = firstPublishRecord(directory);
+    assert.equal(record.mode, "dry-run");
+    assert.equal(record.dryRun, true);
+    assert.equal(record.result, "succeeded");
+
+    const { manifest } = firstRunManifest(directory, "pending");
+    assert.equal(manifest.status, "PENDING");
+    assert.equal(manifest.published, false);
+
     const state = JSON.parse(readFileSync(path.join(directory, "EXECUTION_STATE.json"), "utf8"));
     assert.equal(state.nextPostIndex, 1);
   } finally {
@@ -1583,6 +1640,28 @@ test("cycle cron prints the scheduled wrapper command", () => {
     assert.match(result.stdout, /Scheduler timezone is NEEDS_DECISION/);
     assert.match(result.stdout, /\$HOME\/\.local\/bin\/drax cycle --dry-run/);
     assert.match(result.stdout, /0 6 \* \* \*/);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("post cron prints the scheduled post wrapper command", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-post-cron-"));
+  try {
+    initDraxWorkspace(directory);
+    mkdirSync(path.join(directory, ".drax"), { recursive: true });
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "post", "cron"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv(),
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Clock schedule is NEEDS_DECISION/);
+    assert.match(result.stdout, /Scheduler timezone is NEEDS_DECISION/);
+    assert.match(result.stdout, /\$HOME\/\.local\/bin\/drax post/);
+    assert.doesNotMatch(result.stdout, /\$HOME\/\.local\/bin\/drax cycle/);
+    assert.match(result.stdout, /0 6 \* \* \* cd "/);
+    assert.match(result.stdout, />> ".*cron\.log" 2>&1/);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

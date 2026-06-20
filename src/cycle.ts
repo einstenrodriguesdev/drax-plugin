@@ -2958,13 +2958,13 @@ export function runCycleCommand(args: string[], options: CycleOptions): number {
   return runWithFlock(args, options);
 }
 
-export function printCronCommand(args: string[], options: CycleOptions): number {
+export function printCronCommand(args: string[], options: CycleOptions, commandLabel = "cycle"): number {
   try {
     const state = parseExecutionState(options.cwd);
     const mode = hasFlag(args, "--publish") ? "--publish" : hasFlag(args, "--dry-run") ? "--dry-run" : `--${state.publishingMode}`;
     const schedule = state.config.clockSchedule;
     const timezone = state.config.schedulerTimezone;
-    const command = `$HOME/.local/bin/drax cycle ${mode}`;
+    const command = commandLabel === "post" ? "$HOME/.local/bin/drax post" : `$HOME/.local/bin/drax ${commandLabel} ${mode}`;
     const cronLog = path.join(state.config.logDirectory, "cron.log");
     if (needsDecision(schedule)) {
       console.log("Clock schedule is NEEDS_DECISION in EXECUTION_STATE.json.");

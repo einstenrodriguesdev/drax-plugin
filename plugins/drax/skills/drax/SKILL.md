@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.33 Organic Automation Runtime
+# Drax v1.1.34 Organic Automation Runtime
 
-Drax v1.1.33 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.34 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -29,6 +29,7 @@ This skill ships deterministic command scripts in the `commands/` directory next
 - If the argument is `clean`: run `node "<SKILL_DIR>/commands/drax-clean.mjs" "<CWD>"` (append `--confirm` only if the user explicitly included it). `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - If the argument is `doctor`, `status`, or `readiness`: run `node "<SKILL_DIR>/commands/drax-doctor.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - If the argument is `build`, `next`, or `plan`: run `node "<SKILL_DIR>/commands/drax-build.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
+- If the argument is `post` or `publish`: run `node "<SKILL_DIR>/commands/drax-post.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - For any other invocation, including a bare `$drax` with no argument, skip this router and continue with Mode Selection below.
 
 The plugin also exposes `$drax-help`, `$drax-map`, `$drax-orq`, and

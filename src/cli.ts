@@ -18,7 +18,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { validateAccess } from "./access.js";
-import { runCycleCommand } from "./cycle.js";
+import { printCronCommand, runCycleCommand } from "./cycle.js";
 import { runDistributeCommand } from "./distribute.js";
 import { directTaskPrompt, founderIntakePrompt } from "./prompts.js";
 import {
@@ -31,7 +31,7 @@ import {
 } from "./readiness.js";
 import { runStatusCommand } from "./status.js";
 
-const VERSION = "1.1.33";
+const VERSION = "1.1.34";
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const home = os.homedir();
@@ -51,6 +51,9 @@ Usage:
   drax "task"                  Run Drax direct-task mode
   drax init                    Copy the 14 baseline artifacts into the current workspace
   drax blog init               Generate a self-contained Astro editorial blog surface
+  drax post                    Generate and publish one post to the local blog
+  drax post --dry-run          Generate one post without publishing
+  drax post cron               Print the clean cron line for scheduled blog posting
   drax cycle --dry-run         Run the headless content cycle without publishing
   drax cycle --publish         Run the headless content cycle and write the blog artifact in the isolated clone
   drax cycle cron              Print the cron entry for the scheduled trigger
@@ -385,6 +388,13 @@ async function initBlog(args: string[]): Promise<void> {
   console.log("Next: resolve NEEDS_DECISION values in the founder docs, add posts, then run `npm install` and `npm run build`.");
 }
 
+function postPassthrough(args: string[]): string[] {
+  const passthrough: string[] = [];
+  const postClass = optionValue(args, "--post-class");
+  if (postClass) passthrough.push("--post-class", postClass);
+  return passthrough;
+}
+
 async function launchCodex(args: string[]): Promise<void> {
   if (!(await requireRuntimeAccess())) return;
   let prompt: string;
@@ -429,6 +439,23 @@ async function main(): Promise<void> {
       nodePath: process.execPath,
       env: process.env,
     });
+    return;
+  }
+  if (command === "post") {
+    if (!(await requireRuntimeAccess())) return;
+    const cycleOptions = {
+      cwd: process.cwd(),
+      cliPath: currentFile,
+      nodePath: process.execPath,
+      env: process.env,
+    };
+    const postArgs = args.slice(1);
+    if (postArgs[0] === "cron") {
+      process.exitCode = printCronCommand(["--publish", ...postPassthrough(postArgs.slice(1))], cycleOptions, "post");
+    } else {
+      const mode = hasFlag(postArgs, "--dry-run") ? "--dry-run" : "--publish";
+      process.exitCode = runCycleCommand([mode, ...postPassthrough(postArgs)], cycleOptions);
+    }
     return;
   }
   if (command === "distribute") {

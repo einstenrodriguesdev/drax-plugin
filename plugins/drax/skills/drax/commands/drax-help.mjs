@@ -2,12 +2,13 @@
 // Deterministic command. Prints the Drax command reference. No external deps.
 // Invoked by the `drax` skill when the user runs `$drax help`.
 
-const VERSION = "1.1.33";
+const VERSION = "1.1.34";
 
 const SKILL_COMMANDS = [
   ["$drax", "Start or resume the organic automation system: founder interview -> 14 baseline artifacts -> reviewable daily run."],
   ["$drax build", "Show the role-routed build plan: the next artifact gaps and the accountable role that must produce each, in canonical org order."],
   ["$drax doctor", "Deterministic artifact-readiness report for this workspace (also: status, readiness)."],
+  ["$drax post", "Show the real blog-posting command (drax post) and the clean cron line; the engine runs in the CLI, not in this session."],
   ["$drax-map", "Show the installed system map: pipeline sectors, artifact status in this workspace, gates, and triggers."],
   ["$drax-orq", "Introspect the real orchestration engine: live 4-stage pipeline, run state, and the honest authority model."],
   ["$drax-orq-overview", "Show the high-level founder→published journey with live status, no agent detail."],
