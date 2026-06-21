@@ -31,7 +31,7 @@ import {
 } from "./readiness.js";
 import { runStatusCommand } from "./status.js";
 
-const VERSION = "1.1.35";
+const VERSION = "1.1.36";
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const home = os.homedir();
@@ -54,6 +54,8 @@ Usage:
   drax post                    Generate and publish one post to the local blog
   drax post --dry-run          Generate one post without publishing
   drax post cron               Print the clean cron line for scheduled blog posting
+  drax site deploy             Build the IC-authored site project for in-place serving
+  drax site cron               Print the clean cron line for scheduled site deploy
   drax cycle --dry-run         Run the headless content cycle without publishing
   drax cycle --publish         Run the headless content cycle and write the blog artifact in the isolated clone
   drax cycle cron              Print the cron entry for the scheduled trigger
@@ -395,6 +397,178 @@ function postPassthrough(args: string[]): string[] {
   return passthrough;
 }
 
+function isInside(parent: string, target: string): boolean {
+  const relative = path.relative(parent, target);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function forbiddenInfraPath(target: string): boolean {
+  return target.startsWith("/srv/") || target.startsWith("/opt/") || /^\/home\/[^/]+\/apps\//.test(target);
+}
+
+function defaultSiteTarget(cwd: string): string {
+  const projectName = path.basename(cwd) || "workspace";
+  return path.join(cwd, `${projectName}-site-drax`);
+}
+
+function resolveSiteTarget(args: string[], cwd: string): string {
+  const rawTarget = optionValue(args, "--target");
+  const target = rawTarget ? path.resolve(cwd, rawTarget) : defaultSiteTarget(cwd);
+  if (!isInside(cwd, target)) {
+    throw new Error(`Drax site target must stay inside the current workspace: ${target}`);
+  }
+  if (forbiddenInfraPath(target)) {
+    throw new Error(`Drax site target must be cwd-relative, never an absolute infrastructure path: ${target}`);
+  }
+  return target;
+}
+
+function backupPathFor(target: string): string {
+  const stamp = new Date().toISOString().replaceAll(/[:.]/g, "-");
+  let backup = `${target}.backup-${stamp}`;
+  let counter = 1;
+  while (existsSync(backup)) {
+    backup = `${target}.backup-${stamp}.${counter}`;
+    counter += 1;
+  }
+  return backup;
+}
+
+function restoreBackup(backup: string | null, outputDir: string): void {
+  if (!backup || !existsSync(backup)) return;
+  rmSync(outputDir, { recursive: true, force: true });
+  renameSync(backup, outputDir);
+}
+
+function siteCronConfig(cwd: string): { schedule: string; timezone: string; logDirectory: string } {
+  try {
+    const state = JSON.parse(readFileSync(path.join(cwd, "EXECUTION_STATE.json"), "utf8")) as {
+      config?: { clockSchedule?: string; schedulerTimezone?: string; logDirectory?: string };
+    };
+    return {
+      schedule: state.config?.clockSchedule || "NEEDS_DECISION",
+      timezone: state.config?.schedulerTimezone || "NEEDS_DECISION",
+      logDirectory: state.config?.logDirectory || ".drax/logs",
+    };
+  } catch {
+    return { schedule: "NEEDS_DECISION", timezone: "NEEDS_DECISION", logDirectory: ".drax/logs" };
+  }
+}
+
+function needsDecision(value: string): boolean {
+  return !value || value === "NEEDS_DECISION";
+}
+
+function printSiteCronCommand(cwd: string): number {
+  const state = siteCronConfig(cwd);
+  const cronLog = path.join(state.logDirectory, "site-cron.log");
+  if (needsDecision(state.schedule)) {
+    console.log("Clock schedule is NEEDS_DECISION in EXECUTION_STATE.json.");
+  }
+  if (needsDecision(state.timezone)) {
+    console.log("Scheduler timezone is NEEDS_DECISION in EXECUTION_STATE.json.");
+  }
+  console.log("# Add this to the founder workspace crontab after schedule and timezone are decided.");
+  console.log("SHELL=/bin/sh");
+  console.log('PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"');
+  if (!needsDecision(state.timezone)) console.log(`CRON_TZ=${state.timezone}`);
+  console.log(
+    `${needsDecision(state.schedule) ? "0 6 * * *" : state.schedule} cd "${cwd}" && $HOME/.local/bin/drax site deploy >> "${cronLog}" 2>&1`,
+  );
+  return 0;
+}
+
+async function deploySite(args: string[]): Promise<void> {
+  if (!(await requireRuntimeAccess())) return;
+  let target: string;
+  try {
+    target = resolveSiteTarget(args, process.cwd());
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+    return;
+  }
+
+  if (!existsSync(target) || !statSync(target).isDirectory()) {
+    console.error(
+      `Drax site deploy failed closed: site project not found at ${target}. Run the site fabrication flow first so the ICs author the bespoke Astro project; this command does not scaffold a template.`,
+    );
+    process.exitCode = 1;
+    return;
+  }
+
+  const packageJsonPath = path.join(target, "package.json");
+  if (!existsSync(packageJsonPath)) {
+    console.error(`Drax site deploy failed closed: missing package.json in ${target}. Run the site fabrication flow first.`);
+    process.exitCode = 1;
+    return;
+  }
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8")) as { scripts?: Record<string, unknown> };
+  if (typeof packageJson.scripts?.build !== "string") {
+    console.error(`Drax site deploy failed closed: package.json in ${target} has no build script.`);
+    process.exitCode = 1;
+    return;
+  }
+
+  const outputDir = path.join(target, "dist");
+  const backup = existsSync(outputDir) ? backupPathFor(outputDir) : null;
+  if (backup) renameSync(outputDir, backup);
+
+  const result = spawnSync("npm", ["run", "build"], {
+    cwd: target,
+    encoding: "utf8",
+    env: process.env,
+  });
+
+  if (result.error || result.status !== 0) {
+    restoreBackup(backup, outputDir);
+    if (result.stdout) console.error(result.stdout.trimEnd());
+    if (result.stderr) console.error(result.stderr.trimEnd());
+    console.error(
+      result.error
+        ? `Drax site deploy failed closed: ${result.error.message}`
+        : `Drax site deploy failed closed: build exited ${result.status}. Prior output restored when a backup existed.`,
+    );
+    process.exitCode = result.status || 1;
+    return;
+  }
+
+  if (!existsSync(outputDir) || !statSync(outputDir).isDirectory()) {
+    restoreBackup(backup, outputDir);
+    console.error("Drax site deploy failed closed: build completed but did not produce dist/. Prior output restored when a backup existed.");
+    process.exitCode = 1;
+    return;
+  }
+
+  const recordDir = path.join(process.cwd(), ".drax", "site-deploy-records");
+  mkdirSync(recordDir, { recursive: true });
+  const deployedAt = new Date().toISOString();
+  const recordPath = path.join(recordDir, `${deployedAt.replaceAll(/[:.]/g, "-")}.json`);
+  writeFileSync(
+    recordPath,
+    `${JSON.stringify(
+      {
+        schemaVersion: "1.0.0",
+        kind: "site-deploy",
+        mode: "local-site-deploy",
+        deployedAt,
+        projectDir: target,
+        outputDir,
+        backupDir: backup,
+        result: "succeeded",
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+
+  console.log(`Drax site deploy: built IC-authored site project at ${target}`);
+  console.log(`Static output ready for in-place serving: ${outputDir}`);
+  if (backup) console.log(`Previous output backed up at ${backup}`);
+  console.log(`Deploy record written: ${recordPath}`);
+}
+
 async function launchCodex(args: string[]): Promise<void> {
   if (!(await requireRuntimeAccess())) return;
   let prompt: string;
@@ -431,6 +605,14 @@ async function main(): Promise<void> {
   if (command === "status") return runStatusCommand(args.slice(1));
   if (command === "init") return initWorkspace(args.slice(1));
   if (command === "blog" && args[1] === "init") return initBlog(args.slice(2));
+  if (command === "site") {
+    if (args[1] === "deploy") return deploySite(args.slice(2));
+    if (args[1] === "cron") {
+      if (!(await requireRuntimeAccess())) return;
+      process.exitCode = printSiteCronCommand(process.cwd());
+      return;
+    }
+  }
   if (command === "cycle") {
     if (!(await requireRuntimeAccess())) return;
     process.exitCode = runCycleCommand(args.slice(1), {

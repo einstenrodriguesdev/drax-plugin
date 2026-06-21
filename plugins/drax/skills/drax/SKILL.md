@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.35 Organic Automation Runtime
+# Drax v1.1.36 Organic Automation Runtime
 
-Drax v1.1.35 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.36 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -30,6 +30,7 @@ This skill ships deterministic command scripts in the `commands/` directory next
 - If the argument is `doctor`, `status`, or `readiness`: run `node "<SKILL_DIR>/commands/drax-doctor.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - If the argument is `build`, `next`, or `plan`: run `node "<SKILL_DIR>/commands/drax-build.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - If the argument is `post` or `publish`: run `node "<SKILL_DIR>/commands/drax-post.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
+- If the argument is `site` or `website`: run `node "<SKILL_DIR>/commands/drax-site.mjs" "<CWD>"`, where `<CWD>` is the current working directory. Print stdout verbatim, then stop.
 - For any other invocation, including a bare `$drax` with no argument, skip this router and continue with Mode Selection below.
 
 The plugin also exposes `$drax-help`, `$drax-map`, `$drax-orq`, and
@@ -208,6 +209,25 @@ For each artifact the Chairman MUST:
 - never unilaterally draft a C-level/Director/Specialist-owned artifact — `POSITIONING_STATEMENT.md`, `MARKET_LOCALIZATION_STRATEGY.md`, `TECH_DECISION_RECORD.md`, `GTM_STRATEGY.md`, `CONTENT_STRATEGY.md`, `EDITORIAL_CALENDAR.md`, `CHANNEL_PLAN.md`, `AUTOMATION_RUNBOOK.md`, `RESPONSIBILITY_MATRIX.md`, `MEASUREMENT_FRAMEWORK.md`. The Chairman authorizes and ratifies; the accountable C-level frames, the Director decomposes, the Specialist drafts, and the gate role reviews.
 
 The Chairman drafts directly only the board-level artifacts whose accountable owner IS the board/Chairman: `BOARD_MANDATE.md`, `VISION_AND_STRATEGY.md` (with the CEO), `FOUNDER_BRAND_BRIEF.md`, and `EXECUTION_STATE.md` (catchball review cadence -> Chairman gate).
+
+## Site Fabrication
+
+After all 14 baseline artifacts are `ready`, the next deliverable is the official marketing site. It is fabricated through the same governance chain: Authorize -> Frame -> Decompose -> Draft -> Gate -> Ratify.
+
+There is no site template. Do not create, extend, or copy a `templates/site-surface` directory. Each IC adopts its `org/agents/` role definition and authors bespoke Astro source — project structure, pages, components, styling, and copy — from the 14 artifacts into the cwd-relative `<projectName>-site-drax/` project defined by the Local Deploy Target rule.
+
+The site chain is:
+
+| Stage | Accountable roles |
+|---|---|
+| Authorize | Chairman/CEO captures the founder objective |
+| Frame | CMO frames message, positioning, and pricing presentation; CTO frames stack, build, and deploy posture |
+| Decompose | Director of Marketing Operations and Director of Engineering split the workstream |
+| Draft | Senior Frontend Engineer authors Astro pages/components, design-system implementation, performance, and accessibility; UX Designer authors interaction and visual system; Content Strategist and Performance Copywriter derive page copy from `POSITIONING_STATEMENT.md`, `GTM_STRATEGY.md`, `VISION_AND_STRATEGY.md`, and `FOUNDER_BRAND_BRIEF.md`; SEO Manager owns metadata, structure, and GEO |
+| Gate | Claims Quality Reviewer gates factual support and brand safety; CMO reviews message and pricing presentation |
+| Ratify | Founder confirms |
+
+The site set is: home (positioning), product, pricing, about, security, docs, the blog surface, and 404. Copy is derived from the artifacts, never invented. Deployment follows Publishing Modes / `local-blog-deploy`: local, in-place, approval-gated, backup-first, and fail-closed.
 
 ## Artifact Readiness Gate
 

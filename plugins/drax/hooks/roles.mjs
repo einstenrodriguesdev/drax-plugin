@@ -88,6 +88,36 @@ export const ARTIFACT_OWNERS = {
   ],
 };
 
+export const SITE_DELIVERABLE = [
+  { stage: "Authorize", label: "Chairman/CEO — founder objective", roleFile: null },
+  { stage: "Frame", label: "CMO — message/positioning/pricing presentation", roleFile: "cmo.md" },
+  { stage: "Frame", label: "CTO — stack/build/deploy posture", roleFile: "cto.md" },
+  { stage: "Decompose", label: "Director of Marketing Operations", roleFile: "director-of-marketing-operations.md" },
+  { stage: "Decompose", label: "Director of Engineering", roleFile: "director-of-engineering.md" },
+  {
+    stage: "Draft",
+    label: "Senior Frontend Engineer — Astro pages/components, design-system implementation, performance + accessibility",
+    roleFile: "senior-frontend-engineer.md",
+  },
+  { stage: "Draft", label: "UX Designer — interaction + visual system", roleFile: "ux-designer.md" },
+  {
+    stage: "Draft",
+    label:
+      "Content Strategist — page copy from POSITIONING_STATEMENT / GTM_STRATEGY / VISION_AND_STRATEGY / FOUNDER_BRAND_BRIEF",
+    roleFile: "content-strategist.md",
+  },
+  {
+    stage: "Draft",
+    label:
+      "Performance Copywriter — conversion copy from POSITIONING_STATEMENT / GTM_STRATEGY / VISION_AND_STRATEGY / FOUNDER_BRAND_BRIEF",
+    roleFile: "copywriter-performance.md",
+  },
+  { stage: "Draft", label: "SEO Manager — metadata/structure/GEO", roleFile: "seo-manager.md" },
+  { stage: "Gate", label: "Claims Quality Reviewer — independent factual support and brand-safety gate", roleFile: "claims-quality-reviewer.md" },
+  { stage: "Gate", label: "CMO review — message and pricing presentation approval", roleFile: "cmo.md" },
+  { stage: "Ratify", label: "founder confirms", roleFile: null },
+];
+
 export function resolveRoleFile(roleFile) {
   if (!roleFile) return null;
   const candidates = [
@@ -97,6 +127,15 @@ export function resolveRoleFile(roleFile) {
   return candidates.find((candidate) => fs.existsSync(candidate)) || null;
 }
 
+function renderStage(lines, stage) {
+  if (stage.roleFile) {
+    const mark = resolveRoleFile(stage.roleFile) ? "found" : "MISSING";
+    lines.push(`    ${stage.stage}: ${stage.label} (${stage.roleFile}: ${mark})`);
+  } else {
+    lines.push(`    ${stage.stage}: ${stage.label}`);
+  }
+}
+
 export function renderBuildPlan(readiness) {
   const lines = [
     "DRAX build plan — role-routed artifact generation",
@@ -104,7 +143,18 @@ export function renderBuildPlan(readiness) {
   ];
 
   if (readiness.complete) {
-    lines.push("", `Baseline complete — all ${readiness.total} artifacts ready. No role work pending.`);
+    lines.push(
+      "",
+      `Baseline complete — all ${readiness.total} artifacts ready.`,
+      "",
+      "Next deliverable: official site",
+      "[site] official site (post-baseline)",
+    );
+    for (const stage of SITE_DELIVERABLE) renderStage(lines, stage);
+    lines.push(
+      "",
+      "The site is authored bespoke by these ICs from the 14 artifacts (no template) and deployed in-place via `drax site deploy`.",
+    );
     return lines.join("\n");
   }
 
@@ -114,12 +164,7 @@ export function renderBuildPlan(readiness) {
     if (artifact.status === "ready") continue;
     lines.push(`[${index}] ${artifact.name} (${artifact.status})`);
     for (const stage of ARTIFACT_OWNERS[artifact.name] || []) {
-      if (stage.roleFile) {
-        const mark = resolveRoleFile(stage.roleFile) ? "found" : "MISSING";
-        lines.push(`    ${stage.stage}: ${stage.label} (${stage.roleFile}: ${mark})`);
-      } else {
-        lines.push(`    ${stage.stage}: ${stage.label}`);
-      }
+      renderStage(lines, stage);
     }
     index += 1;
   }

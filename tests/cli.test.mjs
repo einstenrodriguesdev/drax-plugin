@@ -12,7 +12,7 @@ import {
   auditArtifacts as auditPluginArtifacts,
   renderReadinessForPrompt as renderPluginReadinessForPrompt,
 } from "../plugins/drax/hooks/readiness.mjs";
-import { ARTIFACT_OWNERS, renderBuildPlan, resolveRoleFile } from "../plugins/drax/hooks/roles.mjs";
+import { ARTIFACT_OWNERS, SITE_DELIVERABLE, renderBuildPlan, resolveRoleFile } from "../plugins/drax/hooks/roles.mjs";
 
 const TEST_PUBLIC_KEY_B64 = "A6EHv/POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg=";
 const TEST_PRIVATE_KEY_B64 = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8DoQe/884Qvh1w3RjnS8CZZ+TWMJulDV8d3IZkElUxuA==";
@@ -168,6 +168,29 @@ function initBlogSurface(directory) {
   assert.equal(existsSync(path.join(directory, "drax-blog/src/content/posts/.gitkeep")), true);
 }
 
+function writeMinimalSiteProject(projectDir) {
+  mkdirSync(projectDir, { recursive: true });
+  writeFileSync(
+    path.join(projectDir, "package.json"),
+    JSON.stringify({
+      type: "module",
+      scripts: {
+        build: "node build.mjs",
+      },
+    }),
+    "utf8",
+  );
+  writeFileSync(
+    path.join(projectDir, "build.mjs"),
+    [
+      'import { mkdirSync, writeFileSync } from "node:fs";',
+      'mkdirSync("dist", { recursive: true });',
+      'writeFileSync("dist/index.html", "<h1>fresh IC-authored site</h1>\\n", "utf8");',
+    ].join("\n"),
+    "utf8",
+  );
+}
+
 function sha256File(file) {
   return createHash("sha256").update(readFileSync(file)).digest("hex");
 }
@@ -303,7 +326,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.35");
+  assert.equal(result.stdout.trim(), "1.1.36");
 });
 
 test("help lists drax post as the founder-facing posting command", () => {
@@ -312,6 +335,8 @@ test("help lists drax post as the founder-facing posting command", () => {
   assert.match(result.stdout, /drax post\s+Generate and publish one post to the local blog/);
   assert.match(result.stdout, /drax post --dry-run\s+Generate one post without publishing/);
   assert.match(result.stdout, /drax post cron\s+Print the clean cron line for scheduled blog posting/);
+  assert.match(result.stdout, /drax site deploy\s+Build the IC-authored site project for in-place serving/);
+  assert.match(result.stdout, /drax site cron\s+Print the clean cron line for scheduled site deploy/);
 });
 
 test("prints a scoped direct-task prompt", () => {
@@ -548,6 +573,42 @@ test("drax-post guide prints the real CLI command and clean cron line", () => {
   }
 });
 
+test("drax-site guide prints the role plan and real engine commands", () => {
+  const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-plugin-site-guide-"));
+  try {
+    mkdirSync(path.join(workspace, ".drax"), { recursive: true });
+    for (const name of PLUGIN_ARTIFACT_SEQUENCE) {
+      writeFileSync(path.join(workspace, name), `# ${name}\nStatus: ready\nFounder-approved signal.\n`, "utf8");
+    }
+    const result = spawnSync(process.execPath, [path.resolve("plugins/drax/skills/drax/commands/drax-site.mjs"), workspace], {
+      encoding: "utf8",
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Next deliverable: official site/);
+    assert.match(result.stdout, /Senior Frontend Engineer .* \(senior-frontend-engineer\.md: found\)/);
+    assert.match(result.stdout, /Claims Quality Reviewer .* \(claims-quality-reviewer\.md: found\)/);
+    assert.match(result.stdout, /no template/i);
+    assert.match(result.stdout, /drax site deploy/);
+    assert.match(result.stdout, /drax site cron/);
+    assert.match(result.stdout, new RegExp(`${path.basename(workspace)}-site-drax`));
+    assert.doesNotMatch(result.stdout, /\/srv\//);
+    assert.doesNotMatch(result.stdout, /\/opt\//);
+    assert.doesNotMatch(result.stdout, /\/home\/[^/\n]+\/apps\//);
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test("drax-help lists the site command", () => {
+  const result = spawnSync(process.execPath, [path.resolve("plugins/drax/skills/drax/commands/drax-help.mjs")], {
+    encoding: "utf8",
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /\$drax site\s+Show the role-routed official-site fabrication plan/);
+});
+
 test("plugin role mapping covers every baseline artifact and resolves to shipped role files", () => {
   assert.deepEqual(Object.keys(ARTIFACT_OWNERS).sort(), [...PLUGIN_ARTIFACT_SEQUENCE].sort());
   assert.deepEqual([...PLUGIN_ARTIFACT_SEQUENCE].sort(), Object.keys(ARTIFACT_OWNERS).sort());
@@ -558,6 +619,16 @@ test("plugin role mapping covers every baseline artifact and resolves to shipped
       if (stage.roleFile) {
         assert.ok(resolveRoleFile(stage.roleFile), `${artifact} missing role file: ${stage.roleFile}`);
       }
+    }
+  }
+});
+
+test("site deliverable role chain resolves to shipped role files", () => {
+  assert.equal(SITE_DELIVERABLE.at(0).stage, "Authorize");
+  assert.equal(SITE_DELIVERABLE.at(-1).stage, "Ratify");
+  for (const stage of SITE_DELIVERABLE) {
+    if (stage.roleFile) {
+      assert.ok(resolveRoleFile(stage.roleFile), `site deliverable missing role file: ${stage.roleFile}`);
     }
   }
 });
@@ -579,6 +650,10 @@ test("drax-build command prints role-routed plan with next gap and owner chain",
 
     const complete = renderBuildPlan({ complete: true, total: 14, nextGap: null, artifacts: [] });
     assert.match(complete, /Baseline complete — all 14 artifacts ready/);
+    assert.match(complete, /Next deliverable: official site/);
+    assert.match(complete, /Senior Frontend Engineer .* \(senior-frontend-engineer\.md: found\)/);
+    assert.match(complete, /SEO Manager .* \(seo-manager\.md: found\)/);
+    assert.doesNotMatch(complete, /No role work pending/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }
@@ -945,6 +1020,56 @@ test("blog init generates a self-contained Astro surface", () => {
     assert.equal(existsSync(path.join(target, "src/pages/[...slug].astro")), true);
     assert.match(readFileSync(path.join(target, "src/site.config.ts"), "utf8"), /Customer Editorial/);
     assert.match(readFileSync(path.join(target, "src/site.config.ts"), "utf8"), /\/news/);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("site deploy fails closed when the IC-authored site project is absent", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-site-absent-"));
+  try {
+    const defaultTarget = path.join(directory, `${path.basename(directory)}-site-drax`);
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "site", "deploy"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv(),
+    });
+
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /failed closed: site project not found/);
+    assert.match(result.stderr, /Run the site fabrication flow first/);
+    assert.match(result.stderr, /does not scaffold a template/);
+    assert.equal(existsSync(defaultTarget), false);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("site deploy builds the planted project and backs up prior output", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-site-deploy-"));
+  const target = path.join(directory, `${path.basename(directory)}-site-drax`);
+  try {
+    writeMinimalSiteProject(target);
+    mkdirSync(path.join(target, "dist"), { recursive: true });
+    writeFileSync(path.join(target, "dist", "index.html"), "<h1>old site</h1>\n", "utf8");
+
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "site", "deploy"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv(),
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(readFileSync(path.join(target, "dist", "index.html"), "utf8"), /fresh IC-authored site/);
+    const backup = readdirSync(target).find((entry) => entry.startsWith("dist.backup-"));
+    assert.ok(backup);
+    assert.match(readFileSync(path.join(target, backup, "index.html"), "utf8"), /old site/);
+    assert.match(result.stdout, /Drax site deploy: built IC-authored site project/);
+    assert.match(result.stdout, /Static output ready for in-place serving/);
+    assert.equal(readdirSync(path.join(directory, ".drax", "site-deploy-records")).filter((entry) => entry.endsWith(".json")).length, 1);
+    assert.doesNotMatch(result.stdout + result.stderr, /\/srv\//);
+    assert.doesNotMatch(result.stdout + result.stderr, /\/opt\//);
+    assert.doesNotMatch(result.stdout + result.stderr, /\/home\/[^/\n]+\/apps\//);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
@@ -1666,6 +1791,36 @@ test("post cron prints the scheduled post wrapper command", () => {
     assert.doesNotMatch(result.stdout, /\$HOME\/\.local\/bin\/drax cycle/);
     assert.match(result.stdout, /0 6 \* \* \* cd "/);
     assert.match(result.stdout, />> ".*cron\.log" 2>&1/);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("site cron prints the scheduled site deploy wrapper command", () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), "drax-site-cron-"));
+  try {
+    initDraxWorkspace(directory);
+    const statePath = path.join(directory, "EXECUTION_STATE.json");
+    const state = JSON.parse(readFileSync(statePath, "utf8"));
+    state.config.clockSchedule = "15 4 * * *";
+    state.config.schedulerTimezone = "America/Sao_Paulo";
+    writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+
+    const result = spawnSync(process.execPath, [path.resolve("dist/cli.js"), "site", "cron"], {
+      cwd: directory,
+      encoding: "utf8",
+      env: accessEnv(),
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /CRON_TZ=America\/Sao_Paulo/);
+    assert.match(result.stdout, /15 4 \* \* \* cd "/);
+    assert.match(result.stdout, /\$HOME\/\.local\/bin\/drax site deploy/);
+    assert.doesNotMatch(result.stdout, /\$HOME\/\.local\/bin\/drax cycle/);
+    assert.match(result.stdout, />> "\.drax\/logs\/site-cron\.log" 2>&1/);
+    assert.doesNotMatch(result.stdout, /\/srv\//);
+    assert.doesNotMatch(result.stdout, /\/opt\//);
+    assert.doesNotMatch(result.stdout, /\/home\/[^/\n]+\/apps\//);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
