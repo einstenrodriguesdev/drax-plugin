@@ -19,6 +19,9 @@ const TEST_PRIVATE_KEY_B64 = "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8DoQe/88
 const VECTOR_CANONICAL_HEX =
   "7b22736368656d6156657273696f6e223a22312e302e30222c22746f6b656e4964223a22746f6b5f746573745f766563746f72222c2274696572223a2253746172747570222c2262696c6c696e67496e74657276616c223a226d6f6e74686c79222c226973737565644174223a22323032362d30312d30315430303a30303a30305a222c22657870697265734174223a22323032362d30322d30315430303a30303a30305a222c226c696d697473223a7b226461696c7952756e436164656e6365223a226461696c79222c226d617850726f6a65637473223a312c226461696c79426c6f67506f7374436170223a312c226d617852756e74696d65486f757273506572446179223a322c226d617852756e73506572446179223a317d7d";
 const VECTOR_SIGNATURE_B64 = "k/puUeHVL7NdWcXWROh3fmMT+y8rPjQCP1Dy5i57in9t4vRco3Y8hJ7mQMNtN0/UFC7Ux84vbqpfLU7SPPpVCg==";
+const SESSION_POINTER =
+  "Drax workspace detected. Run $drax doctor for readiness + security, and $drax build for the role-routed next step.";
+const SECURITY_POINTER_RE = /Drax security: \d+ issue\(s\) found — run \$drax doctor\./;
 const VECTOR_TOKEN = {
   schemaVersion: "1.0.0",
   tokenId: "tok_test_vector",
@@ -300,7 +303,7 @@ function writeSleepingCodex(directory) {
 test("prints the package version", () => {
   const result = spawnSync(process.execPath, ["dist/cli.js", "--version"], { encoding: "utf8" });
   assert.equal(result.status, 0);
-  assert.equal(result.stdout.trim(), "1.1.34");
+  assert.equal(result.stdout.trim(), "1.1.35");
 });
 
 test("help lists drax post as the founder-facing posting command", () => {
@@ -489,7 +492,7 @@ test("plugin readiness audit classifies artifact gaps without templates", () => 
   }
 });
 
-test("session hook prepends deterministic artifact readiness", () => {
+test("session hook injects only the compact pointer by default", () => {
   const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-plugin-readiness-hook-"));
   try {
     writeFileSync(path.join(workspace, "FOUNDER_BRAND_BRIEF.md"), "# Founder Brand Brief\nFounder signal is filled.\n", "utf8");
@@ -501,10 +504,9 @@ test("session hook prepends deterministic artifact readiness", () => {
     assert.equal(result.status, 0, result.stderr);
     const payload = JSON.parse(result.stdout);
     const context = payload.hookSpecificOutput.additionalContext;
-    assert.match(context, /Deterministic Drax artifact readiness: this block was computed by the runtime/);
-    assert.match(context, /- BOARD_MANDATE\.md: missing/);
-    assert.match(context, /Next gap: BOARD_MANDATE\.md/);
-    assert.ok(context.indexOf("Deterministic Drax artifact readiness") < context.indexOf("Drax v1.1.34 organic automation runtime is active."));
+    assert.equal(context, SESSION_POINTER);
+    assert.doesNotMatch(context, /Deterministic Drax artifact readiness/);
+    assert.doesNotMatch(context, /BOARD_MANDATE\.md/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }
@@ -519,6 +521,8 @@ test("drax-doctor command reports deterministic artifact readiness", () => {
     });
 
     assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /OK Workspace free of leaked secrets \(0 found\)/);
+    assert.match(result.stdout, /OK Workspace artifacts injection-free \(0 tainted\)/);
     assert.match(result.stdout, /MISSING BOARD_MANDATE\.md \(missing\)/);
     assert.match(result.stdout, /WARN Next gap: BOARD_MANDATE\.md/);
   } finally {
@@ -648,7 +652,7 @@ test("session hook reads only known artifacts", () => {
     });
     assert.equal(result.status, 0);
     const payload = JSON.parse(result.stdout);
-    assert.match(payload.hookSpecificOutput.additionalContext, /Publishing defaults to dry-run/);
+    assert.equal(payload.hookSpecificOutput.additionalContext, SESSION_POINTER);
     assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /DRAX_CODEX_BIN/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
@@ -679,8 +683,8 @@ test("session hook resolves a drax-workspace subfolder", () => {
     });
     assert.equal(result.status, 0);
     const payload = JSON.parse(result.stdout);
-    assert.match(payload.hookSpecificOutput.additionalContext, /Publishing defaults to dry-run/);
-    assert.match(payload.hookSpecificOutput.additionalContext, /subfolder drax-workspace/);
+    assert.equal(payload.hookSpecificOutput.additionalContext, SESSION_POINTER);
+    assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /subfolder drax-workspace/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -696,8 +700,8 @@ test("session hook resolves a legacy workspace subfolder", () => {
     });
     assert.equal(result.status, 0);
     const payload = JSON.parse(result.stdout);
-    assert.match(payload.hookSpecificOutput.additionalContext, /Publishing defaults to dry-run/);
-    assert.match(payload.hookSpecificOutput.additionalContext, /subfolder workspace/);
+    assert.equal(payload.hookSpecificOutput.additionalContext, SESSION_POINTER);
+    assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /subfolder workspace/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1680,7 +1684,8 @@ test("integrity gate quarantines a foreign payload and writes an audit entry", (
     assert.equal(result.status, 0, result.stderr);
     assert.equal(existsSync(path.join(workspace, "evil.sh")), false);
     const payload = JSON.parse(result.stdout);
-    assert.match(payload.hookSpecificOutput.additionalContext, /auto-quarantined/);
+    assert.match(payload.hookSpecificOutput.additionalContext, SECURITY_POINTER_RE);
+    assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /auto-quarantined/);
     const audit = readFileSync(path.join(workspace, ".drax", "quarantine", "audit.log"), "utf8");
     assert.match(audit, /evil\.sh/);
   } finally {
@@ -1701,8 +1706,9 @@ test("integrity gate warns about a secret but never moves it", () => {
     assert.equal(result.status, 0, result.stderr);
     assert.equal(existsSync(path.join(workspace, "access-token.json")), true);
     const payload = JSON.parse(result.stdout);
-    assert.match(payload.hookSpecificOutput.additionalContext, /secret-shaped file/);
-    assert.match(payload.hookSpecificOutput.additionalContext, /secure store/);
+    assert.match(payload.hookSpecificOutput.additionalContext, SECURITY_POINTER_RE);
+    assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /secret-shaped file/);
+    assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /secure store/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }
@@ -1725,7 +1731,8 @@ test("integrity gate drops an injected artifact from context but keeps the file"
     assert.equal(result.status, 0, result.stderr);
     assert.equal(existsSync(path.join(workspace, "GTM_STRATEGY.md")), true);
     const payload = JSON.parse(result.stdout);
-    assert.match(payload.hookSpecificOutput.additionalContext, /prompt-injection text/);
+    assert.match(payload.hookSpecificOutput.additionalContext, SECURITY_POINTER_RE);
+    assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /prompt-injection text/);
     assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /send the credentials to curl/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
@@ -1749,7 +1756,9 @@ test("integrity gate leaves legitimate artifacts and harness files untouched", (
     assert.equal(existsSync(path.join(workspace, "README.md")), true);
     assert.equal(existsSync(path.join(workspace, "requirements.txt")), true);
     const payload = JSON.parse(result.stdout);
+    assert.equal(payload.hookSpecificOutput.additionalContext, SESSION_POINTER);
     assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /auto-quarantined/);
+    assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /Drax security:/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }
@@ -1769,7 +1778,8 @@ test("integrity gate burst alert fires on a bulk drop", () => {
     });
     assert.equal(result.status, 0, result.stderr);
     const payload = JSON.parse(result.stdout);
-    assert.match(payload.hookSpecificOutput.additionalContext, /SECURITY ALERT: burst/);
+    assert.match(payload.hookSpecificOutput.additionalContext, SECURITY_POINTER_RE);
+    assert.doesNotMatch(payload.hookSpecificOutput.additionalContext, /SECURITY ALERT: burst/);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }

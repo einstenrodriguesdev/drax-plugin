@@ -30,7 +30,7 @@ function runHook(cwd) {
   });
 }
 
-test("session hook includes a real founder profile", (t) => {
+test("session hook emits only the compact Drax pointer", (t) => {
   const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-session-start-real-"));
   t.after(() => rmSync(workspace, { recursive: true, force: true }));
   writeFileSync(path.join(workspace, "FOUNDER_BRAND_BRIEF.md"), "REAL_FOUNDER_BRAND_BRIEF", "utf8");
@@ -39,7 +39,13 @@ test("session hook includes a real founder profile", (t) => {
 
   assert.equal(result.status, 0, result.stderr);
   const payload = JSON.parse(result.stdout);
-  assert.match(payload.hookSpecificOutput.additionalContext, /REAL_FOUNDER_BRAND_BRIEF/);
+  const context = payload.hookSpecificOutput.additionalContext;
+  assert.equal(
+    context,
+    "Drax workspace detected. Run $drax doctor for readiness + security, and $drax build for the role-routed next step.",
+  );
+  assert.doesNotMatch(context, /REAL_FOUNDER_BRAND_BRIEF/);
+  assert.doesNotMatch(context, /Deterministic Drax artifact readiness/);
 });
 
 test("session hook refuses a symlinked founder profile", (t) => {
@@ -68,7 +74,10 @@ test("session hook reports when a marked workspace has no artifacts", (t) => {
 
   assert.equal(result.status, 0, result.stderr);
   const payload = JSON.parse(result.stdout);
-  assert.match(payload.hookSpecificOutput.additionalContext, /No Drax organic-growth artifacts/);
+  assert.equal(
+    payload.hookSpecificOutput.additionalContext,
+    "Drax workspace detected. Run $drax doctor for readiness + security, and $drax build for the role-routed next step.",
+  );
 });
 
 test("session hook stays silent outside a Drax workspace", (t) => {
@@ -81,7 +90,7 @@ test("session hook stays silent outside a Drax workspace", (t) => {
   assert.equal(result.stdout.trim(), "{}");
 });
 
-test("session hook prioritizes execution state and names omitted artifacts", (t) => {
+test("session hook never injects artifact excerpts", (t) => {
   const workspace = mkdtempSync(path.join(os.tmpdir(), "drax-session-start-budget-"));
   t.after(() => rmSync(workspace, { recursive: true, force: true }));
   for (const name of ARTIFACTS) {
@@ -93,13 +102,12 @@ test("session hook prioritizes execution state and names omitted artifacts", (t)
   assert.equal(result.status, 0, result.stderr);
   const payload = JSON.parse(result.stdout);
   const context = payload.hookSpecificOutput.additionalContext;
-  assert.ok(context.length <= 9000);
-  assert.match(context, /EXECUTION_STATE\.md_CONTENT/);
-  assert.ok(context.indexOf("--- EXECUTION_STATE.md ---") < context.indexOf("--- FOUNDER_BRAND_BRIEF.md ---"));
-
-  const omitted = ARTIFACTS.filter((name) => !context.includes(`--- ${name} ---`));
-  assert.ok(omitted.length > 0);
-  const note = context.match(/\[Context truncated: omitted ([^\]]+)\]$/);
-  assert.ok(note);
-  assert.deepEqual(note[1].split(", ").sort(), omitted.sort());
+  assert.equal(
+    context,
+    "Drax workspace detected. Run $drax doctor for readiness + security, and $drax build for the role-routed next step.",
+  );
+  for (const name of ARTIFACTS) {
+    assert.doesNotMatch(context, new RegExp(`${name.replaceAll(".", "\\.")}_CONTENT`));
+    assert.doesNotMatch(context, new RegExp(`--- ${name.replaceAll(".", "\\.")} ---`));
+  }
 });

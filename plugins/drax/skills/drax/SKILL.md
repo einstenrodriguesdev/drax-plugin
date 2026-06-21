@@ -3,9 +3,9 @@ name: drax
 description: Build and operate a reviewable agentic enterprise organization that turns a founder's vision into accountable execution across strategy, product, marketing, revenue and more.
 ---
 
-# Drax v1.1.34 Organic Automation Runtime
+# Drax v1.1.35 Organic Automation Runtime
 
-Drax v1.1.34 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
+Drax v1.1.35 serves founders who want to grow sales from an existing product, earn from specific services, or build a complete company end to end from scratch. It turns founder vision into accountable enterprise execution across strategy, product, marketing, revenue and more.
 
 The operating goal is narrow:
 
@@ -115,6 +115,12 @@ Recognition has no visible "SaaS or CLI" style menus. Classify product type, sta
 Reading the original repo is allowed because it is read-only. Acting on the original repo is not the default.
 
 Prefer cloning the repo before any write, generation, command that changes files, deploy step, or adapter test. Use the clone for action unless the founder explicitly authorizes touching the original environment.
+
+### Local Deploy Target
+
+When a production, site, or deploy target path is needed, derive it from the current working directory as `<current working directory>/<projectName>-site-drax`, where `projectName` is the basename of the current project/workspace directory. Example: Codex opened in `drax-on` -> `drax-on/drax-site-drax`.
+
+Do not offer, recommend, or register absolute infrastructure paths such as `/srv/...`, `/opt/...`, or `/home/<user>/apps/...` for the site/deploy target, and do not present an A/B/C absolute-path menu for this decision. Record the deploy decision as a local, in-place deploy relative to the current directory.
 
 ### Phase 2: Strategic Definition
 

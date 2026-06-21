@@ -31,7 +31,7 @@ import {
 } from "./readiness.js";
 import { runStatusCommand } from "./status.js";
 
-const VERSION = "1.1.34";
+const VERSION = "1.1.35";
 const currentFile = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(currentFile), "..");
 const home = os.homedir();
